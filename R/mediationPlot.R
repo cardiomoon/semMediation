@@ -412,15 +412,8 @@ adjustPos=function(df,maxx=80,maxy=30,height=3,width=5){
 
   }
 
-   # unique(df$group1)
-   # ("X" %in% unique(df$group1))&("0" %in% unique(df$group1))
-   # (count=nrow(df[df$group=="X",]))
-   # i=1
-   # (temp=df[df$group=="X",]$text[i])
-   # nrow(df[df$group2==temp])>0
-   # df[df$text==temp,]$y
-   # mean(df[df$group2==temp,]$y)
-   #
+
+  # CFA
   if(length(unique(df$group1))==2){
       if(("X" %in% unique(df$group1))&("0" %in% unique(df$group1))){
           count=nrow(df[df$group=="X",])
@@ -436,14 +429,33 @@ adjustPos=function(df,maxx=80,maxy=30,height=3,width=5){
           df[df$group1=="0",]$x=15
       }
   }
-
+  #df<-df2
   (xcount=nrow(df[df$group=="X",]))
+  (ocount=nrow(df[df$group1=="0",]))
+  (ycount=nrow(df[df$group1=="Y",]))
+  (count5=nrow(df[df$group1=="5",]))
   (mcount=nrow(df[df$group %in% c("M1","M2"),]))
   if((xcount>1)&(mcount==1)){
       df[df$group=="M1",]$y=mean(df[df$group=="X",]$y)
   }
-  df
 
+  # Set x position with mean of 0
+  if((ocount>0)&(xcount>0)){
+      for(i in 1:xcount){
+          (temp=df[df$group=="X",]$text[i])
+          if(nrow(df[df$group2==temp,])>0){
+              df[df$text==temp,]$y=mean(df[df$group2==temp,]$y)
+
+          }
+
+      }
+  }
+
+  if((ocount>0)&(xcount>0)) df[df$group=="X",]$x<-df[df$group=="X",]$x+5
+  if((count5>0)&(ycount>0)) df[df$group=="Y",]$x<-df[df$group=="Y",]$x-5
+  if((mcount>0)&(xcount>0)&(ycount>0))
+       df[df$group %in% c("M1","M2"),]$x<-(df[df$group=="X",]$x[1]+df[df$group=="Y",]$x[1])/2
+  df
 }
 
 

@@ -24,7 +24,7 @@ install.packages("devtools")
 devtools::install_github("cardiomoon/semMediation")
 ```
 
-## Confirmative FActor Anlaysis
+## Confirmative Factor Anlaysis
 
 ```{r,fig.width=9,fig.height=7,message=FALSE}
 require(lavaan)
