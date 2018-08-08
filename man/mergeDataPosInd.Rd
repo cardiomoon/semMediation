@@ -23,4 +23,3 @@ mergeDataPosInd(resInd, res, df2, whatLabels = "est", width = 5,
 \description{
 Merge Data with position for the indirect effect
 }
-

@@ -29,4 +29,3 @@ add_ellipse(x = 0, y = 0, theta = 0, height = height, width = width,
 \description{
 Make an ellipse
 }
-

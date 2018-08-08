@@ -12,4 +12,3 @@ p2asterisk(x)
 \description{
 Convert p values to asterisk
 }
-

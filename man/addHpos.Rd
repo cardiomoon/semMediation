@@ -12,4 +12,3 @@ addHpos(df)
 \description{
 Add horizontal position
 }
-

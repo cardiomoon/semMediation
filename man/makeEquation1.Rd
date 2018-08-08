@@ -20,4 +20,3 @@ makeEquation1(X, M, stage = 1, start = 0, add2ndMediation = TRUE)
 \description{
 Make mediation equations 1
 }
-

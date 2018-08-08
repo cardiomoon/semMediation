@@ -27,4 +27,3 @@ estimatesTable(fit, latent = TRUE, regression = TRUE, mediation = FALSE,
 \description{
 convert parameterEstimates to data.frame
 }
-

@@ -12,4 +12,3 @@ countM(group)
 \description{
 Count the group names start with "M"
 }
-

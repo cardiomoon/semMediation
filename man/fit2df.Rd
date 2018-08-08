@@ -12,4 +12,3 @@ fit2df(fit)
 \description{
 Make a data.frame for mediationPlot
 }
-

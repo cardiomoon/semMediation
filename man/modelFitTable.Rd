@@ -19,4 +19,3 @@ A data.frame
 \description{
 Extract model fit measures to data.frame
 }
-

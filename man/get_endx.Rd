@@ -24,4 +24,3 @@ get_endx(x1, y1, x2, y2, height, width, end = "rect")
 \description{
 Get end x  position
 }
-

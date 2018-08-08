@@ -31,7 +31,8 @@ require(lavaan)
 require(semPlot)
 require(semMediation)
 require(ggplot2)
-require(ReporteRs)
+require(flextable)
+require(rrtable)
 
 HS.model <- ' visual  =~ x1 + x2 + x3 
               textual =~ x4 + x5 + x6
@@ -222,7 +223,7 @@ You can make a table shows a Cronbacha alpha and Guttmans lambda 6.
 
 ```{r,warning=FALSE}
 result=fit2alpha(fit)
-df2Flextable(result)
+df2flextable(result)
 ```
 
 
@@ -245,7 +246,8 @@ You can make a table summarizing model fit measures.
 
 ```{r}
 result=modelFitTable(fit)
-df2Flextable(result,vanilla=TRUE,widths=c(rep(0.5,10),2,1,1))
+df2flextable(result,vanilla=TRUE)
+# df2flextable(result,vanilla=TRUE,widths=c(rep(0.5,10),2,1,1))
 ```
 
 ### Step 8. Make an estimates table 
@@ -253,14 +255,14 @@ df2Flextable(result,vanilla=TRUE,widths=c(rep(0.5,10),2,1,1))
 ```{r}
 result=estimatesTable(fit,ci=TRUE)
 result
-df2Flextable(result,vanilla=TRUE)
+df2flextable(result,vanilla=TRUE)
 ```
 
 ### Step 9. Make a mediation effects  table 
 ```{r}
 result=estimatesTable(fit,mediation=TRUE,ci=TRUE)
-MyTable=df2Flextable(result,vanilla=TRUE)
-MyTable[result$Variables=='indirect effect',,side='top']=chprop(borderProperties(style='solid'))
+MyTable=df2flextable(result,vanilla=TRUE)
+# MyTable[result$Variables=='indirect effect',,side='top']=chprop(borderProperties(style='solid'))
 MyTable
 ```
 

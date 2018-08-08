@@ -16,4 +16,3 @@ corTable(fit, vanilla = TRUE, addFooter = FALSE)
 \description{
 Make a table with correlation
 }
-

@@ -14,4 +14,3 @@ theme_clean(base_size = 12, base_family = "NanumGothic")
 \description{
 Make a clean theme for ggplot
 }
-

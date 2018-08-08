@@ -4,7 +4,7 @@
 \alias{fit2alpha}
 \title{Make a Cronbach alpha table}
 \usage{
-fit2alpha(fit, digits = 2)
+fit2alpha(fit, digits = 3)
 }
 \arguments{
 \item{fit}{An object of class lavaan. Result of sem function of package lavaan}
@@ -14,4 +14,3 @@ fit2alpha(fit, digits = 2)
 \description{
 Make a Cronbach alpha table
 }
-

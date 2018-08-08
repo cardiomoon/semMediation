@@ -16,4 +16,3 @@ jitterPos(center, step, count)
 \description{
 Make a positions
 }
-

@@ -16,4 +16,3 @@ makeEquation2(X, M, Y)
 \description{
 Make mediation equations 2
 }
-

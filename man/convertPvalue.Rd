@@ -12,4 +12,3 @@ convertPvalue(x)
 \description{
 convert vector of p values to string
 }
-

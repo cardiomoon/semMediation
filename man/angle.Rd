@@ -14,4 +14,3 @@ angle(x, y)
 \description{
 Calculate angle
 }
-

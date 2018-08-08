@@ -4,7 +4,7 @@
 \alias{corPlot}
 \title{Draw correlation plot}
 \usage{
-corPlot(fit, label = 2, yreverse = TRUE, axis.text.angle = 0, ...)
+corPlot(fit, label = 2, yreverse = TRUE, xangle = 45, ...)
 }
 \arguments{
 \item{fit}{An object of class lavaan. Result of sem function of package lavaan}
@@ -13,7 +13,7 @@ corPlot(fit, label = 2, yreverse = TRUE, axis.text.angle = 0, ...)
 
 \item{yreverse}{Logical. if true, reverse the order of y axis.}
 
-\item{axis.text.angle}{axis.x.text.angle}
+\item{xangle}{axis.x.text.angle}
 
 \item{...}{Further arugement to be passed on to geom_text}
 }
@@ -23,20 +23,3 @@ A ggplot
 \description{
 Draw correlation plot
 }
-\examples{
-
-# require(mycor)
-# require(ggplot)
-# require(lavaan)
-
-# model='
-# knowledge =~ general+symptoms+treatmt
-# empathy =~ cognitiv+emotion+disposit+attitude
-# intervention =~ classrm+instruct
-# '
-# mediationModel=makeEquation(X="knowledge",M="empathy",Y="intervention")
-# model=paste0(model,mediationModel)
-# fit=sem(model,data=ADHD)
-# corPlot(fit)
-}
-

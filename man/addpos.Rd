@@ -12,4 +12,3 @@ addpos(df)
 \description{
 Add x and y position to data
 }
-

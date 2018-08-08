@@ -16,4 +16,3 @@ distributePos(start, end, count)
 \description{
 Make a positions
 }
-

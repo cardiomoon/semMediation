@@ -20,4 +20,3 @@ mergeDataPos(res, df2, whatLabels = "est", width = 5, height = 3)
 \description{
 Merge Data with position
 }
-

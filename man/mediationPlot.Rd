@@ -50,4 +50,3 @@ mediationPlot(fit, maxx = 80, maxy = 30, height = 5, width = 5,
 \description{
 Make a data.frame for mediationPlot
 }
-

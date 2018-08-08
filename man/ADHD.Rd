@@ -32,4 +32,3 @@ ADHD
 A dataset contains measures about the teacher's knowlege, empathy and intervention about attention-deficit hyperactivity disorder(ADHD).
 }
 \keyword{datasets}
-

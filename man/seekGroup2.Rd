@@ -16,4 +16,3 @@ seekGroup2(var, res, group)
 \description{
 Find group with variable name
 }
-

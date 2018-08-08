@@ -12,4 +12,3 @@ addLinetype(res)
 \description{
 Add line type
 }
-

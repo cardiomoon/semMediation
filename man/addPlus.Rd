@@ -14,4 +14,3 @@ addPlus(x, ...)
 \description{
 Add `+` mark to string
 }
-

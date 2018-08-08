@@ -18,4 +18,3 @@ makeEquation3(X, M, Y, add2ndMediation = TRUE)
 \description{
 Make mediation equations 3
 }
-

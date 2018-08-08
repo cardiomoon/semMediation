@@ -20,4 +20,3 @@ adjustPos(df, maxx = 80, maxy = 30, height = 3, width = 5)
 \description{
 Adjust position for arrows
 }
-

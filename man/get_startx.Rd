@@ -24,4 +24,3 @@ get_startx(x1, y1, x2, y2, height, width, start = "rect")
 \description{
 Get start x  position
 }
-

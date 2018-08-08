@@ -23,4 +23,3 @@ ellipse(hlaxa = 1, hlaxb = 1, theta = 0, xc = 0, yc = 0,
 \description{
 Make a data.frame fof ellipse
 }
-

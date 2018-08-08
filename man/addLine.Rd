@@ -36,4 +36,3 @@ addline(x1 = 0, y1 = 0, x2 = 10, y2 = 10, height = 3, width = 5,
 \description{
 Add a line to the semMediation plot
 }
-

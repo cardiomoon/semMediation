@@ -14,4 +14,3 @@ pastecolon(temp, x)
 \description{
 paste two character with colon
 }
-
