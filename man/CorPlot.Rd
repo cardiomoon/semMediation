@@ -23,3 +23,16 @@ A ggplot
 \description{
 Draw correlation plot
 }
+\examples{
+require(mycor)
+require(lavaan)
+require(semMediation)
+model='
+knowledge =~ general+symptoms+treatmt
+empathy =~ cognitiv+emotion+disposit+attitude
+intervention =~ classrm+instruct'
+mediationModel=makeEquation(X="knowledge",M="empathy",Y="intervention")
+model=paste0(model,mediationModel)
+fit=sem(model,data=ADHD)
+corPlot(fit)
+}

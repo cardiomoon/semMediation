@@ -175,16 +175,13 @@ convertPvalue=function(x){
 #'
 #' @return A ggplot
 #' @examples
-#'
 #' require(mycor)
-#' require(ggplot)
 #' require(lavaan)
 #' require(semMediation)
 #' model='
 #' knowledge =~ general+symptoms+treatmt
 #' empathy =~ cognitiv+emotion+disposit+attitude
-#' intervention =~ classrm+instruct
-#'
+#' intervention =~ classrm+instruct'
 #' mediationModel=makeEquation(X="knowledge",M="empathy",Y="intervention")
 #' model=paste0(model,mediationModel)
 #' fit=sem(model,data=ADHD)

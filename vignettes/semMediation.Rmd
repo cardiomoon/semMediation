@@ -30,9 +30,10 @@ devtools::install_github("cardiomoon/semMediation")
 require(lavaan)
 require(semPlot)
 require(semMediation)
-require(ggplot2)
+require(ggiraphExtra)
 require(flextable)
 require(rrtable)
+
 
 HS.model <- ' visual  =~ x1 + x2 + x3 
               textual =~ x4 + x5 + x6
@@ -270,4 +271,12 @@ You can draw direct and indirect effects.
 ```{r,fig.width=9,fig.height=7}
 mediationPlot(fit,whatLabels = "std",residuals = FALSE,indirect=TRUE,
               regression=TRUE,mediationOnly = TRUE)
+```
+
+## Step 10. Make an Reliability Table and Discriminant Validity Table
+
+```{r}
+reliabilityTable(fit)
+discriminantValidityTable(fit)
+
 ```

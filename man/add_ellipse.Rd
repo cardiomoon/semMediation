@@ -4,8 +4,9 @@
 \alias{add_ellipse}
 \title{Make an ellipse}
 \usage{
-add_ellipse(x = 0, y = 0, theta = 0, height = height, width = width,
-  npoints = 100, color = "black", fill = "white", ...)
+add_ellipse(x = 0, y = 0, theta = 0, height = height,
+  width = width, npoints = 100, color = "black", fill = "white",
+  ...)
 }
 \arguments{
 \item{x}{An integer indicating x position}
