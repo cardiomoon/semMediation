@@ -4,12 +4,10 @@
 \alias{discriminantValidityTable}
 \title{make discriminant Validity Table}
 \usage{
-discriminantValidityTable(fit, vanilla = FALSE)
+discriminantValidityTable(fit)
 }
 \arguments{
 \item{fit}{An object of a class lavaan}
-
-\item{vanilla}{Logical}
 }
 \description{
 make discriminant Validity Table

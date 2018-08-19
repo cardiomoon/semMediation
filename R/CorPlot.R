@@ -1,13 +1,9 @@
 #' Make a table with correlation
 #'
 #' @param fit An object of class lavaan. Result of sem function of package lavaan
-#' @param vanilla Logical. If true, vanilla.table is returned
-#' @param addFooter Logical. If true, footer added
-#' @importFrom rrtable df2flextable
-#' @importFrom flextable align color add_footer merge_at
 #' @importFrom mycor mycor
 #' @export
-corTable=function(fit,vanilla=TRUE,addFooter=FALSE){
+corTable=function(fit){
     data=fit@Data@X[[1]]
     colnames(data)=fit@Data@ov$name
     data=data.frame(data)
@@ -24,27 +20,39 @@ corTable=function(fit,vanilla=TRUE,addFooter=FALSE){
     res=as.data.frame(res)
     # str(res)
     res
-    Table=rrtable::df2flextable(res,vanilla=vanilla,add.rownames=TRUE)
-    Table=flextable::align(Table,align="center",part="all")
-    Table=flextable::color(Table,i=1,j=1,color=ifelse(vanilla,"white","#5B7778"),part="header")
-
-    if(addFooter){
     values=unique(as.vector(resp))
     temp=""
     if("***" %in% values) temp=pastecolon(temp,"***p<0.001")
     if("**" %in% values) temp=pastecolon(temp,"**p<0.01")
     if("*" %in% values) temp=pastecolon(temp,"*p<0.05")
+    attr(res,"footer")=temp
+    res
+}
 
+#' Make a table with correlation
+#'
+#' @param fit An object of class lavaan. Result of sem function of package lavaan
+#' @param vanilla Logical. If true, vanilla.table is returned
+#' @param addFooter Logical. If true, footer added
+#' @importFrom rrtable df2flextable
+#' @importFrom flextable align color add_footer merge_at
+#' @export
+corTable2=function(fit,vanilla=TRUE,addFooter=FALSE){
 
+    res=corTable(fit)
+    Table=rrtable::df2flextable(res,vanilla=vanilla,add.rownames=TRUE)
+    Table=flextable::align(Table,align="center",part="all")
+    Table=flextable::color(Table,i=1,j=1,color=ifelse(vanilla,"white","#5B7778"),part="header")
 
-    Table<-flextable::add_footer(Table,rowname=temp)
-    Table<-flextable::merge_at(Table,j=1:(ncol(res)+1),part="footer")
-    Table=flextable::align(Table,align="right",part="footer")
+    if(addFooter){
+        Table<-flextable::add_footer(Table,rowname=attr(res,"footer"))
+        Table<-flextable::merge_at(Table,j=1:(ncol(res)+1),part="footer")
+        Table=flextable::align(Table,align="right",part="footer")
     }
     Table
 }
 
-# corTable(fit,vanilla=TRUE)
+
 #' paste two character with colon
 #' @param temp a character
 #' @param x a character
@@ -90,6 +98,17 @@ modelFitTable=function(fit,digits=2,names=NULL){
     colnames(res)[10]="RMSEA(95% CI)"
     res=res[c(1,2,15,3:10,13,14)]
     res
+}
+
+
+#'Extract model fit measures to flextable
+#'@param fit An object of class lavaan. Result of sem function of package lavaan
+#'@param vanilla Logical
+#'@param ... Further argumant to be passed to modelFitTable()
+#'@export
+modelFitTable2=function(fit,vanilla=FALSE,...){
+    result=modelFitTable(fit,...)
+    df2flextable(result,vanilla=vanilla)
 }
 
 
@@ -149,6 +168,18 @@ estimatesTable=function(fit,latent=TRUE,regression=TRUE,mediation=FALSE,covar=FA
     result[is.na(result)]=""
     result
 }
+
+
+#'convert parameterEstimates to flextable
+#'@param fit An object of class lavaan. Result of sem function of package lavaan
+#'@param vanilla Logical
+#'@param ... Further argumant to be passed to estimatesTable()
+#'@export
+estimatesTable2=function(fit,vanilla=FALSE,...){
+    result=estimatesTable(fit,...)
+    df2flextable(result,vanilla=vanilla)
+}
+
 
 #' convert vector of p values to string
 #'

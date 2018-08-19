@@ -4,12 +4,10 @@
 \alias{reliabilityTable}
 \title{make reliability Table}
 \usage{
-reliabilityTable(fit, vanilla = FALSE)
+reliabilityTable(fit)
 }
 \arguments{
 \item{fit}{An object of a class lavaan}
-
-\item{vanilla}{Logical}
 }
 \description{
 make reliability Table

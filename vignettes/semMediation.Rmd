@@ -237,7 +237,8 @@ require(mycor)
 require(ggplot2)
 
 corPlot(fit)
-corTable(fit)
+
+corTable2(fit)
 ```
 
 ### Step 7. Make a model fit measures table
@@ -246,25 +247,19 @@ corTable(fit)
 You can make a table summarizing model fit measures.
 
 ```{r}
-result=modelFitTable(fit)
-df2flextable(result,vanilla=TRUE)
-# df2flextable(result,vanilla=TRUE,widths=c(rep(0.5,10),2,1,1))
+modelFitTable2(fit)
 ```
 
 ### Step 8. Make an estimates table 
 
 ```{r}
-result=estimatesTable(fit,ci=TRUE)
-result
-df2flextable(result,vanilla=TRUE)
+estimatesTable2(fit,ci=TRUE)
+
 ```
 
 ### Step 9. Make a mediation effects  table 
 ```{r}
-result=estimatesTable(fit,mediation=TRUE,ci=TRUE)
-MyTable=df2flextable(result,vanilla=TRUE)
-# MyTable[result$Variables=='indirect effect',,side='top']=chprop(borderProperties(style='solid'))
-MyTable
+estimatesTable2(fit,mediation=TRUE,ci=TRUE)
 ```
 
 You can draw direct and indirect effects.
@@ -276,7 +271,7 @@ mediationPlot(fit,whatLabels = "std",residuals = FALSE,indirect=TRUE,
 ## Step 10. Make an Reliability Table and Discriminant Validity Table
 
 ```{r}
-reliabilityTable(fit)
-discriminantValidityTable(fit)
+reliabilityTable2(fit)
+discriminantValidityTable2(fit)
 
 ```
