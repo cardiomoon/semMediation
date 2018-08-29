@@ -179,6 +179,7 @@ seekGroup=function(var,res,group){
 
 #' Add x and y position to data
 #' @param df A data.frame. Result of fit2df function
+#' @export
 addpos=function(df){
   for(i in 1:nrow(df)){
   df$group1[i]=unlist(strsplit(df$group[i],",",fixed=TRUE))[1]

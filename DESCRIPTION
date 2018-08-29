@@ -1,7 +1,7 @@
 Package: semMediation
 Type: Package
 Title: Visualize the Mediation Effect for Structural Equation Modelling
-Version: 0.1.3
+Version: 0.1.4
 Author: Keon-Woong Moon<cardiomoon@gmail.com>
 Depends: R (>= 2.10)
 Maintainer: Keon-Woong Moon<cardiomoon@gmail.com>
@@ -14,8 +14,10 @@ Imports: lavaan,
          mycor,
          psych,
          rrtable,
+         ggiraphExtra,
          stringr,
-         ggiraphExtra
+         magrittr,
+         DiagrammeR
 Description: Make a mediation plot to visualize the mediation effects for a structural equation modelling(SEM).
 License: GPL-2
 Encoding: UTF-8
