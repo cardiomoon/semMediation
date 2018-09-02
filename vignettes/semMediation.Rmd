@@ -43,6 +43,7 @@ semPaths(fit)
 mediationPlot(fit,width=8,residuals=TRUE)
 ```
 
+
 ## makeEquation()
 
 Consider a classical mediation setup with four variables: Y1 is the dependent variable, X1 is the predictor and M1 and M2 are mediators. For illustration, we create a toy dataset containing these variables, and fit a path analysis model that includes the direct effect of X1 on Y1 and the indirect effect of X1 on Y1 via M1 or M2 and second indirect effect via M1 and M2.

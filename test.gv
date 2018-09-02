@@ -1,0 +1,94 @@
+digraph {
+graph [rankdir = LR]
+ranksep=0.75;
+nodesep=0.25;
+
+               subgraph cluster0{
+               style=invis;
+               node [style=invis]
+t0;t1;t2;t3;t4;t5;t6;t7
+edge[style=invis];
+t0->t1->t2->t3->t4->t5->t6->t7
+}
+subgraph {
+node [shape=box]
+y1;y2;y3;y4
+edge[style=invis];
+y1->y2->y3->y4
+}
+subgraph {
+node [shape=box]
+y5;y6
+edge[style=invis];
+y5->y6
+}
+node [shape=box]
+x1;x2;x3;y7;y8
+node [shape=oval]
+ind60;dem60;dem61;dem65
+{
+t0->x1->x2->x3[style=invis]
+
+rank=same
+t0,x1,x2,x3
+}
+{
+t1->ind60[style=invis]
+
+rank=same
+t1,ind60
+}
+{
+
+rank=same
+t2,y1,y5
+}
+{
+t3->y2[style=invis]
+
+rank=same
+t3,y2
+}
+{
+t4->y3->dem60->dem61[style=invis]
+
+rank=same
+t4,y3,dem60,dem61
+}
+{
+t5->y4->y6[style=invis]
+
+rank=same
+t5,y4,y6
+}
+{
+t6->dem65[style=invis]
+
+rank=same
+t6,dem65
+}
+{
+t7->y7->y8[style=invis]
+
+rank=same
+t7,y7,y8
+}
+ind60->x1[style=dashed label=0.92]
+ind60->x2[label=0.97]
+ind60->x3[label=0.87]
+y1->dem60[dir=back style=dashed label=0.85]
+y2->dem60[dir=back label=0.76]
+y3->dem60[dir=back label=0.70]
+y4->dem60[dir=back label=0.85]
+dem61->y5[style=dashed label=0.76]
+dem61->y6[label=0.74]
+dem65->y7[style=dashed label=0.83]
+dem65->y8[label=0.86]
+dem60->dem65[label=1.15]
+dem61->dem65[style=dashed label=-0.27]
+ind60->dem65[style=dashed label=0.18]
+ind60->dem60[label=0.45]
+ind60->dem61[label=0.19]
+dem60->dem61[label=0.96]
+
+}

@@ -5,7 +5,8 @@
 \title{Make diagram euation}
 \usage{
 makeDiagram(fit, whatLabels = "std", mediationOnly = FALSE,
-  residuals = FALSE)
+  regression = TRUE, indirect = FALSE, secondIndirect = FALSE,
+  total = FALSE, residuals = FALSE, nodesep = NULL, ranksep = NULL)
 }
 \arguments{
 \item{fit}{A data.frame. Result of parameterEstimates function of package lavaan}
@@ -14,7 +15,19 @@ makeDiagram(fit, whatLabels = "std", mediationOnly = FALSE,
 
 \item{mediationOnly}{Whether or not draw mediation effect only. Default value is FALSE.}
 
+\item{regression}{Whether or not draw regression. Default value is TRUE.}
+
+\item{indirect}{Whether or not draw indirect effects. Default value is FALSE.}
+
+\item{secondIndirect}{Whether or not draw 2nd indirect effects. Default value is FALSE.}
+
+\item{total}{Whether or not draw total effect. Default value is FALSE.}
+
 \item{residuals}{Logical, should residuals (and variances) be included in the path diagram?}
+
+\item{nodesep}{separation between nodes, in inches}
+
+\item{ranksep}{separation between ranks, in inches.}
 }
 \description{
 Make diagram euation

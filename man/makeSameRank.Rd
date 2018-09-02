@@ -4,12 +4,14 @@
 \alias{makeSameRank}
 \title{make same rank}
 \usage{
-makeSameRank(equation, temp)
+makeSameRank(equation, temp, addOrder = TRUE)
 }
 \arguments{
 \item{equation}{semequation to add}
 
 \item{temp}{character vector}
+
+\item{addOrder}{logical. Whether or not add order}
 }
 \description{
 make same rank

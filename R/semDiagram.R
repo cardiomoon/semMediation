@@ -1,88 +1,109 @@
 #' make same rank
 #' @param equation semequation to add
 #' @param temp character vector
+#' @param addOrder logical. Whether or not add order
 #' @importFrom stringr str_flatten
 #' @importFrom magrittr %>%
 #' @export
-makeSameRank=function(equation,temp){
+makeSameRank=function(equation,temp,addOrder=TRUE){
     if(length(temp)>0){
+        equation<-equation %>% paste0("{\n")
+        if(addOrder) equation<-equation %>% paste0(str_flatten(temp,"->"),"[style=invis]\n")
         equation<-equation %>%
-            paste0("{\nrank=same\n",
-                   str_flatten(temp,","),"\n}\n")
+            paste0("\nrank=same\n",str_flatten(temp,","),"\n}\n")
     }
     equation
+}
+
+#' Select characters contains even numbers
+#' @param x a numeric or character vector
+#' @importFrom stringr str_extract_all
+#' @export
+selectEven=function(x){
+    if("character" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(x,"[0-9.]"),str_flatten)))
+    } else if("factor" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(as.character(x),"[0-9.]"),str_flatten)))
+
+    } else{
+        temp=x
+    }
+    x[temp%%2==0]
+}
+
+#' Select characters contains odd numbers
+#' @param x a numeric or character vector
+#' @export
+selectOdd=function(x){
+    if("character" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(x,"[0-9.]"),str_flatten)))
+    } else if("factor" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(as.character(x),"[0-9.]"),str_flatten)))
+
+    } else{
+        temp=x
+    }
+    temp
+    x[temp%%2==1]
+}
+
+#' Extract Numbers in character vectors
+#' @param x a numeric or character vector
+#' @export
+extractNumber=function(x){
+    class(x)
+    if("character" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(x,"[0-9.]"),str_flatten)))
+    } else if("factor" %in% class(x)){
+        temp=as.numeric(unlist(lapply(stringr::str_extract_all(as.character(x),"[0-9.]"),str_flatten)))
+
+    } else{
+        temp=x
+    }
+    temp
 }
 
 #' add x1 position
 #' @param df a data.frame
 #' @export
 addPos2=function(df){
-    df$x1=df$x
-    width<-width1<-width2<-length(unique(df$x))
-    width
-    evenno=0
-    temp=df$text[df$group1=="H1"]
-    temp
-    if(length(temp)>2){
-        width1=width+length(temp)-3
-        width1
-        length(temp)%%2
-        if(length(temp)%%2==0){
-            width1=width1+1
-            evenno=1
-        }
-    }
-    width1
-    temp=df$text[df$group1=="H2"]
-    if(length(temp)>2){
-        width2=width+length(temp)-3
-        if(length(temp)%%2==0){
-            width2=width2+1
-            evenno=1
-        }
-    }
-    width2
-    width=max(width1,width2)
-    width
-    max(df$x1)
-    diff=width-max(df$x1)-1
-
-    df[df$x1>2,]
-    evenno
-    if(diff>=0) df$x1[df$x1>2]=df$x1[df$x1>2]+diff
+    df$x1=floor(df$x)
     df
-    diff+evenno
-
-    width
-
-    if(diff>=0) df$x1[df$group1 %in% c("M1","M2")]=width%/%2
-    temp=df$text[df$group1=="H1"]
-    if(length(temp)>2){
+    HGroups=unique(df$group1[stringr::str_detect(df$group1,"H")])
+    MGroups=unique(df$group1[stringr::str_detect(df$group1,"M")])
+    HMGroups=c(HGroups,MGroups)
+    upper<-lower<-0
+    for(i in seq_along(HGroups)){
+        # cat("i=",i,",upper=",upper,",lower=",lower,"\n")
+        temp=df$text[df$group1 == HGroups[i]]
+        add=1:length(temp)
+        mpos=ceiling(length(temp)/2)+1
+        mpos
         if(length(temp)%%2==0){
-            add=0:(length(temp)-1)
-            add[(length(temp)/2+1):length(temp)]=add[(length(temp)/2+1):length(temp)]+1
-            add
-            df$x1[df$group1=="H1"]=1+add
-        } else {
-            df$x1[df$group1=="H1"]=1:(1+length(temp)-1)
+               add[(length(temp)/2+1):length(temp)]=add[(length(temp)/2+1):length(temp)]+1
         }
-    } else if(length(temp)==2){
-        df$x1[df$group1=="H1"]=c(1,width-2)
-    }
-    df
-    temp=df$text[df$group1=="H2"]
-    if(length(temp)>2){
-
-        if(length(temp)%%2==0){
-
-            add=0:(length(temp)-1)
-            add[(length(temp)/2+1):length(temp)]=add[(length(temp)/2+1):length(temp)]+1
-            df$x1[df$group1=="H2"]=1+add
+        df$x1[df$group1== HGroups[i]]=add+ifelse(upper<=lower,upper,lower)
+        df$x1[df$group1== paste0("M",i)]=mpos+ifelse(upper<=lower,upper,lower)
+        df$y[df$group1== paste0("M",i)]=ifelse(upper<=lower,1,2)
+        if(upper<=lower) {
+               upper=upper+add[length(add)]
+               df$y[df$group1== HGroups[i]]=1
         } else{
-            df$x1[df$group1=="H2"]=1:(1+length(temp)-1)
+               lower=lower+add[length(add)]
+               df$y[df$group1== HGroups[i]]=2
         }
-    } else if(length(temp)==2){
-        df$x1[df$group1=="H2"]=c(1,width-2)
+    }
+    df
+    diff=upper-lower
+    if(diff>=2){
+        if(upper>lower){
+            df$x1[df$group1 %in% HMGroups & df$y==2]=df$x1[df$group1 %in% HMGroups & df$y==2]+diff%/%2
+        }
+    }
+    diff1=max(upper,lower)-max(df$x)
+    df$x1[df$x>=(max(df$x)-1)]=df$x1[df$x>=(max(df$x)-1)]+diff1+1
+    if((length(unique(df$x1))==2) &(max(df$x1)==1)){
+        df$x1[df$x1==1]=4
     }
     df
 }
@@ -104,16 +125,28 @@ semDiagram=function(fit,...){
 #'@param whatLabels What should the edge labels indicate in the path diagram? Choices are c("est","std","name").
 #'@param mediationOnly Whether or not draw mediation effect only. Default value is FALSE.
 #'@param residuals Logical, should residuals (and variances) be included in the path diagram?
+#'@param regression Whether or not draw regression. Default value is TRUE.
+#'@param indirect Whether or not draw indirect effects. Default value is FALSE.
+#'@param secondIndirect Whether or not draw 2nd indirect effects. Default value is FALSE.
+#'@param total Whether or not draw total effect. Default value is FALSE.
+#'@param nodesep separation between nodes, in inches
+#'@param ranksep separation between ranks, in inches.
 #'@importFrom stringr str_flatten
 #'@export
-makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
+makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
+                     regression=TRUE,indirect=FALSE,secondIndirect=FALSE,total=FALSE,
+                     residuals=FALSE,nodesep=NULL,ranksep=NULL){
+        # whatLabels="std";mediationOnly=FALSE;residuals=FALSE;nodesep=NULL;ranksep=NULL
     df=fit2df(fit)
     df=addpos(df)
     df
     df1=addPos2(df)
     df1
+
+    HGroups=unique(df$group1[stringr::str_detect(df$group1,"H")])
     if(mediationOnly) {
-        delVars=df1$text[df1$group1 %in% c("0","H1","H2","5")]
+
+        delVars=df1$text[df1$group1 %in% c("0","5",HGroups)]
         delVars
         df1=df1[!(df1$text %in% delVars),]
     }
@@ -123,6 +156,10 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
     width<-max(df1$x1)+1
     width
     equation="digraph {\ngraph [rankdir = LR]\n"
+    if(is.null(ranksep)) { ranksep=0.75 }
+    if(is.null(nodesep)) { nodesep=0.25}
+    equation<-equation %>% paste0("ranksep=",ranksep,";\n")
+    equation<-equation %>% paste0("nodesep=",nodesep,";\n")
     temp=paste0("t",0:(width-1))
     temp
     equation<-equation %>%
@@ -135,9 +172,9 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
                str_flatten(temp,"->"),"\n}\n")
 
 
-    temp=df1$text[df1$group1=='H1']
-    temp1=df1$text[df1$group1=='H1' & df1$latent==FALSE]
-    temp2=df1$text[df1$group1=='H1' & df1$latent==TRUE]
+    temp=df1$text[(df1$group1 %in% HGroups) & df1$y==1]
+    temp1=df1$text[(df1$group1 %in% HGroups) & df1$y==1 & df1$latent==FALSE]
+    temp2=df1$text[(df1$group1 %in% HGroups) & df1$y==1 & df1$latent==TRUE]
     if(length(temp)>0){
         equation<-equation %>%
             paste0("subgraph {\n")
@@ -154,9 +191,9 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
             paste0("edge[style=invis];\n",
                    str_flatten(temp,"->"),"\n}\n")
     }
-    temp=df1$text[df1$group1=='H2']
-    temp1=df1$text[df1$group1=='H2' & df1$latent==FALSE]
-    temp2=df1$text[df1$group1=='H2' & df1$latent==TRUE]
+    temp=df1$text[(df1$group1 %in% HGroups) & df1$y==2]
+    temp1=df1$text[(df1$group1 %in% HGroups) & df1$y==2 & df1$latent==FALSE]
+    temp2=df1$text[(df1$group1 %in% HGroups) & df1$y==2 & df1$latent==TRUE]
     if(length(temp)>0){
         equation<-equation %>%
             paste0("subgraph {\n")
@@ -173,14 +210,14 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
             paste0("edge[style=invis];\n",
                    str_flatten(temp,"->"),"\n}\n")
     }
-    temp=df1$text[df1$latent==FALSE & !(df1$group1 %in% c("H1","H2"))]
+    temp=df1$text[df1$latent==FALSE & !(df1$group1 %in% HGroups)]
     temp
     if(length(temp)>0){
         equation<-equation %>%
             paste0("node [shape=box]\n") %>%
             paste0(str_flatten(temp,";"),"\n")
     }
-    temp=df1$text[df1$latent==TRUE & !(df1$group1 %in% c("H1","H2"))]
+    temp=df1$text[df1$latent==TRUE & !(df1$group1 %in% HGroups)]
     temp
     if(length(temp)>0){
         equation<-equation %>%
@@ -188,57 +225,25 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
             paste0(str_flatten(temp,";"),"\n")
     }
 
-
+    (oddHGroups=unique(df1$group1[df1$group1 %in% HGroups & df1$y==1]))
+    (evenHGroups=unique(df1$group1[df1$group1 %in% HGroups & df1$y==2]))
     for(i in 0:(width-1)){
         df2=df1[df1$x1==i,]
-        temp=c(df2$text[df2$group1=="H1"],df2$text[!(df2$group1 %in% c("H1","H2"))],df2$text[df2$group1=="H2"])
+        df2
+
+        addOrder=ifelse("M2" %in% df2$group1,FALSE,TRUE)
+        temp=c(df2$text[df2$group1 %in% oddHGroups],
+               df2$text[!(df2$group1 %in% HGroups)],
+               df2$text[df2$group1 %in% evenHGroups])
         temp=c(paste0("t",i),temp)
-        equation<-equation %>% makeSameRank(temp)
+        equation<-equation %>% makeSameRank(temp,addOrder=addOrder)
     }
 
-    # temp=unique(df1$group2)
-    # temp=setdiff(temp,"")
-    # temp
-    # df1
-    # if(length(temp>0)){
-    #     for(i in 1:length(temp)){
-    #         tempvar=df1$text[df1$group2==temp[i]]
-    #         tempvar
-    #         df1$group[df1$text==temp[i]]
-    #         if(df1$group[df1$text==temp[i]]=="Y"){
-    #             equation <- equation %>%
-    #                 paste0(temp[i],"->{",str_flatten(tempvar,","),"};\n")
-    #         } else if(df1$group[df1$text==temp[i]] %in% c("M1")){
-    #             equation <- equation %>%
-    #                 paste0("{",str_flatten(tempvar,","),"}->",temp[i],"[dir=back constraint=false];\n")
-    #         } else {
-    #             equation <- equation %>%
-    #                 paste0("{",str_flatten(tempvar,","),"}->",temp[i],"[dir=back];\n")
-    #         }
-    #     }
-    # }
-    # M=df1$text[substr(df1$group1,1,1)=="M"]
-    # Y=df1$text[df1$group1=="Y"]
-    # MY=c(M,Y)
-    # X=df1$text[df1$group1=="X"]
-    # if(length(MY)>0){
-    #     equation <- equation %>%
-    #         paste0("{",str_flatten(X,","),"}->{",str_flatten(MY,","),"};\n")
-    # }
-    # if(length(M)*length(Y)>0){
-    #     equation <- equation %>%
-    #         paste0("{",str_flatten(M,","),"}->{",str_flatten(Y,","),"};\n")
-    # }
-    # if(length(M)>1){
-    #     equation <- equation %>%
-    #         paste0(str_flatten(M,"->"),";")
-    # }
-    # equation=paste0(equation,"\n}")
-    # equation
     res=parameterEstimates(fit,standardized=TRUE)
     res
     res1=res[res$op!=":=",]
     if(residuals==FALSE) res1=res1[res1$lhs!=res1$rhs,]
+    if(regression==FALSE) res1=res1[res1$op!="~",]
     res1
     if(mediationOnly) {
         res1=res1[!(res1$lhs %in% delVars),]
@@ -256,11 +261,11 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,residuals=FALSE){
 
              } else {
                  temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
+                 if(res1$op[i]=="~~") temp=paste0(temp,"dir=both constraint=false ")
              }
              equation <- equation %>% paste0(temp)
              if(is.na(res1$pvalue[i])) equation <- equation %>% paste0("style=dashed ")
              else if(res1$pvalue[i] >=0.05) equation <- equation %>% paste0("style=dashed ")
-             if(res1$rhs[i]==res1$lhs[i]) equation <- equation %>% paste0("dir=both ")
              if(whatLabels=="std") temp=sprintf("%.02f",res1$std.all[i])
              else if(whatLabels=="est") temp=sprintf("%.02f",res1$est[i])
              else if(whatLabels=="name") temp=res1$label[i]
