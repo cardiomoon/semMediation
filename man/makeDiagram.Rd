@@ -4,12 +4,23 @@
 \alias{makeDiagram}
 \title{Make diagram euation}
 \usage{
-makeDiagram(fit, whatLabels = "std", mediationOnly = FALSE,
-  regression = TRUE, indirect = FALSE, secondIndirect = FALSE,
-  total = FALSE, residuals = FALSE, nodesep = NULL, ranksep = NULL)
+makeDiagram(fit, labels = NULL, graphOptions = list(rankdir = "LR",
+  ranksep = "0.75", nodesep = "0.25", overlap = "true", fontsize = "10"),
+  nodeOptions = list(), edgeOptions = list(color = "black"),
+  whatLabels = "std", mediationOnly = FALSE, regression = TRUE,
+  indirect = FALSE, secondIndirect = FALSE, total = FALSE,
+  residuals = FALSE)
 }
 \arguments{
 \item{fit}{A data.frame. Result of parameterEstimates function of package lavaan}
+
+\item{labels}{An optional named list of variable labels fit object of class lavaan}
+
+\item{graphOptions}{A named list of graph options for Diagrammer syntax}
+
+\item{nodeOptions}{A named list of node options for Diagrammer syntax}
+
+\item{edgeOptions}{A named list of edge options for Diagrammer syntax.}
 
 \item{whatLabels}{What should the edge labels indicate in the path diagram? Choices are c("est","std","name").}
 
@@ -24,10 +35,6 @@ makeDiagram(fit, whatLabels = "std", mediationOnly = FALSE,
 \item{total}{Whether or not draw total effect. Default value is FALSE.}
 
 \item{residuals}{Logical, should residuals (and variances) be included in the path diagram?}
-
-\item{nodesep}{separation between nodes, in inches}
-
-\item{ranksep}{separation between ranks, in inches.}
 }
 \description{
 Make diagram euation

@@ -1,0 +1,34 @@
+digraph {
+graph [rankdir = LR]
+ranksep=0.75;
+nodesep=0.25;
+
+               subgraph cluster0{
+               style=invis;
+               node [style=invis]
+t0;t1
+edge[style=invis];
+t0->t1
+}
+node [shape=box]
+Y1;X1;X2;C
+{
+t0[style=invis]
+
+rank=same
+t0
+}
+{
+t1->Y1->X1->X2->C[style=invis]
+
+rank=same
+t1,Y1,X1,X2,C
+}
+X1->Y1[label=0.30]
+X2->Y1[label=0.30]
+C->Y1[style=dashed label=-0.02]
+X2->X1[dir=both constraint=false style=dashed label=-0.03]
+C->X1[dir=both constraint=false style=dashed label=-0.14]
+C->X2[dir=both constraint=false style=dashed label=-0.20]
+
+}

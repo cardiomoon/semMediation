@@ -95,16 +95,19 @@ addPos2=function(df){
     }
     df
     diff=upper-lower
+    diff
     if(diff>=2){
         if(upper>lower){
             df$x1[df$group1 %in% HMGroups & df$y==2]=df$x1[df$group1 %in% HMGroups & df$y==2]+diff%/%2
         }
     }
     diff1=max(upper,lower)-max(df$x)
-    df$x1[df$x>=(max(df$x)-1)]=df$x1[df$x>=(max(df$x)-1)]+diff1+1
+    if(diff1>0) df$x1[df$x>=(max(df$x)-1)]=df$x1[df$x>=(max(df$x)-1)]+diff1+1
     if((length(unique(df$x1))==2) &(max(df$x1)==1)){
         df$x1[df$x1==1]=4
     }
+    df$y[df$group1=="X"]=1:length(df$y[df$group1=="X"])
+    df$y[df$group1=="Y"]=1:length(df$y[df$group1=="Y"])
     df
 }
 
@@ -119,9 +122,38 @@ semDiagram=function(fit,...){
 }
 
 
+#' Adds variable labels to the Diagrammer plot function call.
+#'
+#' @param label_list A named list of variable labels.
+buildLabels <- function(label_list){
+    names(label_list) <- stringr::str_replace_all(names(label_list), pattern = "\\.", replacement = "")
+    labs <- paste(names(label_list), " [label = ", "'", label_list, "'", "]", sep = "")
+    paste(labs, collapse = "\n")
+}
+
+
+#'Get list to string
+#'@param options named list
+#'@export
+getOptions=function(options){
+    paste(paste(names(options), options, sep = " = "), collapse = ", ")
+}
+
+#'remove period
+#'@param x A character vector
+#'@export
+removePeriod=function(x){
+    res=stringr::str_replace_all(x, pattern = "\\.", replacement = "")
+    res=stringr::str_replace_all(res, pattern = ":", replacement = "")
+    res
+}
 
 #' Make diagram euation
 #'@param fit A data.frame. Result of parameterEstimates function of package lavaan
+#'@param labels An optional named list of variable labels fit object of class lavaan
+#'@param graphOptions A named list of graph options for Diagrammer syntax
+#'@param nodeOptions A named list of node options for Diagrammer syntax
+#'@param edgeOptions A named list of edge options for Diagrammer syntax.
 #'@param whatLabels What should the edge labels indicate in the path diagram? Choices are c("est","std","name").
 #'@param mediationOnly Whether or not draw mediation effect only. Default value is FALSE.
 #'@param residuals Logical, should residuals (and variances) be included in the path diagram?
@@ -129,19 +161,32 @@ semDiagram=function(fit,...){
 #'@param indirect Whether or not draw indirect effects. Default value is FALSE.
 #'@param secondIndirect Whether or not draw 2nd indirect effects. Default value is FALSE.
 #'@param total Whether or not draw total effect. Default value is FALSE.
-#'@param nodesep separation between nodes, in inches
-#'@param ranksep separation between ranks, in inches.
 #'@importFrom stringr str_flatten
 #'@export
-makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
+makeDiagram=function(fit,
+                     labels=NULL,
+                     graphOptions = list(rankdir="LR", ranksep="0.75", nodesep="0.25",
+                                          overlap = "true", fontsize = "10"),
+                     nodeOptions = list(),
+                     edgeOptions = list(color = "black"),
+                     whatLabels="std",mediationOnly=FALSE,
                      regression=TRUE,indirect=FALSE,secondIndirect=FALSE,total=FALSE,
-                     residuals=FALSE,nodesep=NULL,ranksep=NULL){
-        # whatLabels="std";mediationOnly=FALSE;residuals=FALSE;nodesep=NULL;ranksep=NULL
+                     residuals=FALSE){
+    # whatLabels="std";mediationOnly=FALSE;residuals=FALSE;nodesep=NULL;ranksep=NULL
+    # regression=TRUE;indirect=FALSE;secondIndirect=FALSE;total=FALSE
+    # residuals=FALSE
+    # graphOptions = list(rankdir="LR", ranksep="0.75", nodesep="0.25",
+    #                     overlap = "true", fontsize = "10")
+    # nodeOptions = list()
+    # edgeOptions = list(color = "black")
+
     df=fit2df(fit)
     df=addpos(df)
+    df$text=removePeriod(df$text)
     df
     df1=addPos2(df)
     df1
+
 
     HGroups=unique(df$group1[stringr::str_detect(df$group1,"H")])
     if(mediationOnly) {
@@ -155,11 +200,8 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
     H1vars
     width<-max(df1$x1)+1
     width
-    equation="digraph {\ngraph [rankdir = LR]\n"
-    if(is.null(ranksep)) { ranksep=0.75 }
-    if(is.null(nodesep)) { nodesep=0.25}
-    equation<-equation %>% paste0("ranksep=",ranksep,";\n")
-    equation<-equation %>% paste0("nodesep=",nodesep,";\n")
+    equation=paste("digraph {\ngraph [",getOptions(graphOptions),"]\n")
+
     temp=paste0("t",0:(width-1))
     temp
     equation<-equation %>%
@@ -181,11 +223,11 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
 
         if(length(temp1)>0){
             equation<-equation %>%
-                paste0("node [shape=box]\n",str_flatten(temp1,";"),"\n")
+                paste0("node [shape=box ",getOptions(nodeOptions)," ]\n",str_flatten(temp1,";"),"\n")
         }
         if(length(temp2)>0){
             equation<-equation %>%
-                paste0("node [shape=oval]\n",str_flatten(temp2,";"),"\n")
+                paste0("node [shape=oval ",getOptions(nodeOptions),"]\n",str_flatten(temp2,";"),"\n")
         }
         equation<-equation %>%
             paste0("edge[style=invis];\n",
@@ -200,11 +242,11 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
 
         if(length(temp1)>0){
             equation<-equation %>%
-                paste0("node [shape=box]\n",str_flatten(temp1,";"),"\n")
+                paste0("node [shape=box ",getOptions(nodeOptions),"]\n",str_flatten(temp1,";"),"\n")
         }
         if(length(temp2)>0){
             equation<-equation %>%
-                paste0("node [shape=oval]\n",str_flatten(temp2,";"),"\n")
+                paste0("node [shape=oval ",getOptions(nodeOptions),"]\n",str_flatten(temp2,";"),"\n")
         }
         equation<-equation %>%
             paste0("edge[style=invis];\n",
@@ -214,14 +256,14 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
     temp
     if(length(temp)>0){
         equation<-equation %>%
-            paste0("node [shape=box]\n") %>%
+            paste0("node [shape=box ",getOptions(nodeOptions),"]\n") %>%
             paste0(str_flatten(temp,";"),"\n")
     }
     temp=df1$text[df1$latent==TRUE & !(df1$group1 %in% HGroups)]
     temp
     if(length(temp)>0){
         equation<-equation %>%
-            paste0("node [shape=oval]\n") %>%
+            paste0("node [shape=oval ",getOptions(nodeOptions),"]\n") %>%
             paste0(str_flatten(temp,";"),"\n")
     }
 
@@ -238,9 +280,10 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
         temp=c(paste0("t",i),temp)
         equation<-equation %>% makeSameRank(temp,addOrder=addOrder)
     }
-
+    equation<-equation %>% paste0("\n edge [",getOptions(edgeOptions),"]\n")
     res=parameterEstimates(fit,standardized=TRUE)
-    res
+    res$lhs=removePeriod(res$lhs)
+    res$rhs=removePeriod(res$rhs)
     res1=res[res$op!=":=",]
     if(residuals==FALSE) res1=res1[res1$lhs!=res1$rhs,]
     if(regression==FALSE) res1=res1[res1$op!="~",]
@@ -249,6 +292,7 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
         res1=res1[!(res1$lhs %in% delVars),]
         res1=res1[!(res1$rhs %in% delVars),]
     }
+
     if(nrow(res1)>0){
         for(i in 1:nrow(res1)){
 
@@ -260,18 +304,44 @@ makeDiagram=function(fit,whatLabels="std",mediationOnly=FALSE,
                  }
 
              } else {
-                 temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
-                 if(res1$op[i]=="~~") temp=paste0(temp,"dir=both constraint=false ")
+
+                 if(res1$op[i]=="~~") {
+                     if(df1$group1[df1$text==res1$rhs[i]]==df1$group1[df1$text==res1$lhs[i]]){
+                         if(abs(df1$y[df1$text==res1$rhs[i]]-df1$y[df1$text==res1$lhs[i]])==1){
+                         if(df1$x1[df1$text==res1$rhs[i]]==min(df1$x1)){
+                            temp=paste0(res1$rhs[i],":w ->",res1$lhs[i],":w [")
+                         } else if(df1$x1[df1$text==res1$rhs[i]]==max(df1$x1)){
+                                 temp=paste0(res1$rhs[i],":e ->",res1$lhs[i],":e [")
+                         } else{
+                             temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
+                         }
+                         } else{
+                             temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
+                         }
+                     } else{
+                         temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
+                     }
+                     temp=paste0(temp,"dir=both constraint=false ")
+                 } else{
+                     temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
+                 }
              }
              equation <- equation %>% paste0(temp)
              if(is.na(res1$pvalue[i])) equation <- equation %>% paste0("style=dashed ")
              else if(res1$pvalue[i] >=0.05) equation <- equation %>% paste0("style=dashed ")
+             temp=""
              if(whatLabels=="std") temp=sprintf("%.02f",res1$std.all[i])
              else if(whatLabels=="est") temp=sprintf("%.02f",res1$est[i])
              else if(whatLabels=="name") temp=res1$label[i]
-             if(temp!="") equation <- equation %>% paste0("label=",temp)
+             if(!is.null(temp)) {
+                 if(temp!="") equation <- equation %>% paste0("label=",temp)
+             }
              equation <- equation %>% paste0("]\n")
         }
+    }
+    if(!is.null(labels)){
+        labels_string = buildLabels(labels)
+        equation <- paste(equation, labels_string)
     }
     equation=paste0(equation,"\n}")
     equation
