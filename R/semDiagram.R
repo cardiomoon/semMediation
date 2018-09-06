@@ -307,7 +307,7 @@ makeDiagram=function(fit,
 
                  if(res1$op[i]=="~~") {
                      if(df1$group1[df1$text==res1$rhs[i]]==df1$group1[df1$text==res1$lhs[i]]){
-                         if(abs(df1$y[df1$text==res1$rhs[i]]-df1$y[df1$text==res1$lhs[i]])==1){
+
                          if(df1$x1[df1$text==res1$rhs[i]]==min(df1$x1)){
                             temp=paste0(res1$rhs[i],":w ->",res1$lhs[i],":w [")
                          } else if(df1$x1[df1$text==res1$rhs[i]]==max(df1$x1)){
@@ -315,9 +315,7 @@ makeDiagram=function(fit,
                          } else{
                              temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
                          }
-                         } else{
-                             temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
-                         }
+
                      } else{
                          temp=paste0(res1$rhs[i],"->",res1$lhs[i],"[")
                      }

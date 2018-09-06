@@ -8,8 +8,8 @@ t0;t1;t2;t3
 edge[style=invis];
 t0->t1->t2->t3
 }
-node [shape=box ]
-mpg;cyl;disp;hp;qsec;wt
+node [shape=box width = 2]
+y;x;mod;centeredxmod
 {
 t0[style=invis]
 
@@ -17,10 +17,10 @@ rank=same
 t0
 }
 {
-t1->cyl->disp->hp->wt[style=invis]
+t1->x->mod->centeredxmod[style=invis]
 
 rank=same
-t1,cyl,disp,hp,wt
+t1,x,mod,centeredxmod
 }
 {
 t2[style=invis]
@@ -29,25 +29,21 @@ rank=same
 t2
 }
 {
-t3->mpg->qsec[style=invis]
+t3->y[style=invis]
 
 rank=same
-t3,mpg,qsec
+t3,y
 }
 
  edge [color = black]
-cyl->mpg[style=dashed label=-0.29]
-disp->mpg[label=-0.44]
-hp->mpg[style=dashed label=-0.19]
-disp->qsec[label=-0.56]
-hp->qsec[label=-0.85]
-wt->qsec[label=0.91]
-qsec ->mpg [dir=both headport=E tailport=E constraint=false label=0.16]
-disp:w ->cyl:w [dir=both constraint=false style=dashed label=0.90]
-hp->cyl[dir=both constraint=false style=dashed label=0.83]
-wt->cyl[dir=both constraint=false style=dashed label=0.78]
-hp:w ->disp:w [dir=both constraint=false style=dashed label=0.79]
-wt->disp[dir=both constraint=false style=dashed label=0.89]
-wt:w ->hp:w [dir=both constraint=false style=dashed label=0.66]
-
+x->y[label=0.09]
+mod->y[label=0.57]
+centeredxmod->y[label=0.11]
+mod:w ->x:w [dir=both constraint=false style=dashed label=0.34]
+centeredxmod:w->x:w[dir=both constraint=false style=dashed label=0.26]
+centeredxmod:w ->mod:w [dir=both constraint=false style=dashed label=0.28]
+ x [label = '교육기간']
+mod [label = '학급인원수']
+centeredxmod [label = '교육기간X학급인원수']
+y [label = '월수입']
 }

@@ -18,10 +18,12 @@ newData$centered.xmod <- newData$centered.x*newData$centered.mod
 
 # 평균중심화 하지 않은 조절효과
 mod1 <- lm(y ~ x + mod + x:mod, newData)
-
+summary(mod1)
 ggiraphExtra::ggPredict(mod1)
 # 평균중심화 한 조절효과
 mod2 <- lm(y ~ centered.x + centered.mod + centered.x:centered.mod, newData)
+mod2 <- lm(y ~ centered.x * centered.mod, newData)
+newData
 ggiraphExtra::ggPredict(mod2)
 # 두개의 모형 비교
 anova(mod1)
@@ -35,7 +37,7 @@ vif(mod2)
 lm.mod1 <- moderate.lm(x, mod, y, newData, mc = T)
 summary(lm.mod1)
 
-
+ggiraphExtra::ggPredict(mod1)
 # jtools 패키지를 이용한 조절효과 분석 및 그래프
 summ(mod1)
 summ(mod1, center = T)
@@ -56,3 +58,5 @@ lavaanPlot(model=fit)
 semDiagram(fit)
 lavaanPlot(model=fit, labels = labels, coef =T, stand = T, stars = "regress",cov=T)
 semDiagram(fit,labels = labels,nodeOptions=list(width=2),whatLabels="std")
+
+cat(makeDiagram(fit,labels = labels,nodeOptions=list(width=2),whatLabels="std"))
