@@ -148,6 +148,18 @@ removePeriod=function(x){
     res
 }
 
+
+#' make list of remove period
+#'@param x A character vector
+#' @export
+removePeriodLabels=function(x){
+    location=stringr::str_detect(x, pattern = "[\\.:]")
+    res=stringr::str_replace_all(x, pattern = "[\\.:]", replacement = "")
+    label=x[location]
+    find=res[location]
+    list(find=find,label=label)
+}
+
 #' Make diagram euation
 #'@param fit A data.frame. Result of parameterEstimates function of package lavaan
 #'@param labels An optional named list of variable labels fit object of class lavaan
@@ -161,7 +173,7 @@ removePeriod=function(x){
 #'@param indirect Whether or not draw indirect effects. Default value is FALSE.
 #'@param secondIndirect Whether or not draw 2nd indirect effects. Default value is FALSE.
 #'@param total Whether or not draw total effect. Default value is FALSE.
-#'@importFrom stringr str_flatten
+#'@importFrom stringr str_flatten str_detect
 #'@export
 makeDiagram=function(fit,
                      labels=NULL,
@@ -181,10 +193,15 @@ makeDiagram=function(fit,
     # edgeOptions = list(color = "black")
 
     df=fit2df(fit)
+    df<-df[df$text!="",]
+
+
     df=addpos(df)
+    labels2=removePeriodLabels(df$text)
     df$text=removePeriod(df$text)
     df
     df1=addPos2(df)
+
     df1
 
 
@@ -282,9 +299,12 @@ makeDiagram=function(fit,
     }
     equation<-equation %>% paste0("\n edge [",getOptions(edgeOptions),"]\n")
     res=parameterEstimates(fit,standardized=TRUE)
-    res$lhs=removePeriod(res$lhs)
-    res$rhs=removePeriod(res$rhs)
     res1=res[res$op!=":=",]
+    res1=res1[res1$op!="~1",]
+    labels3=removePeriodLabels(res1$lhs)
+    res1$lhs=removePeriod(res1$lhs)
+    labels4=removePeriodLabels(res1$rhs)
+    res1$rhs=removePeriod(res1$rhs)
     if(residuals==FALSE) res1=res1[res1$lhs!=res1$rhs,]
     if(regression==FALSE) res1=res1[res1$op!="~",]
     res1
@@ -340,6 +360,16 @@ makeDiagram=function(fit,
     if(!is.null(labels)){
         labels_string = buildLabels(labels)
         equation <- paste(equation, labels_string)
+    }
+
+    find=c(labels2$find,labels3$find,labels4$find)
+    label=c(labels2$label,labels3$label,labels4$label)
+    find
+    for(i in seq_along(find)){
+        if(!str_detect(labels_string,find[i])){
+           labs <- paste(find[i], " [label = ", "'", label[i], "'", "]\n", sep = "")
+           equation <- paste(equation, labs)
+        }
     }
     equation=paste0(equation,"\n}")
     equation

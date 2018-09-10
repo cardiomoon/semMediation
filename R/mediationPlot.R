@@ -900,6 +900,7 @@ mediationPlot=function(fit,maxx=80,maxy=30,height=5,width=5,whatLabels="std",use
   #str(res)
   df=fit2df(fit)
   df
+  df=df[df$text!="",]
   #str(df)
   df1=addpos(df)
   df1
