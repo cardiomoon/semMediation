@@ -17,7 +17,8 @@ Imports: lavaan,
          ggiraphExtra,
          stringr,
          magrittr,
-         DiagrammeR
+         DiagrammeR,
+         diagram
 Description: Make a mediation plot to visualize the mediation effects for a structural equation modelling(SEM).
 License: GPL-2
 Encoding: UTF-8
