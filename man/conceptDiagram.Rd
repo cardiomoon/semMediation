@@ -37,8 +37,10 @@ Make concept Diagram
 \examples{
 labels=list(X="Time Spent in\\n Grad School", M="# of\\n Publications", Y="# of Job Offers")
 conceptDiagram(xb=TRUE,labels=labels)
-moderator=list(Z1=list(label="Time Spent\\n with Alex",pos=3,site=c("a","b","c"),latent=FALSE))
-conceptDiagram(M=NULL,moderator=moderator,labels=labels)
-moderator$Z2=list(label="Z2label",pos=1,site=c("a","b"),latent=TRUE)
+moderator=list(name="Z1",label="Time Spent\\n with Alex",pos=3,
+    site=list(c("a","b","c")),latent=FALSE)
 conceptDiagram(moderator=moderator,labels=labels)
+moderator=list(name=c("Z1","Z2"),label=c("Time Spent\\n with Alex","Z2label"),pos=c(3,3),
+    site=list(c("a","b","c"),c("b","c")),latent=c(FALSE,FALSE))
+conceptDiagram(moderator=moderator,labels=labels,yinterval=0.4)
 }

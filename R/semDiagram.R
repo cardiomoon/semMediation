@@ -357,6 +357,7 @@ makeDiagram=function(fit,
              equation <- equation %>% paste0("]\n")
         }
     }
+    labels_string=""
     if(!is.null(labels)){
         labels_string = buildLabels(labels)
         equation <- paste(equation, labels_string)
