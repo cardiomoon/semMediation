@@ -1,0 +1,151 @@
+---
+title: "moderation, mediation amd moderated mediation"
+author: "Keon-Woong Moon"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height=6,
+  fig.width=6
+)
+```
+
+## Sample Data
+
+
+### Describe the dataset
+
+We are going to simulate a dataset that measured the following:
+
+* X = Time spent in graduate school (we will change the name to “time” when we create the data frame)
+* Z = Time spent (hours per week) with Professor Demos in class or in office hours
+* M = Number of publications in grad school
+* Y = Number of job offers
+
+### Create the dataset
+
+We are intentionally creating a moderated mediation effect here and we do so below by setting the relationships (the paths) between our causal chain variables and setting the relationships for our interaction terms. This example is adopted from "A Language, not a Letter: Learning Statistics in R" chapter 15 by Anthony N. Washburn(https://ademos.people.uic.edu/Chapter15.html)
+
+
+```{r}
+set.seed(42) #This makes sure that everyone gets the same numbers generated through rnorm function
+a1 = -.59 #Set the path a1 strength (effect of X on M)
+a2 = -.17 #Set path a2 strength (effect of Z on M)
+a3 = .29 #Set path a3 strength (interaction between X and Z on M)
+b = .59 #Set path b strength (effect of M on Y)
+cdash1 = .27 #Set path c'1 strength (effect of X on Y)
+cdash2 = .01 #Set path c'2 strength (effect of Z on Y)
+cdash3 = -.01 #Set path c'3 strength (interaction betwee X and Z on Y)
+```
+
+```{r}
+n <- 200 #Set sample size
+X <- rnorm(n, 7, 1) #IV: Time spent in grad school (M = 7, SD = 1)
+Z <- rnorm(n, 5, 1) #Moderator: Time spent (hours per week) with Professor Demos in class or in office hours (M = 5, SD = 1)
+M <- a1*X + a2*Z + a3*X*Z + rnorm(n, 0, .1) #Mediator: Number of publications in grad school
+#The mediator variable is created as a function of the IV, moderator, and their interaction with some random noise thrown in the mix
+Y <- cdash1*X + cdash2*Z + cdash3*X*Z + b*M + rnorm(n, 0, .1) #DV: Number of job offers
+#Similar to the mediator, the DV is a function of the IV, moderator, their interaction, and the mediator with some random noise thrown in the mix
+```
+
+Now we put it all together and make our data frame.
+
+```{r}
+Success <- data.frame(jobs = Y, time = X, pubs = M, alex = Z)
+```
+
+```{r}
+Success$time.c <- scale(Success$time, center = TRUE, scale = FALSE)[,] #Scale returns a matrix so we have to make it a vector by indexing one column
+
+Success$alex.c <- scale(Success$alex, center = TRUE, scale = FALSE)[,]
+str(Success)
+```
+
+## Moderation
+
+```{r}
+require(lavaan)
+model='pubs~time.c+alex.c+time.c:alex.c'
+fit=sem(model,data=Success)
+```
+
+You can draw cenceptual diagram using conceptDiagram() function.
+
+```{r,fig.width=6,fig.height=6}
+require(semMediation)
+conceptDiagram(fit)
+```
+
+You can use labels in conceptDiagram() function.
+```{r,fig.width=6,fig.height=6}
+labels=list(time.c="Time Spent in\nGrad School",
+            alex.c="Time Spent\nwith Alex",
+            pubs="# of\nPublications")
+conceptDiagram(fit,labels=labels)
+```
+
+You can get path diagram of this moderation model.
+```{r}
+semDiagram(fit)
+semDiagram(fit,labels=labels)
+mediationPlot(fit)
+```
+
+
+
+## Mediation Model
+
+You can make mediation model with this data.
+
+```{r}
+model=makeEquation(X="time.c",M="pubs",Y="jobs")
+cat(model)
+fit=sem(model,data=Success)
+```
+
+You can draw conceptual model with conceptDiagram() function.
+
+```{r}
+conceptDiagram(fit)
+labels=list(time.c="Time Spent in\nGrad School",
+            pubs="# of\nPublications",
+            jobs="# of Job Offers"
+            )
+conceptDiagram(fit,labels=labels)
+```
+
+
+You can get path diagram of this mediation model.
+
+```{r}
+semDiagram(fit)
+semDiagram(fit,labels=labels)
+mediationPlot(fit)
+```
+
+## Moderated Mediation Model
+
+```{r}
+model='pubs ~ a1*time.c + a2*alex.c + a3*time.c:alex.c
+jobs ~ cdash1*time.c + cdash2*alex.c + cdash3*time.c:alex.c + b1*pubs'
+
+labels=list(time.c="Time Spent in\nGrad School",
+            alex.c="Time Spent\nwith Alex",
+            pubs="# of\nPublications",
+            jobs="# of Job Offers",
+            timecalexc="Time in Grad School\n:\nTime with Alex")
+
+fit=sem(model,data=Success)
+
+conceptDiagram(fit,labels=labels)
+semDiagram(fit,labels=labels)
+```
+

@@ -126,6 +126,7 @@ semDiagram=function(fit,...){
 #'
 #' @param label_list A named list of variable labels.
 buildLabels <- function(label_list){
+
     names(label_list) <- stringr::str_replace_all(names(label_list), pattern = "\\.", replacement = "")
     labs <- paste(names(label_list), " [label = ", "'", label_list, "'", "]", sep = "")
     paste(labs, collapse = "\n")
@@ -194,7 +195,7 @@ makeDiagram=function(fit,
 
     df=fit2df(fit)
     df<-df[df$text!="",]
-
+    df
 
     df=addpos(df)
     labels2=removePeriodLabels(df$text)
@@ -357,15 +358,20 @@ makeDiagram=function(fit,
              equation <- equation %>% paste0("]\n")
         }
     }
+
     labels_string=""
     if(!is.null(labels)){
+        labels
         labels_string = buildLabels(labels)
+        labels_string
         equation <- paste(equation, labels_string)
     }
 
     find=c(labels2$find,labels3$find,labels4$find)
     label=c(labels2$label,labels3$label,labels4$label)
+
     find
+    label
     for(i in seq_along(find)){
         if(!str_detect(labels_string,find[i])){
            labs <- paste(find[i], " [label = ", "'", label[i], "'", "]\n", sep = "")

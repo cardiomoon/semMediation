@@ -65,20 +65,23 @@ midPoint=function(from=0,to=1,length.out=2){
 #'@importFrom diagram openplotmat
 #'@examples
 #'labels=list(X="Time Spent in\n Grad School", M="# of\n Publications", Y="# of Job Offers")
-#'conceptDiagram(xb=TRUE,labels=labels)
+#'conceptDiagram2(xb=TRUE,labels=labels)
 #'moderator=list(name="Z1",label="Time Spent\n with Alex",pos=3,
 #'     site=list(c("a","b","c")),latent=FALSE)
-#'conceptDiagram(moderator=moderator,labels=labels)
+#'conceptDiagram2(moderator=moderator,labels=labels)
 #'moderator=list(name=c("Z1","Z2"),label=c("Time Spent\n with Alex","Z2label"),pos=c(3,3),
 #'     site=list(c("a","b","c"),c("b","c")),latent=c(FALSE,FALSE))
-#'conceptDiagram(moderator=moderator,labels=labels,yinterval=0.4)
+#'conceptDiagram2(moderator=moderator,labels=labels,yinterval=0.4)
 #'@export
-conceptDiagram=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
-                        radx=0.12,rady=0.05,xmargin=0.03,yinterval=NULL,
+conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
+                        radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
                         moderator=list(),labels=list()){
 
-    # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
-    # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
+     # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
+     # xb=FALSE
+    # labels
+
+     # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
 
     if(is.null(yinterval)) yinterval=rady*6
     openplotmat()
@@ -87,6 +90,7 @@ conceptDiagram=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
     m=c(0.5,0.5+yinterval)
 
 
+    moderator
     select=which(moderator$pos==3)
     xpos=midPoint(0,1,length(select))
     select
@@ -129,15 +133,19 @@ conceptDiagram=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
         }
     }
     startpos
-    xlab=ifelse(is.null(labels$X),X,labels$X)
-    mlab=ifelse(is.null(labels$M),M,labels$M)
-    ylab=ifelse(is.null(labels$Y),Y,labels$Y)
+    labels
 
-    myarrow(from=x,to=y,label="c'")
+    (xlab=ifelse(is.null(labels[[X]]),X,labels[[X]]))
+    if(!is.null(M)) (mlab=ifelse(is.null(labels[[M]]),M,labels[[M]]))
+    (ylab=ifelse(is.null(labels[[Y]]),Y,labels[[Y]]))
+
 
     if(!is.null(M)){
+        myarrow(from=x,to=y,label="c'")
         myarrow(from=x,to=m,label="a")
         myarrow(from=m,to=y,label="b")
+    } else{
+        myarrow(from=x,to=y,label="")
     }
     if(xb) myarrow(from=x,to=0.5*(m+y))
 
@@ -151,8 +159,9 @@ conceptDiagram=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
     drawtext(x,radx=radx,rady=rady,lab=xlab,latent=latent[1])
     drawtext(y,radx=radx,rady=rady,lab=ylab,latent=latent[3])
     if(!is.null(M)) {
-        drawtext(m,radx=radx,rady=rady,lab=ylab,latent=latent[2])
+        drawtext(m,radx=radx,rady=rady,lab=mlab,latent=latent[2])
     }
+
     for(i in seq_along(moderator$pos)){
         z=eval(parse(text=paste0("z",i)))
         lab=ifelse(is.null(moderator$label[i]),paste0("z",i),moderator$label[i])
@@ -190,3 +199,143 @@ moderator2pos=function(moderator=list(),x,y,m){
     pos
 }
 
+
+#' Make a data.frame for conceptDiagram
+#'
+#' @param fit An object of class lavaan. Result of sem function of package lavaan
+#' @importFrom stringr str_flatten str_detect str_extract_all str_replace
+#'@export
+fit2df2=function(fit){
+    res=parameterEstimates(fit,standardized=TRUE)
+    res
+    ## latent variable
+    res1=res[res$op=="~",]
+    res1
+    text<-group<-x<-y<-latent<-c()
+    count=0
+    res1
+    for(i in 1:nrow(res1)){
+        #i=1
+        temp=res1$lhs[i]
+        temp
+        if(!(temp %in% text)){
+            text=c(text,temp)
+            # whether temp is a latent varible
+            tempres=any(res1[res1$lhs==temp,]$op=="=~")
+            latent<-c(latent,tempres)
+            # group determination #
+            (tempgroup=seekGroup(temp,res1,group))
+
+            group=c(group,tempgroup)
+
+        }
+        temp=res1$rhs[i]
+        if(!(temp %in% text)){
+            text=c(text,temp)
+            # whether temp is a latent varible
+            tempres=any(res1[res1$lhs==temp,]$op=="=~")
+            latent<-c(latent,tempres)
+            # group determination #
+            (tempgroup=seekGroup(temp,res1,group))
+
+            group=c(group,tempgroup)
+
+        }
+    }
+    group
+    df=data.frame(text,latent,group,stringsAsFactors = FALSE)
+    df
+    res1
+    label=c()
+    to=c()
+    for(i in seq_along(df$text)){
+        temp=stringr::str_flatten(res1$label[res1$rhs==df$text[i]],",")
+        label=c(label,ifelse(length(temp)>0,temp,""))
+        temp=stringr::str_flatten(res1$lhs[res1$rhs==df$text[i]],",")
+        to=c(to,ifelse(length(temp)>0,temp,""))
+    }
+    label
+    df$label=label
+    df$to=to
+    df
+    mod=df[stringr::str_detect(df$text,":"),]
+    moderator=c()
+
+    for(i in seq_along(mod$text)){
+       moderator=c(moderator,unlist(stringr::str_split(mod$text[i],":"))[2])
+    }
+    moderator
+    df<-df[!stringr::str_detect(df$text,":"),]
+    role=c()
+    df
+    for(i in seq_along(df$text)){
+        if(df$text[i] %in% moderator) temp="Z"
+        else if(stringr::str_detect(df$group[i],"M")) temp="M"
+        else if(stringr::str_detect(df$group[i],"Y")) temp="Y"
+        else temp="X"
+        role=c(role,temp)
+    }
+    df$role=role
+    temp=stringr::str_replace(df$label,"dash","")
+    df$site=unlist(lapply(stringr::str_extract_all(temp,"[a-c,]"),myflatten))
+    df$pos=0
+    df$pos[stringr::str_detect(df$site,"c")]=3
+    df$pos[df$pos==0 & stringr::str_detect(df$site,"a")]=1
+    df$pos[df$pos==0 & stringr::str_detect(df$site,"b")]=2
+    df$pos[df$pos==0 & df$site==""]=3
+    df
+}
+
+#' flatten string
+#' @param x character to flatten
+#' @export
+myflatten=function(x){
+    result=stringr::str_flatten(x)
+    if(length(result)==0) result=""
+    result
+}
+
+#' Make conceptDiagram
+#'@param fit An object of class lavaan. Result of sem function of package lavaan
+#'@param labels labels
+#'@importFrom stringr str_split
+#'@export
+conceptDiagram=function(fit,labels=NULL){
+    df=fit2df2(fit)
+    df
+    (X=df$text[df$role=="X"])
+    (Y=df$text[df$role=="Y"])
+    (M=df$text[df$role=="M"])
+    if(length(M)==0) {
+        M<-NULL
+        latent=df$latent[c(which(df$role=="X"),NA,which(df$role=="Y"))]
+    } else{
+        latent=df$latent[c(which(df$role=="X"),which(df$role=="M"),which(df$role=="Y"))]
+    }
+    xb=FALSE
+    df=df[df$role=="Z",]
+
+    label=df$text
+    label
+    if(length(label)>0) {
+        if(!is.null(labels)){
+           label=c()
+           for(i in seq_along(df$text)){
+              temp=labels[[df$text[i]]]
+              label=c(label,temp)
+           }
+        }
+    }
+    label
+    moderator=list(name=df$text,pos=df$pos,latent=df$latent,label=label)
+    moderator$site=stringr::str_split(df$site,",")
+
+    for(i in seq_along(moderator$site)){
+        if(moderator$site[[i]]=="") moderator$site[[i]]<-"c"
+    }
+    if(is.null(M)){
+        conceptDiagram2(X=X,M=NULL,Y=Y,latent=latent,moderator=moderator,labels=labels)
+    } else {
+       conceptDiagram2(X=X,M=M,Y=Y,latent=latent,moderator=moderator,labels=labels)
+    }
+}
