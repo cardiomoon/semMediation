@@ -5,7 +5,7 @@
 \title{Make moderated mediation equation}
 \usage{
 modmedEquation(X = "", M = "", Y = "", moderator = list(),
-  labels = NULL)
+  labels = NULL, range = FALSE)
 }
 \arguments{
 \item{X}{A character vectors indicating independent variables}
@@ -17,12 +17,14 @@ modmedEquation(X = "", M = "", Y = "", moderator = list(),
 \item{moderator}{moderator}
 
 \item{labels}{labels}
+
+\item{range}{Whether or not add range equation}
 }
 \description{
 Make moderated mediation equation
 }
 \examples{
 X="X";M="M";Y="Y"
-moderator=list(name=c("z1","z2"),site=list(c("a","b","c"),c("a","c")))
+moderator=list(name=c("w","z"),site=list(c("a"),c("a")))
 cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator))
 }

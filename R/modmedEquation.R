@@ -1,17 +1,20 @@
 # require(lavaan)
 # require(semMediation)
+# require(stringr)
 # X="time.c";M="pubs";Y="jobs"
 # moderator=list(name=c("alex.c"),site=list(c("a","c")))
 # model=modmedEquation(X=X,M=M,Y=Y,moderator=moderator)
 # cat(model)
+# Success=readRDS("R/Success.RDS")
 # str(Success)
+#
 # fit=sem(model,data=Success)
 # parameterEstimates(fit)
 #
 # semDiagram(fit)
 # conceptDiagram(fit)
-#
-# require(stringr)
+
+
 
 #'make interaction equation
 #'@param x character vector
@@ -24,7 +27,7 @@ interactStr=function(x,prefix="a"){
         res=c(res,temp)
         count=count+1
         if(i>1){
-            temp=paste0(prefix,count,"*",x[i],":",x[1])
+            temp=paste0(prefix,count,"*",x[1],":",x[i])
             res=c(res,temp)
             count=count+1
         }
@@ -46,6 +49,7 @@ extractX=function(string,groupby="X"){
 #' Make Grouping equation
 #' @param x  character vector
 #' @param groupby name of groupby
+#' @importFrom stringr str_detect
 strGrouping=function(x,groupby="X"){
 
     yes=x[str_detect(x,groupby)]
@@ -61,13 +65,14 @@ strGrouping=function(x,groupby="X"){
 #' @param Y A character vectors indicating dependent variables
 #' @param moderator moderator
 #' @param labels labels
+#' @param range Whether or not add range equation
 #' @importFrom stringr str_replace_all
 #' @export
 #' @examples
 #' X="X";M="M";Y="Y"
-#' moderator=list(name=c("z1","z2"),site=list(c("a","b","c"),c("a","c")))
+#' moderator=list(name=c("w","z"),site=list(c("a"),c("a")))
 #' cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator))
-modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL){
+modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL,range=FALSE){
       (XM=moderator$name[str_detect(moderator$site,"a")])
       (MY=moderator$name[str_detect(moderator$site,"b")])
       (XY=moderator$name[str_detect(moderator$site,"c")])
@@ -105,6 +110,8 @@ modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL){
       ind
       ind.below<-ind.above<-ind
       for(i in seq_along(moderator$name)){
+          temp=paste0(moderator$name[i],".mean")
+          ind=str_replace_all(ind,moderator$name[i],temp)
           temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
           ind.below=str_replace_all(ind.below,moderator$name[i],temp)
           temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
@@ -112,25 +119,33 @@ modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL){
       }
       ind.below
       ind.above
-      equation=paste0(equation,"indirect.SDbelow:=",ind.below,"\n")
-      equation=paste0(equation,"indirect.SDabove:=",ind.above,"\n")
+      equation=paste0(equation,"indirect :=",ind,"\n")
+
       XYstr=stringr::str_replace_all(XYstr,":","*")
       XYstr
       direct=strGrouping(XYstr,X)$yes
       dir=paste0(str_flatten(direct,"+"))
       dir.below<-dir.above<-dir
       for(i in seq_along(moderator$name)){
+          temp=paste0(moderator$name[i],".mean")
+          dir=str_replace_all(dir,moderator$name[i],temp)
           temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
           dir.below=str_replace_all(dir.below,moderator$name[i],temp)
           temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
           dir.above=str_replace_all(dir.above,moderator$name[i],temp)
       }
+      equation=paste0(equation,"direct :=",dir,"\n")
+      equation=paste0(equation,"total := direct + indirect\n")
+      if(range){
+          equation=paste0(equation,"indirect.SDbelow :=",ind.below,"\n")
+          equation=paste0(equation,"indirect.SDabove :=",ind.above,"\n")
       equation=paste0(equation,"direct.SDbelow:=",dir.below,"\n")
       equation=paste0(equation,"direct.SDabove:=",dir.above,"\n")
       equation=paste0(equation,"total.SDbelow := direct.SDbelow + indirect.SDbelow\n",
                       "total.SDabove := direct.SDabove + indirect.SDabove\n")
       equation=paste0(equation,"prop.mediated.SDbelow := indirect.SDbelow / total.SDbelow\n",
                       "prop.mediated.SDabove := indirect.SDabove / total.SDabove\n")
+
 
       if(length(moderator$name)==1) {
           temp=ind1[str_detect(ind1,fixed("*"))]
@@ -140,6 +155,7 @@ modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL){
           equation=paste0(equation,"index.mod.med := ",
                           temp[seq(1,length(temp),2)],"*",str_flatten(ind2,"+"),"\n")
 
+      }
       }
       equation
 }
