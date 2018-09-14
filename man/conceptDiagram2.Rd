@@ -5,8 +5,9 @@
 \title{Make concept Diagram}
 \usage{
 conceptDiagram2(X = "X", M = "M", Y = "Y", latent = rep(FALSE, 3),
-  xb = FALSE, radx = 0.12, rady = 0.06, xmargin = 0.03,
-  yinterval = NULL, moderator = list(), labels = list())
+  xb = FALSE, mc = FALSE, radx = 0.12, rady = 0.06,
+  xmargin = 0.03, yinterval = NULL, moderator = list(),
+  labels = list())
 }
 \arguments{
 \item{X}{character Name of independent variable}
@@ -18,6 +19,8 @@ conceptDiagram2(X = "X", M = "M", Y = "Y", latent = rep(FALSE, 3),
 \item{latent}{Logical. whether or not X,Y and Z are latent variables or not}
 
 \item{xb}{Logical. if positive draw linew between X and (Y+Z)}
+
+\item{mc}{Logical. if positive draw linew between M and (X+Y)}
 
 \item{radx}{horizontal radius of the box.}
 

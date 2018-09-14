@@ -15,17 +15,37 @@
 # conceptDiagram(fit)
 
 
+#' Perform mean centering
+#' @param data A data.frame
+#' @param names column names to mean centering
+#' @examples
+#' library(semMediation)
+#' newData=meanCentering(education,colnames(education)[1:3])
+#' @export
+meanCentering=function(data,names){
+  for(i in seq_along(names)){
+    data[[paste0(names[i],".c")]]=scale(data[[names[i]]],center=TRUE,scale=FALSE)
+  }
+  data
+}
 
 #'make interaction equation
 #'@param x character vector
 #'@param prefix prefix
-interactStr=function(x,prefix="a"){
+#'@param skip whether or not skip
+#'@examples
+#'interactStr(LETTERS[1:2])
+#'interactStr(LETTERS[1:2],skip=TRUE)
+#'@export
+interactStr=function(x,prefix="a",skip=FALSE){
     res=c()
     count=1
     for(i in seq_along(x)){
+        if((i!=2) | (skip==FALSE)){
         temp=paste0(prefix,count,"*",x[i])
         res=c(res,temp)
         count=count+1
+        }
         if(i>1){
             temp=paste0(prefix,count,"*",x[1],":",x[i])
             res=c(res,temp)
@@ -39,6 +59,7 @@ interactStr=function(x,prefix="a"){
 #' @param string character vector
 #' @param groupby name of groupby
 #' @importFrom stringr fixed
+#' @export
 extractX=function(string,groupby="X"){
    for(i in seq_along(string)){
       if(string[i]==groupby) string[i]=paste0("1*",groupby)
@@ -50,6 +71,7 @@ extractX=function(string,groupby="X"){
 #' @param x  character vector
 #' @param groupby name of groupby
 #' @importFrom stringr str_detect
+#' @export
 strGrouping=function(x,groupby="X"){
 
     yes=x[str_detect(x,groupby)]
@@ -59,6 +81,24 @@ strGrouping=function(x,groupby="X"){
     list(yes=yes,no=no)
 }
 
+#'Extension of str_detect to list
+#'@param list a list
+#'@param pattern pattern to look for
+#'@export
+#'@examples
+#'site=list(c("a","c"),c("a","b","c"))
+#'str_detect2(site,"b")
+str_detect2=function(list,pattern){
+
+
+  str_detect_any=function(string,pattern){
+    any(str_detect(string,pattern))
+  }
+
+  unlist(lapply(list,str_detect_any,pattern))
+}
+
+
 #'Make moderated mediation equation
 #' @param X A character vectors indicating independent variables
 #' @param M A character vectors indicating mediators
@@ -66,40 +106,61 @@ strGrouping=function(x,groupby="X"){
 #' @param moderator moderator
 #' @param labels labels
 #' @param range Whether or not add range equation
-#' @importFrom stringr str_replace_all
+#' @importFrom stringr str_replace_all str_detect
 #' @export
 #' @examples
+#' X="X";Y="Y"
+#' moderator=list(name=c("Z"),site=list(c("a","c")))
+#' cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=TRUE))
 #' X="X";M="M";Y="Y"
-#' moderator=list(name=c("w","z"),site=list(c("a"),c("a")))
-#' cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator))
-modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL,range=FALSE){
-      (XM=moderator$name[str_detect(moderator$site,"a")])
-      (MY=moderator$name[str_detect(moderator$site,"b")])
-      (XY=moderator$name[str_detect(moderator$site,"c")])
+#' moderator=list(name=c("Z"),site=list(c("a","c")))
+#' cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=TRUE))
+#' X="X";M="M";Y="Y";labels=NULL;range=FALSE
+#' moderator=list(name=c("X"),site=list(c("b")))
+#' cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=FALSE))
+#' X="X";Y="Y"
+#' moderator=list(name=c("Z"),site=list(c("c")))
+#' cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=FALSE))
+modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALSE){
+
+      # M=NULL; labels=NULL;range=FALSE
+
+      (XM=moderator$name[str_detect2(moderator$site,"a")])
+      (MY=moderator$name[str_detect2(moderator$site,"b")])
+      (XY=moderator$name[str_detect2(moderator$site,"c")])
 
       # Regression of Moderator
       XM=c(X,XM)
       XMstr=interactStr(XM,prefix="a")
-      equation=paste(M,"~",stringr::str_flatten(XMstr,"+"),"\n")
+      if(!is.null(M)) {
+        equation=paste(M,"~",stringr::str_flatten(XMstr,"+"),"\n")
+      } else{
+        equation=""
+      }
       MY=c(M,MY)
       XY=c(X,XY)
-      MYstr=interactStr(MY,prefix="b")
+      skip=ifelse(X %in% MY,TRUE,FALSE)
+      MYstr=interactStr(MY,prefix="b",skip=skip)
       MYstr
-      XYstr=interactStr(XY,prefix="c")
+      skip=FALSE
+      if(!is.null(M)) skip=ifelse(M %in% XY,TRUE,FALSE)
+      XYstr=interactStr(XY,prefix="c",skip=skip)
       XYstr
-      temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"+",
-                 stringr::str_flatten(MYstr,"+"),"\n")
-      temp
+      if(!is.null(M)){
+          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"+",
+                     stringr::str_flatten(MYstr,"+"),"\n")
+      } else{
+          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"\n")
+      }
       equation=paste0(equation,temp)
 
-      cat(equation)
       for(i in seq_along(moderator$name)){
         name=moderator$name[i]
         temp=paste0(name," ~ ",name,".mean*1\n")
         temp=paste0(temp,name," ~~ ",name,".var*",name,"\n")
         equation=paste0(equation,temp)
       }
-
+      if(!is.null(M)){
       XMstr=stringr::str_replace_all(XMstr,":","*")
       ind1=strGrouping(XMstr,X)$yes
       ind1
@@ -157,11 +218,14 @@ modmedEquation=function(X="",M="",Y="",moderator=list(),labels=NULL,range=FALSE)
 
       }
       }
+      }
       equation
+
 }
 
 #' Remove parentheses
 #' @param string A character vector
+#' @export
 removeParentheses=function(string){
   res=c()
   for(i in seq_along(string)){

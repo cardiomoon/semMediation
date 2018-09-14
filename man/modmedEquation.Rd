@@ -4,7 +4,7 @@
 \alias{modmedEquation}
 \title{Make moderated mediation equation}
 \usage{
-modmedEquation(X = "", M = "", Y = "", moderator = list(),
+modmedEquation(X = "", M = NULL, Y = "", moderator = list(),
   labels = NULL, range = FALSE)
 }
 \arguments{
@@ -24,7 +24,16 @@ modmedEquation(X = "", M = "", Y = "", moderator = list(),
 Make moderated mediation equation
 }
 \examples{
+X="X";Y="Y"
+moderator=list(name=c("Z"),site=list(c("a","c")))
+cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=TRUE))
 X="X";M="M";Y="Y"
-moderator=list(name=c("w","z"),site=list(c("a"),c("a")))
-cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator))
+moderator=list(name=c("Z"),site=list(c("a","c")))
+cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=TRUE))
+X="X";M="M";Y="Y";labels=NULL;range=FALSE
+moderator=list(name=c("X"),site=list(c("b")))
+cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=FALSE))
+X="X";Y="Y"
+moderator=list(name=c("Z"),site=list(c("c")))
+cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=FALSE))
 }

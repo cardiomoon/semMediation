@@ -1,6 +1,7 @@
 ---
 title: "moderation, mediation amd moderated mediation"
 author: "Keon-Woong Moon"
+font-family: 'AppleGothic' 
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -17,8 +18,70 @@ knitr::opts_chunk$set(
   fig.width=6
 )
 ```
+## sample Data(1)
 
-## Sample Data
+Data `education` is included in semMediation package. This data contains education duration, age, income of teachers, number of students in class.
+
+* age = teachers age
+* number = number of students in class
+* duration = education duration
+* income = income
+
+### mean centering
+
+We perform mean centering of independent and moderating variables.
+
+```{r}
+library(semMediation)
+newData=meanCentering(education,colnames(education)[1:3])
+str(newData)
+```
+
+### Double moderation
+
+
+You can make double moderation equation with modmedEquation() function. 
+
+```{r}
+moderator=list(name=c("number.c","age.c"),site=c("c","c"))
+equation=modmedEquation(X="duration.c",Y="income",moderator=moderator)
+cat(equation)
+```
+
+
+
+```{r}
+library(lavaan)
+fit=sem(model=equation,data=newData)
+estimatesTable2(fit)
+```
+
+You can draw conceptual diagram with conceptDiagram().
+
+```{r}
+conceptDiagram(fit)
+```
+
+You can get path diagram of this moderation model.
+
+```{r}
+semDiagram(fit)  
+```
+
+You can use  labels in diagrams.
+
+```{r}
+
+labels <- list(duration.c = "교육기간", number.c = "학급인원수", age.c="나이",
+               duration.cnumber.c = "교육기간X학급인원수", duration.cage.c="교육기간X나이",income = "월수입")
+
+if(Sys.info()[["sysname"]] == "Darwin") par(family="AppleGothic")
+conceptDiagram(fit,labels=labels)
+semDiagram(fit,labels=labels)
+
+```
+
+## Sample Data(2)
 
 
 ### Describe the dataset
@@ -63,9 +126,7 @@ Success <- data.frame(jobs = Y, time = X, pubs = M, alex = Z)
 ```
 
 ```{r}
-Success$time.c <- scale(Success$time, center = TRUE, scale = FALSE)[,] #Scale returns a matrix so we have to make it a vector by indexing one column
-
-Success$alex.c <- scale(Success$alex, center = TRUE, scale = FALSE)[,]
+Success <- meanCentering(Success,c("time","alex"))
 str(Success)
 ```
 
@@ -73,6 +134,8 @@ str(Success)
 
 ```{r}
 require(lavaan)
+model=modmedEquation(X="time.c",Y="pubs",moderator=list(name="alex.c",site="c"))
+cat(model)
 model='pubs~time.c+alex.c+time.c:alex.c'
 fit=sem(model,data=Success)
 ```
@@ -130,22 +193,44 @@ semDiagram(fit)
 semDiagram(fit,labels=labels)
 mediationPlot(fit)
 ```
-
-## Moderated Mediation Model
+## Moderated Mediation Model(1)
 
 ```{r}
-model='pubs ~ a1*time.c + a2*alex.c + a3*time.c:alex.c
-jobs ~ cdash1*time.c + cdash2*alex.c + cdash3*time.c:alex.c + b1*pubs'
+X="time.c";M="pubs";Y="jobs"
+moderator=list(name=c("time.c"),site=list(c("b")))
+model=modmedEquation(X=X,M=M,Y=Y,moderator=moderator)
+cat(model)
+fit=sem(model,data=Success)
+estimatesTable2(fit)
+conceptDiagram(fit)
+semDiagram(fit)
 
-labels=list(time.c="Time Spent in\nGrad School",
-            alex.c="Time Spent\nwith Alex",
-            pubs="# of\nPublications",
-            jobs="# of Job Offers",
-            timecalexc="Time in Grad School\n:\nTime with Alex")
+```
+
+
+
+## Moderated Mediation Model(2)
+
+```{r}
+X="time.c";M="pubs";Y="jobs"
+moderator=list(name=c("alex.c"),site=list(c("a","c")))
+model=modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=TRUE)
+cat(model)
 
 fit=sem(model,data=Success)
-
+estimatesTable2(fit)
 conceptDiagram(fit,labels=labels)
 semDiagram(fit,labels=labels)
 ```
+## Moderated Mediation Model(2)
 
+```{r}
+X="time.c";M="pubs";Y="jobs"
+moderator=list(name=c("alex.c"),site=list(c("a","b")))
+model=modmedEquation(X=X,M=M,Y=Y,moderator=moderator)
+cat(model)
+fit=sem(model,data=Success)
+estimatesTable2(fit)
+conceptDiagram(fit)
+semDiagram(fit)
+```

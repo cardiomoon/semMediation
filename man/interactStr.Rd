@@ -4,13 +4,19 @@
 \alias{interactStr}
 \title{make interaction equation}
 \usage{
-interactStr(x, prefix = "a")
+interactStr(x, prefix = "a", skip = FALSE)
 }
 \arguments{
 \item{x}{character vector}
 
 \item{prefix}{prefix}
+
+\item{skip}{whether or not skip}
 }
 \description{
 make interaction equation
+}
+\examples{
+interactStr(LETTERS[1:2])
+interactStr(LETTERS[1:2],skip=TRUE)
 }

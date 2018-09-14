@@ -56,6 +56,7 @@ midPoint=function(from=0,to=1,length.out=2){
 #'@param Y character Name of dependent variable
 #'@param latent Logical. whether or not X,Y and Z are latent variables or not
 #'@param xb Logical. if positive draw linew between X and (Y+Z)
+#'@param mc Logical. if positive draw linew between M and (X+Y)
 #'@param radx horizontal radius of the box.
 #'@param rady vertical radius of the box.
 #'@param xmargin horizontal margin of plot
@@ -73,7 +74,7 @@ midPoint=function(from=0,to=1,length.out=2){
 #'     site=list(c("a","b","c"),c("b","c")),latent=c(FALSE,FALSE))
 #'conceptDiagram2(moderator=moderator,labels=labels,yinterval=0.4)
 #'@export
-conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
+conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE,
                         radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
                         moderator=list(),labels=list()){
 
@@ -148,6 +149,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,
         myarrow(from=x,to=y,label="")
     }
     if(xb) myarrow(from=x,to=0.5*(m+y))
+    if(mc) myarrow(from=m,to=0.5*(x+y))
 
     endpos=moderator2pos(moderator,x,y,m)
     endpos
@@ -203,7 +205,7 @@ moderator2pos=function(moderator=list(),x,y,m){
 #' Make a data.frame for conceptDiagram
 #'
 #' @param fit An object of class lavaan. Result of sem function of package lavaan
-#' @importFrom stringr str_flatten str_detect str_extract_all str_replace
+#' @importFrom stringr str_flatten str_detect str_extract_all str_replace str_extract
 #'@export
 fit2df2=function(fit){
     res=parameterEstimates(fit,standardized=TRUE)
@@ -262,10 +264,13 @@ fit2df2=function(fit){
     moderator=c()
 
     for(i in seq_along(mod$text)){
-       moderator=c(moderator,unlist(stringr::str_split(mod$text[i],":"))[2])
+        moderator=c(moderator,unlist(stringr::str_split(mod$text[i],":"))[2])
     }
     moderator
+    mod$text=unlist(stringr::str_split(mod$text[i],":"))[2]
+    mod
     df<-df[!stringr::str_detect(df$text,":"),]
+    df=rbind(df,mod)
     role=c()
     df
     for(i in seq_along(df$text)){
@@ -275,7 +280,7 @@ fit2df2=function(fit){
         else temp="X"
         role=c(role,temp)
     }
-    df$role=role
+    df$role1=role
     temp=stringr::str_replace(df$label,"dash","")
     df$site=unlist(lapply(stringr::str_extract_all(temp,"[a-c,]"),myflatten))
     df$pos=0
@@ -284,8 +289,70 @@ fit2df2=function(fit){
     df$pos[df$pos==0 & stringr::str_detect(df$site,"b")]=2
     df$pos[df$pos==0 & df$site==""]=3
     df
+    for(i in seq_along(df$text)){
+          if(i==1) {
+              df1=df[1,]
+          } else{
+              if(!(df$text[i] %in% df1$text)){
+              temp=df[df$text==df$text[i],]
+              if(nrow(temp)==1) {
+                  df1=rbind(df1,temp)
+              } else{
+                  df2=temp[1,]
+                  df2$site=str_flatten(unique(unlist(str_split(temp$site,","))),",")
+                  df2$pos=max(temp$pos)
+                  df1=rbind(df1,df2)
+              }
+              }
+          }
+    }
+    df1$group=str_extract(df1$group,"[a-zA-Z]")
+    df1$role=ifelse(df1$role1==df1$group,
+                    df1$role1,
+                    paste0(df1$group,",",df1$role1))
+    df1
+    # for(i in seq_along(df1$role)){
+    #      temp=str2vector(df1$role[i])
+    #      temp
+    #      if(length(temp)>1){
+    #          if("X" %in% temp){
+    #              df1$site[i]=str_setdiff(df1$site[i],c("a","c"))
+    #          } else if("M" %in% temp){
+    #              df1$site[i]=str_setdiff(df1$site[i],c("a","b"))
+    #
+    #          }
+    #      }
+    # }
+    df1
+
 }
 
+
+#' Make character vector from string
+#' @param string string
+#' @export
+str2vector=function(string="a,b,c"){
+    unlist(str_split(string,","))
+}
+
+
+#'Remove matched pattern from string
+#'@param string string
+#'@param pattern pattern to look for
+#'@export
+str_setdiff=function(string="a,c",pattern="a"){
+
+    temp=unlist(str_split(string,","))
+    res=setdiff(temp,pattern)
+    if(length(res)==0) {
+        res=""
+    } else{
+        res=str_flatten(res,",")
+    }
+    res
+}
+
+str_setdiff("b",c("a","b"))
 #' flatten string
 #' @param x character to flatten
 #' @export
@@ -303,18 +370,20 @@ myflatten=function(x){
 conceptDiagram=function(fit,labels=NULL){
     df=fit2df2(fit)
     df
-    (X=df$text[df$role=="X"])
-    (Y=df$text[df$role=="Y"])
-    (M=df$text[df$role=="M"])
+    (X=df$text[str_detect(df$role,"X")][1])
+    (Y=df$text[str_detect(df$role,"Y")])
+    (M=df$text[str_detect(df$role,"M")])
     if(length(M)==0) {
         M<-NULL
-        latent=df$latent[c(which(df$role=="X"),NA,which(df$role=="Y"))]
+        latent=df$latent[c(which(str_detect(df$role,"X"))[1],NA,which(str_detect(df$role,"Y")))]
     } else{
-        latent=df$latent[c(which(df$role=="X"),which(df$role=="M"),which(df$role=="Y"))]
+        latent=df$latent[c(which(str_detect(df$role,"X")),which(str_detect(df$role,"M")),
+                           which(str_detect(df$role,"Y")))]
     }
     xb=FALSE
-    df=df[df$role=="Z",]
-
+    mc=FALSE
+    df=df[str_detect(df$role,"Z"),]
+    df
     label=df$text
     label
     if(length(label)>0) {
@@ -327,15 +396,41 @@ conceptDiagram=function(fit,labels=NULL){
         }
     }
     label
+    df
+    X
+    for(i in seq_along(df$text)){
+       if(df$text[i]==X){
+           xb=TRUE
+           df=df[df$text[i]!=X,]
+       } else if(!is.null(M)){
+           if(df$text[i]==M){
+           mc=TRUE
+           df=df[df$text[i]!=M,]
+           }
+       }
+    }
+    if(nrow(df)>0){
     moderator=list(name=df$text,pos=df$pos,latent=df$latent,label=label)
     moderator$site=stringr::str_split(df$site,",")
-
+    moderator
     for(i in seq_along(moderator$site)){
-        if(moderator$site[[i]]=="") moderator$site[[i]]<-"c"
+        if(length(moderator$site[[i]])==1){
+           if(moderator$site[[i]]=="") moderator$site[[i]]<-"c"
+        }
     }
+    } else {
+        moderator=NULL
+    }
+
+    X
+    Y
+    M
+    latent
+    moderator
+    # X=X;M=M;Y=Y;latent=latent;moderator=moderator;labels=NULL
     if(is.null(M)){
         conceptDiagram2(X=X,M=NULL,Y=Y,latent=latent,moderator=moderator,labels=labels)
     } else {
-       conceptDiagram2(X=X,M=M,Y=Y,latent=latent,moderator=moderator,labels=labels)
+       conceptDiagram2(X=X,M=M,Y=Y,latent=latent,moderator=moderator,labels=labels,xb=xb,mc=mc)
     }
 }
