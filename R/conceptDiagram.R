@@ -78,8 +78,8 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
                         radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
                         moderator=list(),labels=list()){
 
-     # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
-     # xb=FALSE
+    # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
+    # xb=FALSE
     # labels
 
      # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
@@ -166,7 +166,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
 
     for(i in seq_along(moderator$pos)){
         z=eval(parse(text=paste0("z",i)))
-        lab=ifelse(is.null(moderator$label[i]),paste0("z",i),moderator$label[i])
+        lab=ifelse(is.null(moderator$label[i]),moderator$name[i],moderator$label[i])
         drawtext(z,radx=radx,rady=rady,lab=lab,latent=moderator$latent[i])
     }
 }
@@ -352,7 +352,7 @@ str_setdiff=function(string="a,c",pattern="a"){
     res
 }
 
-str_setdiff("b",c("a","b"))
+# str_setdiff("b",c("a","b"))
 #' flatten string
 #' @param x character to flatten
 #' @export
@@ -427,6 +427,7 @@ conceptDiagram=function(fit,labels=NULL){
     M
     latent
     moderator
+    labels
     # X=X;M=M;Y=Y;latent=latent;moderator=moderator;labels=NULL
     if(is.null(M)){
         conceptDiagram2(X=X,M=NULL,Y=Y,latent=latent,moderator=moderator,labels=labels)

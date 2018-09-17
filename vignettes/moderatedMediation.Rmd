@@ -193,6 +193,7 @@ semDiagram(fit)
 semDiagram(fit,labels=labels)
 mediationPlot(fit)
 ```
+
 ## Moderated Mediation Model(1)
 
 ```{r}
@@ -222,7 +223,8 @@ estimatesTable2(fit)
 conceptDiagram(fit,labels=labels)
 semDiagram(fit,labels=labels)
 ```
-## Moderated Mediation Model(2)
+
+## Moderated Mediation Model(3)
 
 ```{r}
 X="time.c";M="pubs";Y="jobs"

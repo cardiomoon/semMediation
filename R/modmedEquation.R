@@ -34,6 +34,7 @@ meanCentering=function(data,names){
 #'@param prefix prefix
 #'@param skip whether or not skip
 #'@examples
+#'interactStr(LETTERS[1])
 #'interactStr(LETTERS[1:2])
 #'interactStr(LETTERS[1:2],skip=TRUE)
 #'@export
@@ -42,12 +43,12 @@ interactStr=function(x,prefix="a",skip=FALSE){
     count=1
     for(i in seq_along(x)){
         if((i!=2) | (skip==FALSE)){
-        temp=paste0(prefix,count,"*",x[i])
+        temp=paste0(prefix,ifelse(length(x)>1,count,""),"*",x[i])
         res=c(res,temp)
         count=count+1
         }
         if(i>1){
-            temp=paste0(prefix,count,"*",x[1],":",x[i])
+            temp=paste0(prefix,ifelse(length(x)>1,count,""),"*",x[1],":",x[i])
             res=c(res,temp)
             count=count+1
         }
