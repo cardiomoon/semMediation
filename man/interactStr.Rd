@@ -17,6 +17,7 @@ interactStr(x, prefix = "a", skip = FALSE)
 make interaction equation
 }
 \examples{
+interactStr(LETTERS[1])
 interactStr(LETTERS[1:2])
 interactStr(LETTERS[1:2],skip=TRUE)
 }

@@ -22,3 +22,21 @@
 #'}
 #'@source {Effects of teacher's knowledge and empathy on educational intervention for ADHD: Focused on the mediating effet of empathy. J Korean Acad Psychiatr Ment Health Nurs 2013:22;45-55.}
 "ADHD"
+
+
+#' Data Set for process macro
+#' A dataset for support for process macro
+#'
+#' @format A data.frame with 6 variables
+#' \describe{
+#' \item{no}{A number of process macro model}
+#' \item{X}{Name of the independent variable}
+#' \item{M}{Name of the mediator}
+#' \item{Y}{Name of the independent variable}
+#' \item{modName}{Name(s) of moderator names collapsed with colon}
+#' \item{modSite}{Site(s) of moderation collapsed with colon}
+#' \item{pos}{Position of moderator(s) in a diagram collapsed with comma}
+#' }
+"pmacro"
+
+

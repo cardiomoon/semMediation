@@ -136,7 +136,7 @@ str(Success)
 require(lavaan)
 model=modmedEquation(X="time.c",Y="pubs",moderator=list(name="alex.c",site="c"))
 cat(model)
-model='pubs~time.c+alex.c+time.c:alex.c'
+
 fit=sem(model,data=Success)
 ```
 
@@ -234,5 +234,6 @@ cat(model)
 fit=sem(model,data=Success)
 estimatesTable2(fit)
 conceptDiagram(fit)
+semDiagram(fit,whatLabels="name")
 semDiagram(fit)
 ```
