@@ -7,6 +7,7 @@ library(editData)
 library(shinyWidgets)
 library(lavaan)
 library(flextable)
+library(DiagrammeR)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -211,7 +212,7 @@ server=function(input,output,session){
             })
         })
 
-        output$diagram=renderPlot({
+        output$diagram=renderGrViz({
 
             input$Analysis
 
@@ -226,7 +227,8 @@ server=function(input,output,session){
             verbatimTextOutput("text"),
             h3("Estimates Table"),
             uiOutput("estimateTable"),
-            plotOutput("diagram")
+            h3("Statistical Diagram"),
+            grVizOutput("diagram")
         )
     })
 
