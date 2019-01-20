@@ -6,6 +6,7 @@ library(webrSub)
 library(editData)
 library(shinyWidgets)
 library(lavaan)
+library(flextable)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -176,6 +177,11 @@ server=function(input,output,session){
 
     output$result=renderUI({
 
+        if(input$equation!=""){
+
+            fit=sem(model=input$equation,data=data())
+        }
+
         output$text=renderPrint({
 
           input$Analysis
@@ -186,15 +192,41 @@ server=function(input,output,session){
                 cat("fit=sem(model=model,data=",input$dataname,")\n")
                 cat("summary(fit)\n\n")
 
-                fit=sem(model=input$equation,data=data())
                 summary(fit)
                 cat("parameterEstimates(fit)\n\n")
                 parameterEstimates(fit)}
             })
         })
 
+        output$estimateTable=renderUI({
+
+            input$Analysis
+
+            isolate({
+            if(input$equation!=""){
+
+            estimatesTable2(fit) %>%
+                htmltools_value()
+            }
+            })
+        })
+
+        output$diagram=renderPlot({
+
+            input$Analysis
+
+            isolate({
+                if(input$equation!=""){
+                    semDiagram(fit)
+                }
+            })
+        })
+
         tagList(
-            verbatimTextOutput("text")
+            verbatimTextOutput("text"),
+            h3("Estimates Table"),
+            uiOutput("estimateTable"),
+            plotOutput("diagram")
         )
     })
 
