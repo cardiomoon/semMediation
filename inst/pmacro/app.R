@@ -157,21 +157,37 @@ server=function(input,output,session){
     observeEvent(input$makeEq,{
         i=as.numeric(input$modelno)
         select=pmacro$no==i
-
+        #select=40
         if(pmacro$modName[select]!=""){
             name=unlist(strsplit(pmacro$modName[select],":"))
+            name
             modname=c()
             for(i in 1:length(name)){
                 modname=c(modname,input[[name[i]]])
             }
-
-            sites=strsplit(pmacro$modSite[select],":")
-
+            modname
+            temp=unlist(strsplit(pmacro$modSite[select],":"))
+            temp
+            sites=list()
+            for(i in 1:length(temp)){
+              sites[[i]]=unlist(strsplit(temp[i],","))
+            }
+            sites
+           # moderator=list(name=name,site=sites)
             moderator=list(name=modname,site=sites)
+            #str(moderator)
 
-       }
-        if(pmacro$M[select]=="") model=modmedEquation(X=input$X,Y=input$Y,moderator=moderator)
-        else model=modmedEquation(X=input$X,M=input$M,Y=input$Y,moderator=moderator)
+        }
+        pmacro$M[select]
+        if(pmacro$M[select]==""){
+            model=modmedEquation(X=input$X,Y=input$Y,moderator=moderator)
+        } else {
+            moderator
+           # model=modmedEquation(X="X",M="M",Y="Y",moderator=moderator)
+            #model
+            model=modmedEquation(X=input$X,M=input$Mi,Y=input$Y,moderator=moderator)
+        }
+        #cat(model)
 
         updateTextAreaInput(session,"equation",value=model)
     })

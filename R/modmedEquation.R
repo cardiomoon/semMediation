@@ -126,6 +126,7 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
 
       # M=NULL; labels=NULL;range=FALSE
 
+
       (XM=moderator$name[str_detect2(moderator$site,"a")])
       (MY=moderator$name[str_detect2(moderator$site,"b")])
       (XY=moderator$name[str_detect2(moderator$site,"c")])
