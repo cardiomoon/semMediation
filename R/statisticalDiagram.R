@@ -1,0 +1,105 @@
+require(diagram)
+statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01){
+    nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
+     nodes
+    # nodes=nodes[1:19, ]
+    # write.csv(nodes,"./R/node.csv",row.names = FALSE)
+    arrows=read.csv("./R/arrow.csv",stringsAsFactors = FALSE)
+     arrows
+   #  arrows=arrows[1:19, ]
+   #  write.csv(arrows,"./R/arrow.csv",row.names = FALSE)
+   # no=76;radx=0.12;rady=0.04;xmargin=0.03
+   #  nodes
+   #  arrows
+    nodes=nodes[nodes$no==no, ]
+    arrows=arrows[arrows$no==no,]
+
+    openplotmat()
+    for(i in 1:nrow(arrows)){
+        myarrow2(from=arrows$start[i],to=arrows$end[i],
+                 label=arrows$name[i],no=no,xmargin=xmargin,radx=radx,rady=rady,
+                 label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i])
+    }
+
+    for(i in 1:nrow(nodes)){
+        xpos=nodes$xpos[i]
+        xpos=adjustxpos(xpos,xmargin,radx)
+        mid=c(xpos,nodes$ypos[i])
+        drawtext(mid,radx=radx,rady=rady,lab=nodes$name[i],latent=FALSE)
+    }
+
+}
+
+adjustxpos=function(xpos,xmargin=0.01,radx=0.12){
+    ifelse(xpos==0.5,0.5,
+           ifelse(xpos>0.5,
+                  1-xmargin-radx-(1.0-xpos)*10*(xmargin+2*radx),
+                  xmargin+radx+(xpos)*10*(xmargin+2*radx)))
+}
+
+
+adjustxpos(1)
+adjustxpos(0.9)
+
+
+
+myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos=0.5,arr.pos=NULL,...){
+    nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
+    nodes=nodes[nodes$no==no, ]
+    # from="X";no=1;to="Y";label="66"
+    xpos=nodes$xpos[nodes$name==from]
+    xpos=adjustxpos(xpos,xmargin,radx)
+
+
+    ypos=nodes$ypos[nodes$name==from]
+    start=c(xpos,ypos)
+    xpos=nodes$xpos[nodes$name==to]
+    xpos=adjustxpos(xpos,xmargin,radx)
+
+
+    ypos=nodes$ypos[nodes$name==to]
+    end=c(xpos,ypos)
+    if(nchar(label)>1) {
+
+
+        if(nchar(label==3)){
+            temp1=paste0("expression(",substr(label,1,1),"[",substr(label,2,2),"]","[",substr(label,3,nchar(label)),"])")
+
+        } else{
+        temp2=substr(label,2,nchar(label))
+        temp2
+        temp1=paste0("expression(",substr(label,1,1),"[",temp2,"])")
+        temp1
+        }
+        temp=eval(parse(text=temp1))
+        label=temp
+    }
+    myarrow(from=start,to=end,label=label,label.pos=label.pos,arr.pos=arr.pos,...)
+
+}
+
+statisticalDiagram(no=1)
+
+statisticalDiagram(no=2)
+statisticalDiagram(no=4)
+statisticalDiagram(no=5)
+statisticalDiagram(no=7)
+statisticalDiagram(no=8)
+statisticalDiagram(no=9)
+statisticalDiagram(no=10)
+statisticalDiagram(no=14)
+statisticalDiagram(no=15)
+statisticalDiagram(no=16)
+statisticalDiagram(no=17)
+statisticalDiagram(no=21)
+statisticalDiagram(no=22)
+statisticalDiagram(no=23)
+statisticalDiagram(no=23,radx=0.08)
+statisticalDiagram(no=24,radx=0.08)
+statisticalDiagram(no=28)
+
+statisticalDiagram(no=76,radx=0.06)
+statisticalDiagram(no=76,radx=0.12)
+statisticalDiagram(no=76)
+
+

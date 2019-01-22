@@ -7,8 +7,10 @@
 #' @param arr.pos arrow position
 #' @param ... Further argument to be passed to straightarrow()
 #' @importFrom diagram textplain straightarrow
-myarrow=function(from,to,lwd=1,adjust=1,label="",arr.pos=NULL,...){
-
+myarrow=function(from,to,lwd=1,adjust=1,label="",label.pos=0.5,arr.pos=NULL,...){
+    if(!is.null(arr.pos)){
+        if(arr.pos==0) arr.pos<-NULL
+    }
     if(is.null(arr.pos)){
         if(adjust){
             if(from[2]==to[2]) arr.pos=0.8
@@ -29,10 +31,9 @@ myarrow=function(from,to,lwd=1,adjust=1,label="",arr.pos=NULL,...){
         # str(distance)
         # str(arr.pos)
     }
-    if(label!="") {
-        mid=0.5*(from+to)
-        textplain(mid=mid,lab=label,adj=c(1,-1))
-    }
+    mid=label.pos*(from+to)
+    textplain(mid=mid,lab=label,adj=c(1,-0.5))
+
     straightarrow(from=from,to=to,lwd=lwd,arr.pos=arr.pos,arr.type="triangle",...)
 }
 
