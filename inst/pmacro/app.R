@@ -2,7 +2,6 @@ library(shiny)
 library(semMediation)
 library(stringr)
 library(DT)
-library(webrSub)
 library(editData)
 library(shinyWidgets)
 library(lavaan)
@@ -22,10 +21,7 @@ actionBttn3=function(...){
 
 pickerInput3=function(...){
     div(style="display:inline-block;",pickerInput(...))
-
 }
-
-
 
 ui=fluidPage(
     h2("Select Data"),
@@ -87,8 +83,9 @@ server=function(input,output,session){
             for(i in 1:length(mylist())){
                 inputlist[[4*i-3]]=actionBttn3(paste0("addVar",i),NULL,style="simple",color="success",icon=icon("arrow-right"))
                 inputlist[[4*i-2]]=label3(mylist()[i],width=15)
-                inputlist[[4*i-1]]=pickerInput3(mylist()[i],NULL,choices=colnames(data()),selected="",
-                                              multiple=TRUE,width="90px",options=list(title="Select...",style="btn-warning"))
+                inputlist[[4*i-1]]=pickerInput3(mylist()[i],NULL,
+                                                choices=c("",colnames(data())),selected="",
+                                                width="150px",options=list(title="Select..."))
 
                 inputlist[[4*i]]=p("")
             }
@@ -101,20 +98,23 @@ server=function(input,output,session){
 
 
             fluidRow(
-                column(4,chooserUI("chooser")),
+                column(2,selectInput("chooser",NULL,
+                                     choices=colnames(data()),
+                                     selectize=FALSE,
+                                     size=min(10,length(data())))),
                 column(3,uiOutput("assignVars")),
                 column(2,actionButton("makeEq","make Equation",width="150px"),
-                       br(),
+                       hr(),
                        actionButton("resetEq","reset Equation",width="150px")
                        ),
-                column(3,
+                column(4,
                        textAreaInput("equation",NULL,rows=10,placeholder="You can edit equation.")
                        )
             )
         )
     })
 
-    choices1=reactive({
+    choices1=function(){
         count=length(mylist())
         selected=c()
         for(i in 1:count){
@@ -122,31 +122,52 @@ server=function(input,output,session){
         }
         result=setdiff(colnames(data()),selected)
         result
-    })
+    }
 
-    result=callModule(chooser,"chooser",leftChoices=choices1,width=reactive(105))
+    # result=callModule(chooser,"chooser",leftChoices=choices1,width=reactive(105))
 
     observeEvent(input$addVar1,{
-        updatePickerInput(session,mylist()[1],selected=result()$right)
+        updateSelectInput(session,mylist()[1],selected=input$chooser)
     })
+
 
     observeEvent(input$addVar2,{
-        updatePickerInput(session,mylist()[2],selected=result()$right)
-    })
+        updateSelectInput(session,mylist()[2],selected=input$chooser)
+   })
 
     observeEvent(input$addVar3,{
-        updatePickerInput(session,mylist()[3],selected=result()$right)
+        updateSelectInput(session,mylist()[3],selected=input$chooser)
     })
 
     observeEvent(input$addVar4,{
-        updatePickerInput(session,mylist()[4],selected=result()$right)
+        updateSelectInput(session,mylist()[4],selected=input$chooser)
     })
     observeEvent(input$addVar5,{
-        updatePickerInput(session,mylist()[5],selected=result()$right)
+        updateSelectInput(session,mylist()[5],selected=input$chooser)
     })
 
     observeEvent(input$addVar6,{
-        updatePickerInput(session,mylist()[6],selected=result()$right)
+        updateSelectInput(session,mylist()[6],selected=input$chooser)
+    })
+
+    observeEvent(input[[mylist()[1]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+
+    observeEvent(input[[mylist()[2]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+    observeEvent(input[[mylist()[3]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+    observeEvent(input[[mylist()[4]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+    observeEvent(input[[mylist()[5]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+    observeEvent(input[[mylist()[6]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
     })
 
     observeEvent(input$resetEq,{

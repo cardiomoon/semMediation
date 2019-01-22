@@ -1,4 +1,6 @@
 require(diagram)
+
+no=1;radx=0.10;rady=0.04;xmargin=0.01
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01){
     nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
      nodes
@@ -49,14 +51,11 @@ myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos
     # from="X";no=1;to="Y";label="66"
     xpos=nodes$xpos[nodes$name==from]
     xpos=adjustxpos(xpos,xmargin,radx)
-
-
     ypos=nodes$ypos[nodes$name==from]
     start=c(xpos,ypos)
+
     xpos=nodes$xpos[nodes$name==to]
     xpos=adjustxpos(xpos,xmargin,radx)
-
-
     ypos=nodes$ypos[nodes$name==to]
     end=c(xpos,ypos)
     if(nchar(label)>1) {
@@ -80,6 +79,7 @@ myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos
 
 statisticalDiagram(no=1)
 
+
 statisticalDiagram(no=2)
 statisticalDiagram(no=4)
 statisticalDiagram(no=5)
@@ -94,9 +94,21 @@ statisticalDiagram(no=17)
 statisticalDiagram(no=21)
 statisticalDiagram(no=22)
 statisticalDiagram(no=23)
-statisticalDiagram(no=23,radx=0.08)
-statisticalDiagram(no=24,radx=0.08)
+statisticalDiagram(no=24)
 statisticalDiagram(no=28)
+statisticalDiagram(no=29)
+statisticalDiagram(no=30)
+statisticalDiagram(no=31)
+statisticalDiagram(no=32)
+statisticalDiagram(no=36)
+statisticalDiagram(no=40)
+statisticalDiagram(no=41)
+statisticalDiagram(no=45)
+statisticalDiagram(no=45,radx=0.06)
+statisticalDiagram(no=49)
+statisticalDiagram(no=50)
+statisticalDiagram(no=51)
+
 
 statisticalDiagram(no=76,radx=0.06)
 statisticalDiagram(no=76,radx=0.12)
