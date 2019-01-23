@@ -246,7 +246,8 @@ server=function(input,output,session){
 
     output$result=renderUI({
 
-        if(input$equation!=""){
+
+        if(req(input$equation)!=""){
 
             fit=sem(model=input$equation,data=data())
         }
