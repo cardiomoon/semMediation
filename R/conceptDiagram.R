@@ -4,6 +4,7 @@
 #' @param lwd line width
 #' @param adjust adjust position
 #' @param label label
+#' @param label.pos label position
 #' @param arr.pos arrow position
 #' @param ... Further argument to be passed to straightarrow()
 #' @export
@@ -81,11 +82,12 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
                         radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
                         moderator=list(),labels=list()){
 
-    # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
-    # xb=FALSE
+     # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
+     # latent=rep(FALSE,3);xb=FALSE;mc=FALSE;labels=list()
     # labels
 
-     # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
+      # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
+      # moderator
 
     if(is.null(yinterval)) yinterval=rady*6
     openplotmat()
@@ -104,6 +106,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
     }
 
     select=which(moderator$pos==2)
+    select
     if(length(select)==1){
         xpos=1-(radx+xmargin)
         ypos=0.5+yinterval-rady

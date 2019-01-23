@@ -8,17 +8,7 @@
 #'@examples
 #'statisticalDiagram(76)
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE){
-    # nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
-    #  nodes
-    # nodes=nodes[1:19, ]
-    # write.csv(nodes,"./R/node.csv",row.names = FALSE)
-    # arrows=read.csv("./R/arrow.csv",stringsAsFactors = FALSE)
-    #  arrows
-   #  arrows=arrows[1:19, ]
-   #  write.csv(arrows,"./R/arrow.csv",row.names = FALSE)
-   # no=76;radx=0.12;rady=0.04;xmargin=0.03
-   #  nodes
-   #  arrows
+
     nodes=nodes[nodes$no==no, ]
     arrows=arrows[arrows$no==no,]
 
@@ -62,7 +52,7 @@ adjustxpos=function(xpos,xmargin=0.01,radx=0.12){
 #' @param arr.pos arrow position
 #' @param ... Further argument to be passed to straightarrow()
 myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos=0.5,arr.pos=NULL,...){
-    # nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
+
     nodes=nodes[nodes$no==no, ]
     # from="X";no=1;to="Y";label="66"
     xpos=nodes$xpos[nodes$name==from]

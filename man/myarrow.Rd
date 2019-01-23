@@ -18,6 +18,8 @@ myarrow(from, to, lwd = 1, adjust = 1, label = "", label.pos = 0.5,
 
 \item{label}{label}
 
+\item{label.pos}{label position}
+
 \item{arr.pos}{arrow position}
 
 \item{...}{Further argument to be passed to straightarrow()}
