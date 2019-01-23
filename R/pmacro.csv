@@ -3,6 +3,9 @@ no,X,M,Y,modName,modSite,pos
 2,X,,Y,M:W,c:c,"3,3"
 4,X,Mi,Y,,,
 5,X,Mi,Y,W,c,3
+6,X,M1:M2,Y,,,
+6.3,X,M1:M2:M3,Y,,,
+6.4,X,M1:M2:M3:M4,Y,,,
 7,X,Mi,Y,W,a,1
 8,X,Mi,Y,W,"a,c",1
 9,X,Mi,Y,W:Z,a:a,"1,3"

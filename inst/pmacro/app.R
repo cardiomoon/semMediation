@@ -75,12 +75,18 @@ server=function(input,output,session){
     mylist=reactive({
         i=as.numeric(input$modelno)
         select=pmacro$no==i
-        mylist=c(pmacro$X[select],pmacro$M[select],pmacro$Y[select])
+        mylist=pmacro$X[select]
+        if(pmacro$M[select]!="") {
+            mediators=unlist(strsplit(pmacro$M[select],":"))
+            mylist=c(mylist,mediators)
+        }
+        mylist=c(mylist,pmacro$Y[select])
         mylist=setdiff(mylist,"")
         if(pmacro$modName[select]!="") {
             moderators=unlist(strsplit(pmacro$modName[select],":"))
             mylist=c(mylist,moderators)
         }
+
         mylist
     })
 
@@ -94,7 +100,7 @@ server=function(input,output,session){
             inputlist=list()
             for(i in 1:length(mylist())){
                 inputlist[[4*i-3]]=actionBttn3(paste0("addVar",i),NULL,style="simple",color="success",icon=icon("arrow-right"))
-                inputlist[[4*i-2]]=label3(mylist()[i],width=15)
+                inputlist[[4*i-2]]=label3(mylist()[i],width=20)
                 inputlist[[4*i-1]]=pickerInput3(mylist()[i],NULL,
                                                 choices=c("",colnames(data())),selected="",
                                                 width="150px",options=list(title="Select..."))
@@ -190,7 +196,16 @@ server=function(input,output,session){
     observeEvent(input$makeEq,{
         i=as.numeric(input$modelno)
         select=pmacro$no==i
-        #select=40
+        if((i>=6) & (i<7)){
+            temp=unlist(strsplit(pmacro$M[select],":"))
+            mediators=c()
+            for(i in 1:length(temp)){
+                mediators=c(mediators,input[[temp[i]]])
+            }
+            model=makeEquation(X=input$X,M=mediators,Y=input$Y)
+        } else{
+        select=pmacro$no==i
+        #select=3
         if(pmacro$modName[select]!=""){
             name=unlist(strsplit(pmacro$modName[select],":"))
             name
@@ -210,7 +225,10 @@ server=function(input,output,session){
             moderator=list(name=modname,site=sites)
             #str(moderator)
 
+        } else{
+            moderator=NULL
         }
+
         pmacro$M[select]
         if(pmacro$M[select]==""){
             model=modmedEquation(X=input$X,Y=input$Y,moderator=moderator)
@@ -219,6 +237,7 @@ server=function(input,output,session){
            # model=modmedEquation(X="X",M="M",Y="Y",moderator=moderator)
             #model
             model=modmedEquation(X=input$X,M=input$Mi,Y=input$Y,moderator=moderator)
+        }
         }
         #cat(model)
 
@@ -285,3 +304,4 @@ server=function(input,output,session){
 }
 
 shinyApp(ui,server)
+

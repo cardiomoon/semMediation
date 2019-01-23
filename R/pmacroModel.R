@@ -6,6 +6,9 @@ pmacroModel=function(no=1){
     if(length(i)<1) {
         cat("Currently, Model number ",no," is not supported.")
     } else{
+        if((no>=6)&(no<7)){
+            result=statisticalDiagram(no,arrowlabel = FALSE)
+        } else{
     name=list()
     sites=list()
     moderator=list()
@@ -23,8 +26,10 @@ pmacroModel=function(no=1){
     }
     M=pmacro$M[i]
     if(M=="") M=c()
-    if(no==74) conceptDiagram2(xb=TRUE)
-    else conceptDiagram2(X=pmacro$X[i],M=M,Y=pmacro$Y[i],moderator = moderator)
+    if(no==74) result=conceptDiagram2(xb=TRUE)
+    else result=conceptDiagram2(X=pmacro$X[i],M=M,Y=pmacro$Y[i],moderator = moderator)
 
+        }
     }
+    result
 }

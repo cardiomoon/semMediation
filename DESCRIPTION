@@ -24,7 +24,7 @@ Description: Make a mediation plot to visualize the mediation effects for a stru
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

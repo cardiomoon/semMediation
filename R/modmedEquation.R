@@ -114,6 +114,8 @@ str_detect2=function(list,pattern){
 #' moderator=list(name=c("Z"),site=list(c("a","c")))
 #' cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=TRUE))
 #' X="X";M="M";Y="Y"
+#' cat(modmedEquation(X=X,M=M,Y=Y,range=TRUE))
+#' X="X";M="M";Y="Y"
 #' moderator=list(name=c("Z"),site=list(c("a","c")))
 #' cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=TRUE))
 #' X="X";M="M";Y="Y";labels=NULL;range=FALSE
