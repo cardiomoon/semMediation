@@ -1,13 +1,19 @@
-require(diagram)
-
-no=1;radx=0.10;rady=0.04;xmargin=0.01
-statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01){
-    nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
-     nodes
+#'Draw statistical diagram
+#'@param no process macro model number
+#'@param radx horizontal radius of the box.
+#'@param rady vertical radius of the box.
+#'@param xmargin horizontal margin of plot
+#'@param arrowlabel logical whether or not draw arrowlabel
+#'@export
+#'@examples
+#'statisticalDiagram(76)
+statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE){
+    # nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
+    #  nodes
     # nodes=nodes[1:19, ]
     # write.csv(nodes,"./R/node.csv",row.names = FALSE)
-    arrows=read.csv("./R/arrow.csv",stringsAsFactors = FALSE)
-     arrows
+    # arrows=read.csv("./R/arrow.csv",stringsAsFactors = FALSE)
+    #  arrows
    #  arrows=arrows[1:19, ]
    #  write.csv(arrows,"./R/arrow.csv",row.names = FALSE)
    # no=76;radx=0.12;rady=0.04;xmargin=0.03
@@ -18,8 +24,9 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01){
 
     openplotmat()
     for(i in 1:nrow(arrows)){
+        label=ifelse(arrowlabel,arrows$name[i],"")
         myarrow2(from=arrows$start[i],to=arrows$end[i],
-                 label=arrows$name[i],no=no,xmargin=xmargin,radx=radx,rady=rady,
+                 label=label,no=no,xmargin=xmargin,radx=radx,rady=rady,
                  label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i])
     }
 
@@ -32,6 +39,10 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01){
 
 }
 
+#'Adjust x position
+#'@param xpos x position
+#'@param xmargin horizontal margin of plot
+#'@param radx horizontal radius of the box.
 adjustxpos=function(xpos,xmargin=0.01,radx=0.12){
     ifelse(xpos==0.5,0.5,
            ifelse(xpos>0.5,
@@ -39,14 +50,19 @@ adjustxpos=function(xpos,xmargin=0.01,radx=0.12){
                   xmargin+radx+(xpos)*10*(xmargin+2*radx)))
 }
 
-
-adjustxpos(1)
-adjustxpos(0.9)
-
-
-
+#' Draw arrow with adjustment of a position
+#' @param from coordinates (x,y) of the point *from* which to draw arrow.
+#' @param to coordinates (x,y) of the point *to* which to draw arrow.
+#' @param label label to display
+#' @param no process macro model number
+#' @param radx horizontal radius of the box.
+#' @param rady vertical radius of the box.
+#' @param xmargin horizontal margin of plot
+#' @param label.pos label position
+#' @param arr.pos arrow position
+#' @param ... Further argument to be passed to straightarrow()
 myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos=0.5,arr.pos=NULL,...){
-    nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
+    # nodes=read.csv("./R/node.csv",stringsAsFactors = FALSE)
     nodes=nodes[nodes$no==no, ]
     # from="X";no=1;to="Y";label="66"
     xpos=nodes$xpos[nodes$name==from]
@@ -77,41 +93,5 @@ myarrow2=function(from,to,label="",no,radx=0.12,rady=0.04,xmargin=0.01,label.pos
 
 }
 
-statisticalDiagram(no=1)
-
-
-statisticalDiagram(no=2)
-statisticalDiagram(no=4)
-statisticalDiagram(no=5)
-statisticalDiagram(no=7)
-statisticalDiagram(no=8)
-statisticalDiagram(no=9)
-statisticalDiagram(no=10)
-statisticalDiagram(no=14)
-statisticalDiagram(no=15)
-statisticalDiagram(no=16)
-statisticalDiagram(no=17)
-statisticalDiagram(no=21)
-statisticalDiagram(no=22)
-statisticalDiagram(no=23)
-statisticalDiagram(no=24)
-statisticalDiagram(no=28)
-statisticalDiagram(no=29)
-statisticalDiagram(no=30)
-statisticalDiagram(no=31)
-statisticalDiagram(no=32)
-statisticalDiagram(no=36)
-statisticalDiagram(no=40)
-statisticalDiagram(no=41)
-statisticalDiagram(no=45)
-statisticalDiagram(no=45,radx=0.06)
-statisticalDiagram(no=49)
-statisticalDiagram(no=50)
-statisticalDiagram(no=51)
-
-
-statisticalDiagram(no=76,radx=0.06)
-statisticalDiagram(no=76,radx=0.12)
-statisticalDiagram(no=76)
 
 

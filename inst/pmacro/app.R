@@ -37,10 +37,17 @@ ui=fluidPage(
     h2("Select Process Macro Model Number"),
     fluidRow(
         column(3,
-               selectInput("modelno","Model No",choices=pmacro$no,selectize=FALSE,size=18)
+               selectInput("modelno","Model No",choices=pmacro$no,selectize=FALSE,size=25)
                ),
         column(9,
-               h4("Concept Diagram"),
+
+               radioGroupButtons(
+                   inputId = "plotChoice",
+                   label = "Select Plot",
+                   choices = c("Conceptual Diagram"=1, "Statistical Diagram"=2),
+                   status = "primary"
+               ),
+
                plotOutput("modelPlot")
         )
     ),
@@ -52,7 +59,12 @@ ui=fluidPage(
 
 server=function(input,output,session){
     output$modelPlot=renderPlot(
-        pmacroModel(as.numeric(input$modelno))
+        if(input$plotChoice==1) {
+            pmacroModel(as.numeric(input$modelno))
+        } else{
+                statisticalDiagram(as.numeric(input$modelno))
+            }
+
     )
 
     data=reactive({

@@ -6,6 +6,7 @@
 #' @param label label
 #' @param arr.pos arrow position
 #' @param ... Further argument to be passed to straightarrow()
+#' @export
 #' @importFrom diagram textplain straightarrow
 myarrow=function(from,to,lwd=1,adjust=1,label="",label.pos=0.5,arr.pos=NULL,...){
     if(!is.null(arr.pos)){
@@ -41,6 +42,7 @@ myarrow=function(from,to,lwd=1,adjust=1,label="",label.pos=0.5,arr.pos=NULL,...)
 #' @param ... Further argument to be passed to textellipse() or textrect()
 #' @param latent Logical
 #' @importFrom diagram textellipse textrect
+#' @export
 drawtext=function(...,latent=TRUE){
     if(latent) textellipse(...)
     else textrect(...)
