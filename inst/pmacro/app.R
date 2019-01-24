@@ -27,7 +27,9 @@ ui=fluidPage(
     h2("Select Data"),
     fluidRow(
         column(3,
-               selectInput("dataname","Data",choices=dataNames,selectize=FALSE,size=7)
+               fileInput("file","Upload File or"),
+               radioButtons("dataname","Select example",choices=dataNames),
+               textInput("mydata","Data Name")
         ),
         column(9,
                DTOutput('table')
@@ -58,6 +60,8 @@ ui=fluidPage(
 )
 
 server=function(input,output,session){
+
+
     output$modelPlot=renderPlot(
         if(input$plotChoice==1) {
             pmacroModel(as.numeric(input$modelno))
@@ -67,8 +71,22 @@ server=function(input,output,session){
 
     )
 
+    observeEvent(input$file,{
+
+        updateTextInput(session,"mydata",value="uploaded")
+
+    })
+
+    observeEvent(input$dataname,{
+        updateTextInput(session,"mydata",value=input$dataname)
+    })
+
     data=reactive({
-        data=read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
+        if(input$mydata=="uploaded") {
+            data<-myimport(input$file$datapath)
+        } else{
+             data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
+            }
         data
     })
 

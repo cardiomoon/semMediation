@@ -14,6 +14,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
 
     openplotmat()
     for(i in 1:nrow(arrows)){
+        cat("i=",i,"\n")
         label=ifelse(arrowlabel,arrows$name[i],"")
         myarrow2(from=arrows$start[i],to=arrows$end[i],
                  label=label,no=no,xmargin=xmargin,radx=radx,rady=rady,
