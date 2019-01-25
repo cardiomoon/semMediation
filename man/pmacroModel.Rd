@@ -4,10 +4,12 @@
 \alias{pmacroModel}
 \title{draw conceptual diagram of process macro model}
 \usage{
-pmacroModel(no = 1)
+pmacroModel(no = 1, labels = list())
 }
 \arguments{
 \item{no}{process macro model number}
+
+\item{labels}{A character list}
 }
 \description{
 draw conceptual diagram of process macro model

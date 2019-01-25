@@ -148,9 +148,12 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
 
 
     if(!is.null(M)){
-        myarrow(from=x,to=y,label="c'")
-        myarrow(from=x,to=m,label="a")
-        myarrow(from=m,to=y,label="b")
+        # myarrow(from=x,to=y,label="c'")
+        # myarrow(from=x,to=m,label="a")
+        # myarrow(from=m,to=y,label="b")
+        myarrow(from=x,to=y)
+        myarrow(from=x,to=m)
+        myarrow(from=m,to=y)
     } else{
         myarrow(from=x,to=y,label="")
     }

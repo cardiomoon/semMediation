@@ -6,7 +6,7 @@ library(editData)
 library(shinyWidgets)
 library(lavaan)
 library(flextable)
-library(DiagrammeR)
+library(semTools)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -185,6 +185,9 @@ server=function(input,output,session){
     observeEvent(input$addVar6,{
         updateSelectInput(session,mylist()[6],selected=input$chooser)
     })
+    observeEvent(input$addVar7,{
+        updateSelectInput(session,mylist()[7],selected=input$chooser)
+    })
 
     observeEvent(input[[mylist()[1]]],{
         updateSelectInput(session,"chooser",choices=choices1())
@@ -203,6 +206,10 @@ server=function(input,output,session){
         updateSelectInput(session,"chooser",choices=choices1())
     })
     observeEvent(input[[mylist()[6]]],{
+        updateSelectInput(session,"chooser",choices=choices1())
+    })
+
+    observeEvent(input[[mylist()[7]]],{
         updateSelectInput(session,"chooser",choices=choices1())
     })
 
@@ -264,59 +271,144 @@ server=function(input,output,session){
 
     output$result=renderUI({
 
+        req(input$Analysis)
 
-        if(req(input$equation)!=""){
+        isolate({
 
-            fit=sem(model=input$equation,data=data())
-        }
+
+
+
+       fit=sem(model=input$equation,data=data())
+
 
         output$text=renderPrint({
 
-          input$Analysis
 
-            isolate({
                 if(input$equation!=""){
-                cat("model=",input$equation,"\n")
+                cat("model='",input$equation,"'\n")
                 cat("fit=sem(model=model,data=",input$dataname,")\n")
                 cat("summary(fit)\n\n")
 
                 summary(fit)
                 cat("parameterEstimates(fit)\n\n")
-                parameterEstimates(fit)}
-            })
+                parameterEstimates(fit)
+                cat("discriminantValidityTable(fit)\n\n")
+                discriminantValidityTable(fit)
+                cat("reliablityTable(fit)\n\n")
+                reliabilityTable(fit)
+                }
+
         })
 
         output$estimateTable=renderUI({
 
-            input$Analysis
 
-            isolate({
+
             if(input$equation!=""){
 
-            estimatesTable2(fit) %>%
+            estimatesTable2(fit,digits=as.numeric(input$digits)) %>%
                 htmltools_value()
             }
-            })
+
         })
+
+        output$corTable=renderUI({
+                if(input$equation!=""){
+
+                    corTable2(fit) %>%
+                        htmltools_value()
+                }
+        })
+
+        output$corPlot=renderPlot({
+            if(input$equation!=""){
+
+                corPlot(fit)
+            }
+        })
+
+        output$reliabilityTable=renderUI({
+            if(input$equation!=""){
+                reliabilityTable2(fit)  %>%
+                    htmltools_value()
+            }
+        })
+
+        output$discriminantValidityTable=renderUI({
+            if(input$equation!=""){
+
+                discriminantValidityTable2(fit) %>%
+                    htmltools_value()
+            }
+        })
+
+        output$modelFitTable=renderUI({
+            if(input$equation!=""){
+
+                modelFitTable2(fit) %>%
+                    htmltools_value()
+            }
+        })
+
 
         output$diagram=renderGrViz({
 
-            input$Analysis
 
-            isolate({
                 if(input$equation!=""){
                     semDiagram(fit)
                 }
-            })
+
         })
+
+        output$concept=renderPlot({
+
+            names<-mylist()
+            labels=list()
+            for(i in 1:length(names)){
+                labels[[names[i]]]=input[[names[i]]]
+            }
+            pmacroModel(no=as.numeric(input$modelno),labels=labels)
+
+        })
+        output$statDiagram=renderPlot({
+
+            names<-mylist()
+            labels=list()
+            for(i in 1:length(names)){
+                labels[[names[i]]]=input[[names[i]]]
+            }
+            table1=estimatesTable(fit,digits=as.numeric(input$digits))
+            statisticalDiagram(no=as.numeric(input$modelno),labels=labels,
+                               whatLabel = input$whatLabel,estimateTable=table1)
+
+        })
+
 
         tagList(
             verbatimTextOutput("text"),
-            h3("Estimates Table"),
+            h2("Conceptual Diagram"),
+            plotOutput("concept"),
+            h2("Estimates Table"),
             uiOutput("estimateTable"),
-            h3("Statistical Diagram"),
-            grVizOutput("diagram")
+            h2("Statistical Diagram"),
+            selectInput3("whatLabel","whatLabel",choices=c("name","est","std")),
+            selectInput3("digits","digits",choices=c(2,3,4),selected=3),
+            plotOutput("statDiagram"),
+            h2("Correlation Table"),
+            uiOutput("corTable"),
+            h2("Correlation Plot"),
+            plotOutput("corPlot"),
+            h2("Model Fit Table"),
+            uiOutput("modelFitTable")
+            # h2("Reliability Table"),
+            # uiOutput("reliabilityTable"),
+            # h2("Discriminant Validity Table"),
+            # uiOutput("discriminantValidityTable"),
+
+
+
         )
+        })
     })
 
 

@@ -5,7 +5,8 @@
 \title{Draw statistical diagram}
 \usage{
 statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
-  arrowlabel = TRUE)
+  arrowlabel = TRUE, labels = list(), whatLabel = "name",
+  estimateTable = NULL)
 }
 \arguments{
 \item{no}{process macro model number}
@@ -17,10 +18,16 @@ statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
 \item{xmargin}{horizontal margin of plot}
 
 \item{arrowlabel}{logical whether or not draw arrowlabel}
+
+\item{labels}{A character list}
+
+\item{whatLabel}{What should the edge labels indicate in the path diagram? Choices are c("est","std","name")}
+
+\item{estimateTable}{A data.frame. Result of estimateTable()}
 }
 \description{
 Draw statistical diagram
 }
 \examples{
-statisticalDiagram(76)
+statisticalDiagram(4)
 }

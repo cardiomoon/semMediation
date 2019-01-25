@@ -4,12 +4,14 @@
 \alias{estimatesTable2}
 \title{convert parameterEstimates to flextable}
 \usage{
-estimatesTable2(fit, vanilla = FALSE, ...)
+estimatesTable2(fit, vanilla = FALSE, digits = 2, ...)
 }
 \arguments{
 \item{fit}{An object of class lavaan. Result of sem function of package lavaan}
 
 \item{vanilla}{Logical}
+
+\item{digits}{integer indicating the number of decimal places (round) or significant digits (signif) to be used.}
 
 \item{...}{Further argumant to be passed to estimatesTable()}
 }

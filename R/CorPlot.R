@@ -126,6 +126,7 @@ modelFitTable2=function(fit,vanilla=FALSE,...){
 #' @export
 estimatesTable=function(fit,latent=TRUE,regression=TRUE,mediation=FALSE,covar=FALSE,ci=FALSE,standardized=TRUE,digits=2){
     # latent=TRUE;regression=TRUE;mediation=FALSE;covar=FALSE;ci=TRUE;standardized=TRUE;digits=2
+    # cat("digits=",digits,"\n")
     result=parameterEstimates(fit,ci=ci,standardized=standardized)
     result
     if(mediation){
@@ -173,11 +174,13 @@ estimatesTable=function(fit,latent=TRUE,regression=TRUE,mediation=FALSE,covar=FA
 #'convert parameterEstimates to flextable
 #'@param fit An object of class lavaan. Result of sem function of package lavaan
 #'@param vanilla Logical
+#'@param digits integer indicating the number of decimal places (round) or significant digits (signif) to be used.
+
 #'@param ... Further argumant to be passed to estimatesTable()
 #'@export
-estimatesTable2=function(fit,vanilla=FALSE,...){
-    result=estimatesTable(fit,...)
-    df2flextable(result,vanilla=vanilla)
+estimatesTable2=function(fit,vanilla=FALSE,digits=2,...){
+    result=estimatesTable(fit,digits=digits,...)
+    df2flextable(result,vanilla=vanilla,digits=digits)
 }
 
 

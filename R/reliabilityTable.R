@@ -35,6 +35,7 @@ discriminantValidityTable=function(fit){
 #' @export
 discriminantValidityTable2=function(fit,vanilla=FALSE){
     result=tryCatch(semTools::reliability(fit),error= function(e) "error")
+
     if("character" %in% class(result)) {
         result<-NULL
     } else{
@@ -71,6 +72,7 @@ reliabilityTable=function(fit){
 #' @export
 reliabilityTable2=function(fit,vanilla=FALSE){
     result=tryCatch(semTools::reliability(fit),error= function(e) "error")
+    result
     if("character" %in% class(result)) {
         result<-NULL
     } else{
