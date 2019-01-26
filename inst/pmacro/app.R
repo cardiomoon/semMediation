@@ -160,58 +160,18 @@ server=function(input,output,session){
         result
     }
 
-    # result=callModule(chooser,"chooser",leftChoices=choices1,width=reactive(105))
-
-    observeEvent(input$addVar1,{
-        updateSelectInput(session,mylist()[1],selected=input$chooser)
+    lapply(1:7,FUN=function(i){
+        observeEvent(input[[paste0("addVar",i)]],{
+            updateSelectInput(session,mylist()[i],selected=input$chooser)
+        })
     })
 
-
-    observeEvent(input$addVar2,{
-        updateSelectInput(session,mylist()[2],selected=input$chooser)
-   })
-
-    observeEvent(input$addVar3,{
-        updateSelectInput(session,mylist()[3],selected=input$chooser)
+    lapply(1:7,FUN=function(i){
+        observeEvent(input[[mylist()[i]]],{
+            updateSelectInput(session,"chooser",choices=choices1())
+        })
     })
 
-    observeEvent(input$addVar4,{
-        updateSelectInput(session,mylist()[4],selected=input$chooser)
-    })
-    observeEvent(input$addVar5,{
-        updateSelectInput(session,mylist()[5],selected=input$chooser)
-    })
-
-    observeEvent(input$addVar6,{
-        updateSelectInput(session,mylist()[6],selected=input$chooser)
-    })
-    observeEvent(input$addVar7,{
-        updateSelectInput(session,mylist()[7],selected=input$chooser)
-    })
-
-    observeEvent(input[[mylist()[1]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-
-    observeEvent(input[[mylist()[2]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-    observeEvent(input[[mylist()[3]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-    observeEvent(input[[mylist()[4]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-    observeEvent(input[[mylist()[5]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-    observeEvent(input[[mylist()[6]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
-
-    observeEvent(input[[mylist()[7]]],{
-        updateSelectInput(session,"chooser",choices=choices1())
-    })
 
     observeEvent(input$resetEq,{
         updateTextAreaInput(session,"equation",value="")
