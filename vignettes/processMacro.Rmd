@@ -24,13 +24,16 @@ knitr::opts_chunk$set(
 require(semMediation)
 no=nrow(pmacro)
 ```
-Curretly, `r no` process macro models are supported. Supported models are as follows.
+Currently, `r no` process macro models are supported. Supported models are as follows.
 
 ```{r}
 for(i in 1:no){
     
     cat("Model",pmacro$no[i],"\n")
+    cat("Conceptual Diagram","\n")
     pmacroModel(pmacro$no[i])
+    cat("Statistical Diagram","\n")
+    statisticalDiagram(pmacro$no[i])
 }
 ```
 
