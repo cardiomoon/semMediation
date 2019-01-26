@@ -306,7 +306,7 @@ server=function(input,output,session){
 
             if(input$equation!=""){
 
-            estimatesTable2(fit,digits=as.numeric(input$digits)) %>%
+            estimatesTable2(fit,digits=as.numeric(input$digits),vanilla=input$vanilla) %>%
                 htmltools_value()
             }
 
@@ -315,7 +315,7 @@ server=function(input,output,session){
         output$corTable=renderUI({
                 if(input$equation!=""){
 
-                    corTable2(fit) %>%
+                    corTable2(fit,vanilla=input$vanilla) %>%
                         htmltools_value()
                 }
         })
@@ -329,7 +329,7 @@ server=function(input,output,session){
 
         output$reliabilityTable=renderUI({
             if(input$equation!=""){
-                reliabilityTable2(fit)  %>%
+                reliabilityTable2(fit,vanilla=input$vanilla)  %>%
                     htmltools_value()
             }
         })
@@ -337,7 +337,7 @@ server=function(input,output,session){
         output$discriminantValidityTable=renderUI({
             if(input$equation!=""){
 
-                discriminantValidityTable2(fit) %>%
+                discriminantValidityTable2(fit,vanilla=input$vanilla) %>%
                     htmltools_value()
             }
         })
@@ -345,20 +345,20 @@ server=function(input,output,session){
         output$modelFitTable=renderUI({
             if(input$equation!=""){
 
-                modelFitTable2(fit) %>%
+                modelFitTable2(fit,vanilla=input$vanilla) %>%
                     htmltools_value()
             }
         })
 
 
-        output$diagram=renderGrViz({
-
-
-                if(input$equation!=""){
-                    semDiagram(fit)
-                }
-
-        })
+        # output$diagram=renderGrViz({
+        #
+        #
+        #         if(input$equation!=""){
+        #             semDiagram(fit)
+        #         }
+        #
+        # })
 
         output$concept=renderPlot({
 
@@ -385,6 +385,7 @@ server=function(input,output,session){
 
 
         tagList(
+            checkboxInput("vanilla","vanilla table",value=FALSE),
             verbatimTextOutput("text"),
             h2("Conceptual Diagram"),
             plotOutput("concept"),

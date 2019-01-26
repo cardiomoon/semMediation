@@ -33,7 +33,7 @@ myarrow=function(from,to,lwd=1,adjust=1,label="",label.pos=0.5,arr.pos=NULL,...)
         # str(distance)
         # str(arr.pos)
     }
-    mid=label.pos*(from+to)
+    mid=from+label.pos*(to-from)
     textplain(mid=mid,lab=label,adj=c(1,-0.5))
 
     straightarrow(from=from,to=to,lwd=lwd,arr.pos=arr.pos,arr.type="triangle",...)

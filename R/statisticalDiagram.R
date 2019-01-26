@@ -23,6 +23,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
         arrows$Predictors=findNames(labels,arrows$start)
         arrows$Variables=findNames(labels,arrows$end)
         arrows<-left_join(arrows,estimateTable)
+        arrows$lty=ifelse(arrows$p<0.05,1,3)
 
 
     }
@@ -34,14 +35,14 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
             } else if(whatLabel=="est"){
                 label=arrows$B[i]
             } else{
-                label=arrows[,ncol(arrows)][i]
+                label=arrows[,ncol(arrows)-1][i]
             }
         } else {
             label=""
         }
          myarrow2(from=arrows$start[i],to=arrows$end[i],
                  label=label,no=no,xmargin=xmargin,radx=radx,rady=rady,
-                 label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i])
+                 label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i],lty=arrows$lty[i])
     }
     nodes
     for(i in 1:nrow(nodes)){
