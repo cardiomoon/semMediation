@@ -38,10 +38,10 @@ ui=fluidPage(
     ),
     h2("Select Process Macro Model Number"),
     fluidRow(
-        column(3,
-               selectInput("modelno","Model No",choices=pmacro$no,selectize=FALSE,size=25)
+        column(2,
+               selectInput("modelno","Model No",choices=pmacro$no,selectize=FALSE,size=28)
                ),
-        column(9,
+        column(10,
 
                radioGroupButtons(
                    inputId = "plotChoice",
@@ -50,7 +50,7 @@ ui=fluidPage(
                    status = "primary"
                ),
 
-               plotOutput("modelPlot")
+               plotOutput("modelPlot",height="500px",width="700px")
         )
     ),
     h2("Assign Variables"),
@@ -379,7 +379,8 @@ server=function(input,output,session){
             }
             table1=estimatesTable(fit,digits=as.numeric(input$digits))
             statisticalDiagram(no=as.numeric(input$modelno),labels=labels,
-                               whatLabel = input$whatLabel,estimateTable=table1)
+                               whatLabel = input$whatLabel,estimateTable=table1,
+                               radx=as.numeric(input$radx))
 
         })
 
@@ -388,13 +389,16 @@ server=function(input,output,session){
             checkboxInput("vanilla","vanilla table",value=FALSE),
             verbatimTextOutput("text"),
             h2("Conceptual Diagram"),
-            plotOutput("concept"),
+            plotOutput("concept",height="500px",width="700px"),
             h2("Estimates Table"),
             uiOutput("estimateTable"),
             h2("Statistical Diagram"),
-            selectInput3("whatLabel","whatLabel",choices=c("name","est","std")),
+            selectInput3("whatLabel","whatLabel",choices=c("est","std","name")),
             selectInput3("digits","digits",choices=c(2,3,4),selected=3),
-            plotOutput("statDiagram"),
+            selectInput3("radx","box width",
+                         choices=c("0.04","0.06","0.08","0.10","0.12","0.14"),
+                         selected="0.10"),
+            plotOutput("statDiagram",height="500px",width="700px"),
             h2("Correlation Table"),
             uiOutput("corTable"),
             h2("Correlation Plot"),
