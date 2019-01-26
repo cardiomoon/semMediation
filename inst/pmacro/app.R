@@ -246,7 +246,7 @@ server=function(input,output,session){
 
                 if(input$equation!=""){
                 cat("model='",input$equation,"'\n")
-                cat("fit=sem(model=model,data=",input$dataname,")\n")
+                cat("fit=sem(model=model,data=",input$mydata,")\n")
                 cat("summary(fit)\n\n")
 
                 summary(fit)
