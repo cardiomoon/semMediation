@@ -11,7 +11,7 @@ pmacroModel=function(no=1,labels=list()){
     if(length(i)<1) {
         cat("Currently, Model number ",no," is not supported.")
     } else{
-        if((no>=6)&(no<7)){
+        if(no %in% c(4.2,6.0,6.3,6.4)){
             statisticalDiagram(no,arrowlabel = FALSE)
         } else{
     name=list()

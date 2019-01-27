@@ -24,6 +24,7 @@ pickerInput3=function(...){
 }
 
 ui=fluidPage(
+
     h2("Select Data"),
     fluidRow(
         column(3,
@@ -181,13 +182,15 @@ server=function(input,output,session){
     observeEvent(input$makeEq,{
         i=as.numeric(input$modelno)
         select=pmacro$no==i
-        if((i>=6) & (i<7)){
+        if(i %in% c(4.2,6,6.3,6.4)){
             temp=unlist(strsplit(pmacro$M[select],":"))
             mediators=c()
-            for(i in 1:length(temp)){
-                mediators=c(mediators,input[[temp[i]]])
+            for(j in 1:length(temp)){
+                mediators=c(mediators,input[[temp[j]]])
             }
-            model=makeEquation(X=input$X,M=mediators,Y=input$Y)
+            add=ifelse(i==4.2,FALSE,TRUE)
+            cat("i=",i,",add=",add,"\n")
+            model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add)
         } else{
         select=pmacro$no==i
         #select=3
@@ -233,12 +236,8 @@ server=function(input,output,session){
 
         req(input$Analysis)
 
-        isolate({
 
-
-
-
-       fit=sem(model=input$equation,data=data())
+       fit=sem(model=isolate(input$equation),data=data())
 
 
         output$text=renderPrint({
@@ -251,11 +250,16 @@ server=function(input,output,session){
 
                 summary(fit)
                 cat("parameterEstimates(fit)\n\n")
-                parameterEstimates(fit)
-                cat("discriminantValidityTable(fit)\n\n")
-                discriminantValidityTable(fit)
+                print(parameterEstimates(fit))
+                cat("\n\n")
+                if(!is.null(discriminantValidityTable(fit))){
+                    cat("\n\ndiscriminantValidityTable(fit)\n\n")
+                    print(discriminantValidityTable(fit))
+                }
+                if(!is.null(reliabilityTable(fit))){
                 cat("reliablityTable(fit)\n\n")
-                reliabilityTable(fit)
+                print(reliabilityTable(fit))
+                }
                 }
 
         })
@@ -321,6 +325,8 @@ server=function(input,output,session){
         # })
 
         output$concept=renderPlot({
+            if(input$equation!=""){
+
 
             names<-mylist()
             labels=list()
@@ -328,12 +334,16 @@ server=function(input,output,session){
                 labels[[names[i]]]=input[[names[i]]]
             }
             pmacroModel(no=as.numeric(input$modelno),labels=labels)
-
+            }
         })
         output$statDiagram=renderPlot({
 
+            input$makeEq
+
             names<-mylist()
             labels=list()
+
+
             for(i in 1:length(names)){
                 labels[[names[i]]]=input[[names[i]]]
             }
@@ -341,6 +351,7 @@ server=function(input,output,session){
             statisticalDiagram(no=as.numeric(input$modelno),labels=labels,
                                whatLabel = input$whatLabel,estimateTable=table1,
                                radx=as.numeric(input$radx))
+
 
         })
 
@@ -373,10 +384,12 @@ server=function(input,output,session){
 
 
         )
-        })
+
     })
 
-
+    observeEvent(input$makeEq,{
+        input$Analysis
+    })
 }
 
 shinyApp(ui,server)

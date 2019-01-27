@@ -104,6 +104,7 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
       }
     }
   }
+  equation
   secondInd=c()
   if(add2ndMediation &(countM>1)){
     for(k in 1:countY){
@@ -121,6 +122,7 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
       }
     }
   }
+  equation
   thirdInd=c()
   if(add2ndMediation &(countM>2)){
     for(k in 1:countY){
@@ -139,7 +141,7 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
       }
     }
   }
-
+  equation
   ## total effect
   total=c()
 
@@ -159,14 +161,14 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
        start=1+(k-1)*length(secondInd)/countY
        end=start+length(secondInd)/countY-1
        secondIndEffect=Reduce(addPlus,secondInd[start:end])
-       Effect=addPlus(Effect,secondIndEffect)
+       if(add2ndMediation) Effect=addPlus(Effect,secondIndEffect)
        }
        # thirdIndirect
        if(countM>=3){
        start=1+(k-1)*length(thirdInd)/countY
        end=start+length(thirdInd)/countY-1
        thirdIndEffect=Reduce(addPlus,thirdInd[start:end])
-       Effect=addPlus(Effect,thirdIndEffect)
+       if(add2ndMediation) Effect=addPlus(Effect,thirdIndEffect)
 
        }
        temp=paste0("total",k,":=",Effect)

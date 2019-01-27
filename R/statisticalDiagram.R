@@ -24,8 +24,11 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
         arrows$Variables=findNames(labels,arrows$end)
         arrows<-left_join(arrows,estimateTable)
         arrows$lty=ifelse(arrows$p<0.05,1,3)
+        print(arrows)
 
 
+    } else{
+        arrows$lty=1
     }
     for(i in 1:nrow(arrows)){
         #cat("i=",i,"\n")
@@ -40,9 +43,16 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
         } else {
             label=""
         }
-         myarrow2(from=arrows$start[i],to=arrows$end[i],
+        if(is.na(arrows$lty[i])){
+            myarrow2(from=arrows$start[i],to=arrows$end[i],
+                     label=label,no=no,xmargin=xmargin,radx=radx,rady=rady,
+                     label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i])
+
+        } else{
+        myarrow2(from=arrows$start[i],to=arrows$end[i],
                  label=label,no=no,xmargin=xmargin,radx=radx,rady=rady,
                  label.pos=arrows$labelpos[i],arr.pos=arrows$arrpos[i],lty=arrows$lty[i])
+        }
     }
     nodes
     for(i in 1:nrow(nodes)){
