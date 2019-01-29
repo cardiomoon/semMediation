@@ -7,7 +7,7 @@
 conceptDiagram2(X = "X", M = "M", Y = "Y", latent = rep(FALSE, 3),
   xb = FALSE, mc = FALSE, radx = 0.12, rady = 0.06,
   xmargin = 0.03, yinterval = NULL, moderator = list(),
-  labels = list())
+  labels = list(), covar = list())
 }
 \arguments{
 \item{X}{character Name of independent variable}
@@ -30,9 +30,11 @@ conceptDiagram2(X = "X", M = "M", Y = "Y", latent = rep(FALSE, 3),
 
 \item{yinterval}{vertical interval bewteen box}
 
-\item{moderator}{optional lists of moderator}
+\item{moderator}{optional list of moderators}
 
 \item{labels}{optionallabels of X,Y and Z variables}
+
+\item{covar}{covariate optional list of covariates}
 }
 \description{
 Make concept Diagram
@@ -46,4 +48,7 @@ conceptDiagram2(moderator=moderator,labels=labels)
 moderator=list(name=c("Z1","Z2"),label=c("Time Spent\\n with Alex","Z2label"),pos=c(3,3),
     site=list(c("a","b","c"),c("b","c")),latent=c(FALSE,FALSE))
 conceptDiagram2(moderator=moderator,labels=labels,yinterval=0.4)
+covar=list(name=c("C1","C2"),label=c("sex","tenure"),site=list(c("M","Y"),c("Y")))
+conceptDiagram2(M=NULL,moderator=list(name="M",pos=4,site=list("c"),latent=FALSE),covar=covar)
+conceptDiagram2(covar=covar)
 }

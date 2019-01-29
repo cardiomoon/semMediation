@@ -1,8 +1,14 @@
 #' draw conceptual diagram of process macro model
 #' @param no process macro model number
 #' @param labels A character list
+#' @param covar A optional list of covariates
 #' @export
-pmacroModel=function(no=1,labels=list()){
+#' @examples
+#' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list("M",c("M","Y"),c("Y")))
+#' pmacroModel(4,covar=covar)
+#' pmacroModel(1,covar=covar)
+#' pmacroModel(1)
+pmacroModel=function(no=1,labels=list(),covar=list()){
     # no=76
     # labels=list("X"="age","M"="educ","Y"="interest","W"="policy","Z"="male")
     #labels=list()
@@ -60,9 +66,9 @@ pmacroModel=function(no=1,labels=list()){
     }
 
     if(no==74) {
-        conceptDiagram2(X=X,M=M,Y=Y,xb=TRUE)
+        conceptDiagram2(X=X,M=M,Y=Y,xb=TRUE,covar=covar)
     } else {
-        conceptDiagram2(X=X,M=M,Y=Y,moderator = moderator)
+        conceptDiagram2(X=X,M=M,Y=Y,moderator = moderator,covar=covar)
     }
 
         }

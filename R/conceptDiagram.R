@@ -65,8 +65,9 @@ midPoint=function(from=0,to=1,length.out=2){
 #'@param rady vertical radius of the box.
 #'@param xmargin horizontal margin of plot
 #'@param yinterval vertical interval bewteen box
-#'@param moderator optional lists of moderator
+#'@param moderator optional list of moderators
 #'@param labels optionallabels of X,Y and Z variables
+#'@param covar covariate optional list of covariates
 #'@importFrom diagram openplotmat
 #'@examples
 #'labels=list(X="Time Spent in\n Grad School", M="# of\n Publications", Y="# of Job Offers")
@@ -77,17 +78,21 @@ midPoint=function(from=0,to=1,length.out=2){
 #'moderator=list(name=c("Z1","Z2"),label=c("Time Spent\n with Alex","Z2label"),pos=c(3,3),
 #'     site=list(c("a","b","c"),c("b","c")),latent=c(FALSE,FALSE))
 #'conceptDiagram2(moderator=moderator,labels=labels,yinterval=0.4)
+#'covar=list(name=c("C1","C2"),label=c("sex","tenure"),site=list(c("M","Y"),c("Y")))
+#'conceptDiagram2(M=NULL,moderator=list(name="M",pos=4,site=list("c"),latent=FALSE),covar=covar)
+#'conceptDiagram2(covar=covar)
 #'@export
 conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE,
                         radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
-                        moderator=list(),labels=list()){
+                        moderator=list(),labels=list(),covar=list()){
 
-     # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
-     # latent=rep(FALSE,3);xb=FALSE;mc=FALSE;labels=list()
-    # labels
-
+      # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
+      # latent=rep(FALSE,3);xb=FALSE;mc=FALSE;labels=list()
+      # labels
+      #
       # X="X";M="M";Y="Y";latent=rep(FALSE,3);xb=FALSE
       # moderator
+      # library(diagram)
 
     if(is.null(yinterval)) yinterval=rady*6
     openplotmat()
@@ -97,6 +102,15 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
 
 
     moderator
+
+    select=which(moderator$pos==4)
+    xpos=midPoint(0,1,length(select))
+    select
+    for(j in seq_along(select)){
+        temp=c(xpos[j],0.5+yinterval-0.05)
+        assign(paste0("z",select[j]),temp)
+    }
+
     select=which(moderator$pos==3)
     xpos=midPoint(0,1,length(select))
     select
@@ -167,6 +181,8 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
         myarrow(from=startpos[[i]],to=endpos[[i]],adjust=0)
     }
 
+    if(length(covar$name)>0) drawCovar(covar,x,y,m,radx=radx,rady=rady)
+
     drawtext(x,radx=radx,rady=rady,lab=xlab,latent=latent[1])
     drawtext(y,radx=radx,rady=rady,lab=ylab,latent=latent[3])
     if(!is.null(M)) {
@@ -208,6 +224,38 @@ moderator2pos=function(moderator=list(),x,y,m){
         }
     }
     pos
+}
+
+#'Draw covariate
+#'@param covar A list
+#'@param x position of x
+#'@param y position of y
+#'@param m position of m
+#'@param radx horizontal radius of the box.
+#'@param rady vertical radius of the box.
+#'@param yinterval vertical interval bewteen box
+drawCovar=function(covar=list(),x,y,m,radx=0.10,rady=0.06,yinterval=0.02){
+
+    count=length(covar$name)
+    count
+    covar$site[[1]]
+    covar
+    if(is.null(covar$latent)) {
+        covar$latent=rep(FALSE,count)
+    }
+    pos=list()
+
+    for(i in 1:count){
+        pos[[i]]<-c(x[1]+(radx)*(i),x[2]-(rady*2+yinterval)*i)
+
+        if("M" %in% covar$site[[i]]) myarrow(pos[[i]],m)
+        if("Y" %in% covar$site[[i]]) myarrow(pos[[i]],y)
+    }
+    for(i in 1:count){
+        lab=ifelse(is.null(covar$label[i]),covar$name[i],covar$label[i])
+        drawtext(pos[[i]],radx=radx,rady=rady,lab=lab,latent=covar$latent[i])
+    }
+
 }
 
 
