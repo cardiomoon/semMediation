@@ -6,7 +6,7 @@
 \usage{
 statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
   arrowlabel = TRUE, labels = list(), whatLabel = "name",
-  estimateTable = NULL)
+  estimateTable = NULL, covar = list())
 }
 \arguments{
 \item{no}{process macro model number}
@@ -24,10 +24,16 @@ statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
 \item{whatLabel}{What should the edge labels indicate in the path diagram? Choices are c("est","std","name")}
 
 \item{estimateTable}{A data.frame. Result of estimateTable()}
+
+\item{covar}{Optional list of covariates}
 }
 \description{
 Draw statistical diagram
 }
 \examples{
-statisticalDiagram(4)
+statisticalDiagram(no=1)
+covar=list(name=c("posemot","ideology","sex"),site=list(c("Y"),c("Y"),c("Y")))
+statisticalDiagram(no=1,covar=covar)
+covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),c("Mi","Y")))
+statisticalDiagram(no=4,covar=covar)
 }

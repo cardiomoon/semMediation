@@ -107,6 +107,7 @@ str_detect2=function(list,pattern){
 #' @param moderator moderator
 #' @param labels labels
 #' @param range Whether or not add range equation
+#' @param covar Optional list of covariates
 #' @importFrom stringr str_replace_all str_detect
 #' @export
 #' @examples
@@ -124,7 +125,9 @@ str_detect2=function(list,pattern){
 #' X="X";Y="Y"
 #' moderator=list(name=c("Z"),site=list(c("c")))
 #' cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=FALSE))
-modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALSE){
+#' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+#' cat(modmedEquation(X=X,M="M",Y=Y,moderator=moderator,range=FALSE,covar=covar))
+modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALSE,covar=list()){
 
       # M=NULL; labels=NULL;range=FALSE
 
@@ -137,10 +140,20 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
       XM=c(X,XM)
       XMstr=interactStr(XM,prefix="a")
       if(!is.null(M)) {
-        equation=paste(M,"~",stringr::str_flatten(XMstr,"+"),"\n")
+        equation=paste(M,"~",stringr::str_flatten(XMstr,"+"))
       } else{
         equation=""
       }
+      if(length(covar$name)>0){
+        j=1
+        for(i in 1:length(covar$name)){
+          if("Mi" %in% covar$site[[i]]){
+            equation=paste0(equation," + ","f",j,"*",covar$name[i])
+            j=j+1
+          }
+        }
+      }
+      equation=paste0(equation,"\n")
       MY=c(M,MY)
       XY=c(X,XY)
       skip=ifelse(X %in% MY,TRUE,FALSE)
@@ -152,10 +165,20 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
       XYstr
       if(!is.null(M)){
           temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"+",
-                     stringr::str_flatten(MYstr,"+"),"\n")
+                     stringr::str_flatten(MYstr,"+"))
       } else{
-          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"\n")
+          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"))
       }
+      if(length(covar$name)>0){
+         j=1
+         for(i in 1:length(covar$name)){
+                  if("Y" %in% covar$site[[i]]){
+                      temp=paste0(temp," + ","g",j,"*",covar$name[i])
+                      j=j+1
+                  }
+         }
+      }
+      temp=paste0(temp,"\n")
       equation=paste0(equation,temp)
 
       for(i in seq_along(moderator$name)){

@@ -4,10 +4,12 @@
 \alias{myarrow2}
 \title{Draw arrow with adjustment of a position}
 \usage{
-myarrow2(from, to, label = "", no, radx = 0.12, rady = 0.04,
+myarrow2(nodes, from, to, label = "", no, radx = 0.12, rady = 0.04,
   xmargin = 0.01, label.pos = 0.5, arr.pos = NULL, ...)
 }
 \arguments{
+\item{nodes}{A data.frame}
+
 \item{from}{coordinates (x,y) of the point *from* which to draw arrow.}
 
 \item{to}{coordinates (x,y) of the point *to* which to draw arrow.}

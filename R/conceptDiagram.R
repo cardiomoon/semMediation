@@ -246,7 +246,7 @@ drawCovar=function(covar=list(),x,y,m,radx=0.10,rady=0.06,yinterval=0.02){
     pos=list()
 
     for(i in 1:count){
-        pos[[i]]<-c(x[1]+(radx)*(i),x[2]-(rady*2+yinterval)*i)
+        pos[[i]]<-c(x[1]+(radx/2)*(i),x[2]-(rady*2+yinterval)*i)
 
         if("M" %in% covar$site[[i]]) myarrow(pos[[i]],m)
         if("Y" %in% covar$site[[i]]) myarrow(pos[[i]],y)

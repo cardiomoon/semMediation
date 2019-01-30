@@ -5,7 +5,7 @@
 \title{Make moderated mediation equation}
 \usage{
 modmedEquation(X = "", M = NULL, Y = "", moderator = list(),
-  labels = NULL, range = FALSE)
+  labels = NULL, range = FALSE, covar = list())
 }
 \arguments{
 \item{X}{A character vectors indicating independent variables}
@@ -19,6 +19,8 @@ modmedEquation(X = "", M = NULL, Y = "", moderator = list(),
 \item{labels}{labels}
 
 \item{range}{Whether or not add range equation}
+
+\item{covar}{Optional list of covariates}
 }
 \description{
 Make moderated mediation equation
@@ -38,4 +40,6 @@ cat(modmedEquation(X=X,M=M,Y=Y,moderator=moderator,range=FALSE))
 X="X";Y="Y"
 moderator=list(name=c("Z"),site=list(c("c")))
 cat(modmedEquation(X=X,Y=Y,moderator=moderator,range=FALSE))
+covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+cat(modmedEquation(X=X,M="M",Y=Y,moderator=moderator,range=FALSE,covar=covar))
 }
