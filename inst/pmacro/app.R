@@ -7,6 +7,7 @@ library(shinyWidgets)
 library(lavaan)
 library(flextable)
 library(semTools)
+library(jtools)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -174,7 +175,7 @@ server=function(input,output,session){
         for(i in 1:count){
             selected=c(selected,input[[mylist()[i]]])
         }
-        result=setdiff(colnames(data()),selected)
+        result=setdiff(setdiff(colnames(data()),selected),getCovNames())
         result
     }
 
@@ -190,6 +191,16 @@ server=function(input,output,session){
         observeEvent(input[[mylist()[i]]],{
             updateSelectInput(session,"chooser",choices=choices1())
         })
+    })
+
+    lapply(1:10,FUN=function(i){
+        observeEvent(input[[paste0("cov",i)]],{
+            updateSelectInput(session,"chooser",choices=choices1())
+        })
+    })
+
+    observeEvent(c(input$insertBtn,input$resetBtn,input$removeBtn),{
+        updateSelectInput(session,"chooser",choices=choices1())
     })
 
 
@@ -210,7 +221,8 @@ server=function(input,output,session){
             }
             add=ifelse(i==4.2,FALSE,TRUE)
             cat("i=",i,",add=",add,"\n")
-            model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add)
+            model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add,
+                               covar=getCovariates2())
         } else{
         select=pmacro$no==i
         #select=3
@@ -398,11 +410,15 @@ server=function(input,output,session){
             h2("Correlation Plot"),
             plotOutput("corPlot"),
             h2("Model Fit Table"),
-            uiOutput("modelFitTable")
+            uiOutput("modelFitTable"),
+            h2("Moderation Effect"),
+            plotOutput("moderationPlot"),
+            verbatimTextOutput("JNText"),
+            plotOutput("JNPlot")
             # h2("Reliability Table"),
             # uiOutput("reliabilityTable"),
             # h2("Discriminant Validity Table"),
-            # uiOutput("discriminantValidityTable"),
+            # uiOutput("discriminantValidityTable")
 
 
 
@@ -413,8 +429,14 @@ server=function(input,output,session){
    observeEvent(input$insertBtn, {
         btn <- input$insertBtn
         id <- length(RV$inserted)/3+1
-        if(input$modelno %in% c(1,2,4.2,6,6.3,6.4)) {
+        if(input$modelno %in% c(1,2,6.3,6.4)) {
             covchoices="Y"
+        } else if(input$modelno %in% c(4.2,6)) {
+            covchoices=c("M1,M2,Y","M1,Y","M2,Y","Y")
+        } else if(input$modelno == "6.3"){
+            covchoices=c("M1,M2,M3,Y","Y")
+        } else if(input$modelno == "6.4"){
+            covchoices=c("M1,M2,M3,M4,Y","Y")
         } else{
             covchoices=c("Mi,Y","Mi","Y")
         }
@@ -496,11 +518,37 @@ server=function(input,output,session){
         result
     })
 
+    getCovSites2=reactive({
+        count=RV$number
+
+        result=list()
+        if(count>0) for(i in 1:count){
+            temp=input[[paste0("site",i)]]
+            temp1<-unlist(str_split(temp,","))
+            temp2=c()
+            for(j in 1:length(temp1)){
+                temp2=c(temp2,input[[temp1[j]]])
+            }
+            result[[i]]<-temp2
+
+        }
+        result
+    })
+
     getCovariates=reactive({
         result<-list()
         if(RV$number>0) {
             result$name=getCovNames()
             result$site=getCovSites()
+        }
+        result
+    })
+
+    getCovariates2=reactive({
+        result<-list()
+        if(RV$number>0) {
+            result$name=getCovNames()
+            result$site=getCovSites2()
         }
         result
     })
@@ -511,6 +559,31 @@ server=function(input,output,session){
     #     covar=getCovariates()
     #     str(covar)
     # })
+
+    output$moderationPlot=renderPlot({
+         data1<-data()
+         fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
+         temp=paste0("interact_plot(fit,pred=",input$X,",modx=",input$M,",data=data1)")
+         eval(parse(text=temp))
+    })
+
+    output$JNText=renderPrint({
+        data1<-data()
+        fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
+        johnson_neyman(fit, pred = frame, modx = skeptic)
+        temp=paste0("johnson_neyman(fit,pred=",input$M,",modx=",input$X,",plot=FALSE,digits=3)")
+        eval(parse(text=temp))
+    })
+    output$JNPlot=renderPlot({
+        data1<-data()
+        fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
+        temp=paste0("johnson_neyman(fit,pred=",input$M,",modx=",input$X,",plot=FALSE)")
+        result=eval(parse(text=temp))
+        result$plot+
+            annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
+                     vjust=-0.5,hjust=-0.1)
+    })
+
 }
 
 shinyApp(ui,server)

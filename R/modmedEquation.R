@@ -56,7 +56,7 @@ interactStr=function(x,prefix="a",skip=FALSE){
     res
 }
 
-#' Extract groupby string
+#' Extract group by string
 #' @param string character vector
 #' @param groupby name of groupby
 #' @importFrom stringr fixed

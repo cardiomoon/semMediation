@@ -187,21 +187,89 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
 #' @param M A character vectors indicating mediators
 #' @param Y A character vectors indicating dependent variables
 #' @param add2ndMediation whether or not make a 2nd mediation equation
-#'
+#' @param covar Optional list of covariates
 #' @export
-makeEquation=function(X,M,Y,add2ndMediation=TRUE){
+#' @examples
+#' X="X";M=c("M1","M2","M3");Y=c("Y1","Y2");add2ndMediation=TRUE
+#' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M1","Y1"),"Y2","Y2"))
+#' cat(makeEquation(X,M,Y,covar=covar))
+makeEquation=function(X,M,Y,add2ndMediation=TRUE,covar=list()){
+    cat("X=",X,"\n")
+    cat("M=",M,"\n")
+    cat("Y=",Y,"\n")
+    cat("str(covar)")
+    str(covar)
     (countX=length(X))
     (countM=length(M))
     (countY=length(Y))
     if(countX*countM*countY==0) {
       equation=" # You need at least one dependent variable(s),\n#one mediation variable(s) and one independent variable(s)."
     } else{
-  equation=paste0("# Mediation Effect\n",makeEquation2(X,M,Y))
-  equation=addLine(equation,makeEquation1(X,M,add2ndMediation=add2ndMediation))
-  equation=addLine(equation,makeEquation3(X,M,Y,add2ndMediation=add2ndMediation))
+      temp=makeEquation2(X,M,Y)
+      temp
+      temp=addCovarEquation(temp,covar,prefix="g")
+      equation=paste0("# Mediation Effect\n",temp)
+      temp=makeEquation1(X,M,add2ndMediation=add2ndMediation)
+      temp=addCovarEquation(temp,covar,prefix="h")
+      equation=addLine(equation,temp)
+      equation=addLine(equation,makeEquation3(X,M,Y,add2ndMediation=add2ndMediation))
     }
   equation
 }
+
+#' Add covariates to equation
+#' @param equation The equation
+#' @param covar A list
+#' @param prefix prefix
+addCovarEquation=function(equation,covar=list(),prefix="h"){
+  temp1=unlist(strsplit(equation,"\n"))
+  temp1
+  temp2=strsplit(temp1,"~")
+  temp2
+  result=list()
+  start=1
+  for(i in 1:length(temp2)){
+      var=temp2[[i]][1]
+      temp3=seekVar(covar=covar,var=var,prefix=prefix,start=start)
+      if(is.null(temp3)){
+          result[[i]]=paste(var,"~",temp2[[i]][2])
+      } else {
+          temp4=paste(temp2[[i]][2],"+",paste(temp3,collapse=" + "))
+          result[[i]]=paste(var,"~",temp4)
+          start=start+length(temp3)
+      }
+  }
+  paste(unlist(result),collapse="\n")
+}
+
+#' Seek var form covariates
+#' @param covar A list of covariates
+#' @param var A name of variable to look for
+#' @param prefix A prefix
+#' @param start A start number
+seekVar=function(covar=list(),var,prefix="h",start=1){
+  temp=c()
+  if(length(covar$name)>0){
+    j=start
+    for(i in 1:length(covar$name)){
+      # if(!is.null(covar$label[i])) var<-covar$label[i]
+      if(var %in% covar$site[[i]]){
+        temp=c(temp,paste0(prefix,j,"*",covar$name[i]))
+        j=j+1
+      }
+    }
+  }
+  temp
+}
+
+# X="age"
+# M=c("policy","male")
+# Y="interest"
+# add2ndMediation=TRUE
+# covar=list(name="educ",site=list(c("M1","M2","Y")))
+# makeEquation(X,M,Y,covar=covar)
+# makeEquation1(X,M)
+# makeEquation3(X,M,Y)
 
 
 # makeDf=function(X,M=NULL,Y,maxx=30,maxy=30){

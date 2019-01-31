@@ -16,13 +16,15 @@
 #'statisticalDiagram(no=1,covar=covar)
 #'covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),c("Mi","Y")))
 #'statisticalDiagram(no=4,covar=covar)
+#'statisticalDiagram(no=8,covar=covar)
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE,
                             labels=list(),whatLabel="name",estimateTable=NULL,covar=list()){
 
-     # no=1;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
-    # whatLabel="name"
+      # no=4.2;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
+      # whatLabel="name"
     nodes=nodes[nodes$no==no, ]
     arrows1=arrows[arrows$no==no,]
+    nodes
     # Add covariates
     nodes=addNodes(nodes,covar,radx=radx,rady=rady)
     print(nodes)
@@ -81,7 +83,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
 #'@param radx horizontal radius of the box.
 #'@param rady vertical radius of the box.
 drawArrows=function(arrows,nodes,xmargin=0.01,radx=0.10,rady=0.04){
-    print(arrows)
+    #print(arrows)
     for(i in 1:nrow(arrows)){
 
     if(is.na(arrows$lty[i])){
@@ -141,6 +143,10 @@ addNodes=function(nodes,covar,radx=0.10,rady=0.04){
         number<-name<-xpos<-ypos<-c()
         minypos=min(nodes$ypos)
         maxxpos=min(nodes$xpos[nodes$ypos==minypos])
+        if(nodes$no[1]==4.2) {
+            maxxpos=-(radx/2)
+            minypos=0.4
+        }
         for(i in 1:length(covar$name)){
             number=c(number,nodes$no[1])
             name=c(name,covar$name[i])
