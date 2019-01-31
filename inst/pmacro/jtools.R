@@ -40,12 +40,36 @@ condEffect=function(data=disaster,Y="justify",X="skeptic",M="frame",probs=c(0.16
     modValues
     yhat1=fun0(modValues)
     yhat2=fun1(modValues)
-    df=data.frame(x=modValues,y0=yhat1,y1=yhat2)
+    effect<-p<-c()
+    for(i in 1:length(modValues)){
+        temp1=paste0(Y,"~",M,"*I(",X,"-",modValues[i],")")
+        fit1=lm(as.formula(temp1),data=data)
+        effect=c(effect,fit1$coef[2])
+        p<-c(p,summary(fit1)$coef[2,4])
+    }
+    effect
+    p
+    df=data.frame(x=modValues,y0=yhat1,y1=yhat2,effect=effect,p=p)
+    df
+    df$label1=paste0("theta [italic(X) %->% italic(Y)]")
+    df$label2=paste0("list((italic(W)==",df$x,")==",
+                    sprintf("%4.3f",df$effect),
+                    ",italic(p)==",sprintf("%.03f",df$p),")")
+    df$vjust=ifelse(df$effect>=0,0.2,-0.1)
     df
 }
+require(ggplot2)
 interact_plot(fit,pred = skeptic,modx=frame)+
     annotate("segment",x=df$x,y=df$y0,xend=df$x,yend=df$y1,lty=2,color="red",
-             arrow=arrow(angle=10,length=unit(0.15,"inches"),type="closed"))
+             arrow=arrow(angle=10,length=unit(0.15,"inches"),type="closed"))+
+    annotate("text",x=df$x,y=df$y1+df$vjust,label=df$label1,parse=TRUE,hjust=1.1,vjust=1)+
+    annotate("text",x=df$x,y=df$y1+df$vjust,label="|",vjust=1)+
+    annotate("text",x=df$x,y=df$y1+df$vjust,label=df$label2,parse=TRUE,hjust=-0.01,vjust=1)
+
+fit1=lm(justify~frame*I(skeptic-modValues[2]),data=disaster)
+fit1$coef[2]
+str(summary(fit1))
+summary(fit1)$coef[2,4]
 
 ggplot(aes(x=skeptic,y=justify,color=factor(frame)),data=disaster)+
     geom_point()+

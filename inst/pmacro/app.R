@@ -570,7 +570,6 @@ server=function(input,output,session){
     output$JNText=renderPrint({
         data1<-data()
         fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
-        johnson_neyman(fit, pred = frame, modx = skeptic)
         temp=paste0("johnson_neyman(fit,pred=",input$M,",modx=",input$X,",plot=FALSE,digits=3)")
         eval(parse(text=temp))
     })
