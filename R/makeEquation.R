@@ -194,11 +194,11 @@ makeEquation3=function(X,M,Y,add2ndMediation=TRUE){
 #' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M1","Y1"),"Y2","Y2"))
 #' cat(makeEquation(X,M,Y,covar=covar))
 makeEquation=function(X,M,Y,add2ndMediation=TRUE,covar=list()){
-    cat("X=",X,"\n")
-    cat("M=",M,"\n")
-    cat("Y=",Y,"\n")
-    cat("str(covar)")
-    str(covar)
+    # cat("X=",X,"\n")
+    # cat("M=",M,"\n")
+    # cat("Y=",Y,"\n")
+    # cat("str(covar)")
+    # str(covar)
     (countX=length(X))
     (countM=length(M))
     (countY=length(Y))
@@ -254,7 +254,11 @@ seekVar=function(covar=list(),var,prefix="h",start=1){
     for(i in 1:length(covar$name)){
       # if(!is.null(covar$label[i])) var<-covar$label[i]
       if(var %in% covar$site[[i]]){
-        temp=c(temp,paste0(prefix,j,"*",covar$name[i]))
+        if(!is.null(prefix)) {
+          temp=c(temp,paste0(prefix,j,"*",covar$name[i]))
+        } else{
+          temp=c(temp,covar$name[i])
+        }
         j=j+1
       }
     }

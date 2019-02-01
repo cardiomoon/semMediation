@@ -108,6 +108,8 @@ server=function(input,output,session){
    data=reactive({
         if(input$mydata=="uploaded") {
             data<-myimport(input$file$datapath)
+        } else if(input$mydata == "mtcars"){
+            data<-mtcars
         } else{
              data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
             }
@@ -411,10 +413,12 @@ server=function(input,output,session){
             plotOutput("corPlot"),
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
-            h2("Moderation Effect"),
-            plotOutput("moderationPlot"),
-            verbatimTextOutput("JNText"),
-            plotOutput("JNPlot")
+            if(input$modelno==1) h2("Moderation Effect"),
+            if(input$modelno==1) plotOutput("moderationPlot"),
+            if(input$modelno==1) verbatimTextOutput("JNText"),
+            if(input$modelno==1) checkboxInput("switchMod","switch moderator",value=FALSE),
+            if(input$modelno==1) plotOutput("JNPlot"),
+            verbatimTextOutput("regEquation")
             # h2("Reliability Table"),
             # uiOutput("reliabilityTable"),
             # h2("Discriminant Validity Table"),
@@ -553,34 +557,96 @@ server=function(input,output,session){
         result
     })
 
-    # output$text1=renderPrint({
-    #     count=RV$number
-    #     cat("현재 ", count,"개의 covariate가 있습니다.")
-    #     covar=getCovariates()
-    #     str(covar)
-    # })
+    getModerator=reactive({
+    i=as.numeric(input$modelno)
+    select=pmacro$no==i
+    if(i %in% c(4.2,6,6.3,6.4)){
+        # temp=unlist(strsplit(pmacro$M[select],":"))
+        # mediators=c()
+        # for(j in 1:length(temp)){
+        #     mediators=c(mediators,input[[temp[j]]])
+        # }
+        # add=ifelse(i==4.2,FALSE,TRUE)
+        # cat("i=",i,",add=",add,"\n")
+        # model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add,
+        #                    covar=getCovariates2())
+        moderator=NULL
+    } else{
+        select=pmacro$no==i
+        #select=3
+        if(pmacro$modName[select]!=""){
+            name=unlist(strsplit(pmacro$modName[select],":"))
+            name
+            modname=c()
+            for(i in 1:length(name)){
+                modname=c(modname,input[[name[i]]])
+            }
+            modname
+            temp=unlist(strsplit(pmacro$modSite[select],":"))
+            temp
+            sites=list()
+            for(i in 1:length(temp)){
+                sites[[i]]=unlist(strsplit(temp[i],","))
+            }
+            sites
+            # moderator=list(name=name,site=sites)
+            moderator=list(name=modname,site=sites)
+            #str(moderator)
+
+        } else{
+            moderator=NULL
+        }
+        moderator
+    }
+    })
+
+    getRegEq=reactive({
+         regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
+    })
 
     output$moderationPlot=renderPlot({
-         data1<-data()
-         fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
-         temp=paste0("interact_plot(fit,pred=",input$X,",modx=",input$M,",data=data1)")
-         eval(parse(text=temp))
+         condEffect(data=data(),X=input$X,Y=input$Y,M=input$W)
     })
 
     output$JNText=renderPrint({
         data1<-data()
-        fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
-        temp=paste0("johnson_neyman(fit,pred=",input$M,",modx=",input$X,",plot=FALSE,digits=3)")
+        fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
+        pred=ifelse(input$switchMod,input$W,input$X)
+        modx=ifelse(input$switchMod,input$X,input$W)
+        temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",plot=FALSE,digits=3)")
         eval(parse(text=temp))
     })
     output$JNPlot=renderPlot({
         data1<-data()
-        fit=eval(parse(text=paste0("lm(",input$Y,"~",input$X,"*",input$M,",data=data1)")))
-        temp=paste0("johnson_neyman(fit,pred=",input$M,",modx=",input$X,",plot=FALSE)")
-        result=eval(parse(text=temp))
+        fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
+        pred=ifelse(input$switchMod,input$W,input$X)
+        modx=ifelse(input$switchMod,input$X,input$W)
+
+        XM=paste(input$X,input$W,sep=":")
+        label=paste0("italic(theta) [italic(X) %->% italic(Y)] == ",
+                     sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
+
+        result=johnson_neyman(fit,pred=pred,modx=modx,plot=FALSE)
+        pos=relpos(result$plot)
         result$plot+
             annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
-                     vjust=-0.5,hjust=-0.1)
+                     vjust=-0.5,hjust=-0.1)+
+            annotate("text",x=pos[1],y=pos[2],label=label,parse=TRUE)
+
+
+    })
+
+    output$regEquation=renderPrint({
+        moderator=getModerator()
+
+        covar=getCovariates()
+
+        covar2=getCovariates2()
+
+        eq=getRegEq()
+
+        fit=eval(parse(text=paste0("lm(",eq,",data=data())")))
+        summary(fit)
     })
 
 }

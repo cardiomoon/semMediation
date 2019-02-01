@@ -139,6 +139,7 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
       # Regression of Moderator
       XM=c(X,XM)
       XMstr=interactStr(XM,prefix="a")
+      XMstr
       if(!is.null(M)) {
         equation=paste(M,"~",stringr::str_flatten(XMstr,"+"))
       } else{

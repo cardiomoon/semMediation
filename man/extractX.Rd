@@ -2,7 +2,7 @@
 % Please edit documentation in R/modmedEquation.R
 \name{extractX}
 \alias{extractX}
-\title{Extract groupby string}
+\title{Extract group by string}
 \usage{
 extractX(string, groupby = "X")
 }
@@ -12,5 +12,5 @@ extractX(string, groupby = "X")
 \item{groupby}{name of groupby}
 }
 \description{
-Extract groupby string
+Extract group by string
 }
