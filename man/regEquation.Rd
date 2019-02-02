@@ -4,8 +4,8 @@
 \alias{regEquation}
 \title{Make regression equation}
 \usage{
-regEquation(X = "X", M = c("M1", "M2"), Y = "Y",
-  moderator = list(), covar = list())
+regEquation(X = "X", M = NULL, Y = "Y", moderator = list(),
+  covar = list())
 }
 \arguments{
 \item{X}{A character vectors indicating independent variables}
@@ -25,5 +25,5 @@ Make regression equation
 X="X";M=NULL;Y="Y"; moderator=list(name="W",site=list("c"))
 regEquation(X,M,Y,moderator)
 covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
-regEquation(X,M,Y,moderator,covar)
+regEquation(X,M,Y,moderator,covar=covar)
 }

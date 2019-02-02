@@ -2,29 +2,46 @@
 % Please edit documentation in R/condEffect.R
 \name{condEffect}
 \alias{condEffect}
-\title{Make interaction plot}
+\title{Draw interact plot with moderation effect}
 \usage{
-condEffect(data = mtcars, Y = "mpg", X = "wt", M = "am",
-  probs = c(0.16, 0.5, 0.84), showEffect = TRUE)
+condEffect(fit, pred, modx, modx.values = NULL, probs = NULL,
+  digits = 1, show.Effect = TRUE, switchVars = FALSE, max.ylev = 6,
+  arrowlength = 0.05, ...)
 }
 \arguments{
-\item{data}{A data.frame}
+\item{fit}{A regression model}
 
-\item{Y}{The name of dependent variable}
+\item{pred}{The name of the predictor variable}
 
-\item{X}{The name of independent variable}
+\item{modx}{The name of the moderator variable}
 
-\item{M}{The name of modifier variable}
+\item{modx.values}{For which values of the moderator should lines be plotted? Default is NULL. If NULL, then the customary +/- 1 standard deviation from the mean as well as the mean itself are used for continuous moderators.}
 
-\item{probs}{A vector of probability weights for obtaining the elements of the vector being sampled.
-Default value is c(0.16,0.5,0.84)}
+\item{probs}{A vector of probability weights for obtaining the elements of the vector being sampled. Default is NULL.}
 
-\item{showEffect}{A logical}
+\item{digits}{integer indicating the number of decimal places}
+
+\item{show.Effect}{A logical}
+
+\item{switchVars}{A logical}
+
+\item{max.ylev}{An integer indicating the maximum number of levels of modifier variable}
+
+\item{arrowlength}{arrow length}
+
+\item{...}{Further argument to be passed to jtools::interact_plot}
 }
 \description{
-Make interaction plot
+Draw interact plot with moderation effect
 }
 \examples{
-condEffect(data=mtcars,Y="mpg",X="wt",M="am")
-condEffect(data=mtcars,Y="mpg",X="wt",M="hp")
+fit=lm(mpg~wt*am+disp+cyl+drat,data=mtcars)
+condEffect(fit,pred="wt",modx="am")
+condEffect(fit,pred="wt",modx="am",switchVars=TRUE)
+fit=lm(mpg~wt*hp+disp+cyl+drat,data=mtcars)
+condEffect(fit,pred="wt",modx="hp")
+condEffect(fit,pred="wt",modx="hp",show.Effect=FALSE)
+condEffect(fit,pred="wt",modx="hp",switchVars=TRUE)
+condEffect(fit,pred="wt",modx="hp",modx.values=c(100,150,200))
+condEffect(fit,pred="wt",modx="hp",probs=c(0.16,0.4,0.6,0.84))
 }

@@ -221,16 +221,28 @@ makeEquation=function(X,M,Y,add2ndMediation=TRUE,covar=list()){
 #' @param equation The equation
 #' @param covar A list
 #' @param prefix prefix
+#' @importFrom stringr str_trim
+#' @export
+#' @examples
+#' equation="Y ~ X*W"
+#' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+#' addCovarEquation(equation,covar=covar,prefix=NULL)
 addCovarEquation=function(equation,covar=list(),prefix="h"){
+
+
   temp1=unlist(strsplit(equation,"\n"))
   temp1
   temp2=strsplit(temp1,"~")
   temp2
   result=list()
   start=1
+  i=1
   for(i in 1:length(temp2)){
       var=temp2[[i]][1]
+      var=str_trim(var,side="both")
+      covar
       temp3=seekVar(covar=covar,var=var,prefix=prefix,start=start)
+      temp3
       if(is.null(temp3)){
           result[[i]]=paste(var,"~",temp2[[i]][2])
       } else {
@@ -247,6 +259,11 @@ addCovarEquation=function(equation,covar=list(),prefix="h"){
 #' @param var A name of variable to look for
 #' @param prefix A prefix
 #' @param start A start number
+#' @export
+#' @examples
+#' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+#' var="M"
+#' seekVar(covar,var,prefix=NULL)
 seekVar=function(covar=list(),var,prefix="h",start=1){
   temp=c()
   if(length(covar$name)>0){

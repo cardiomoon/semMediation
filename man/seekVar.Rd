@@ -18,3 +18,8 @@ seekVar(covar = list(), var, prefix = "h", start = 1)
 \description{
 Seek var form covariates
 }
+\examples{
+covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+var="M"
+seekVar(covar,var,prefix=NULL)
+}

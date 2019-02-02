@@ -8,6 +8,7 @@ library(lavaan)
 library(flextable)
 library(semTools)
 library(jtools)
+library(ggplot2)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -275,6 +276,16 @@ server=function(input,output,session){
 
        fit=sem(model=isolate(input$equation),data=data())
 
+       if(input$modelno==1){
+           probs=c(0.16,0.5,0.84)
+           if(length(unique(data()[[input$W]]))==2){
+               temp=sort(unique(data()[[input$W]]))
+           } else{
+               temp=quantile(data()[[input$W]],probs)
+           }
+           modValues=paste(temp,collapse=",")
+       }
+
 
         output$text=renderPrint({
 
@@ -414,9 +425,20 @@ server=function(input,output,session){
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
             if(input$modelno==1) h2("Moderation Effect"),
+
+            if(input$modelno==1) textInput3("probs","probs",value="",placeholder="0.16,0.5,0.84",width=150),
+            if(input$modelno==1) textInput3("modxvalues","moderator values",value="",placeholder=modValues,width=150),
+            if(input$modelno==1) checkboxInput3("showeffect","show effect",value=TRUE,width=120),
+            if(input$modelno==1) checkboxInput3("plotpoints","show points",value=FALSE,width=120),
+            if(input$modelno==1) checkboxInput3("interval","show interval",value=FALSE,width=120),
+            if(input$modelno==1) pickerInput3("inttype","type",choices=c("confidence","prediction"),width=120),
+            if(input$modelno==1) numericInput3("intwidth","width",value=0.95,min=0.1,max=1,step=0.01),
+            if(input$modelno==1) checkboxInput3("switchMod2","switch moderator",value=FALSE,width=200),
+            if(input$modelno==1) checkboxInput3("linearity","linearity check",value=FALSE,width=200),
             if(input$modelno==1) plotOutput("moderationPlot"),
             if(input$modelno==1) verbatimTextOutput("JNText"),
-            if(input$modelno==1) checkboxInput("switchMod","switch moderator",value=FALSE),
+            if(input$modelno==1) numericInput3("alpha","alpha",value=0.05,min=0.01,max=1,step=0.01),
+            if(input$modelno==1) checkboxInput3("switchMod","switch moderator",value=FALSE,width=200),
             if(input$modelno==1) plotOutput("JNPlot"),
             verbatimTextOutput("regEquation")
             # h2("Reliability Table"),
@@ -428,6 +450,38 @@ server=function(input,output,session){
 
         )
 
+    })
+
+    observeEvent(input$switchMod2,{
+        probs=c(0.16,0.5,0.84)
+        if(input$switchMod2) {
+            if(length(unique(data()[[input$X]]))==2){
+                temp=sort(unique(data()[[input$X]]))
+            } else{
+                temp=quantile(data()[[input$X]],probs)
+            }
+        } else{
+            if(length(unique(data()[[input$W]]))==2){
+                temp=sort(unique(data()[[input$W]]))
+            } else{
+                temp=quantile(data()[[input$W]],probs)
+            }
+
+        }
+        modValues=paste(temp,collapse=",")
+        updateTextInput(session,"modxvalues",value="",placeholder = modValues)
+    })
+
+    observeEvent(input$linearity,{
+        if(input$linearity) {
+            updateCheckboxInput(session,"showeffect",value=FALSE)
+        }
+    })
+
+    observeEvent(input$showeffect,{
+        if(input$showeffect) {
+            updateCheckboxInput(session,"linearity",value=FALSE)
+        }
     })
 
    observeEvent(input$insertBtn, {
@@ -605,7 +659,18 @@ server=function(input,output,session){
     })
 
     output$moderationPlot=renderPlot({
-         condEffect(data=data(),X=input$X,Y=input$Y,M=input$W)
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+        print(temp)
+        fit=eval(parse(text=temp))
+        summary(fit)
+        probs<-modx.values<-NULL
+        if(input$probs!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
+        if(input$modxvalues!="") modx.values=as.numeric(unlist(strsplit(input$modxvalues,",")))
+        condEffect(fit=fit,pred=input$X,modx=input$W,show.Effect=input$showeffect,
+                   switchVars=input$switchMod2,probs=probs,modx.values=modx.values,
+                   plot.points=input$plotpoints,interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
+                   linearity.check=input$linearity)
     })
 
     output$JNText=renderPrint({
@@ -613,8 +678,8 @@ server=function(input,output,session){
         fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
         pred=ifelse(input$switchMod,input$W,input$X)
         modx=ifelse(input$switchMod,input$X,input$W)
-        temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",plot=FALSE,digits=3)")
-        eval(parse(text=temp))
+        johnson_neyman(fit,pred=pred,modx=modx,alpha=input$alpha,plot=FALSE,digits=3)
+
     })
     output$JNPlot=renderPlot({
         data1<-data()
@@ -626,7 +691,7 @@ server=function(input,output,session){
         label=paste0("italic(theta) [italic(X) %->% italic(Y)] == ",
                      sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
 
-        result=johnson_neyman(fit,pred=pred,modx=modx,plot=FALSE)
+        result=johnson_neyman(fit,pred=pred,modx=modx,plot=FALSE,alpha=input$alpha)
         pos=relpos(result$plot)
         result$plot+
             annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
@@ -637,15 +702,11 @@ server=function(input,output,session){
     })
 
     output$regEquation=renderPrint({
-        moderator=getModerator()
-
-        covar=getCovariates()
-
-        covar2=getCovariates2()
 
         eq=getRegEq()
-
+        # print(eq)
         fit=eval(parse(text=paste0("lm(",eq,",data=data())")))
+
         summary(fit)
     })
 
