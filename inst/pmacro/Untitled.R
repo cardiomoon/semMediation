@@ -1,8 +1,9 @@
 library(jtools)
 library(ggplot2)
 glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors = FALSE)
-glbwarm
-
+attach(glbwarm)
+glbwarm[["interaction0"]]=negemot*age*sex
+saveRDS(glbwarm,"./inst/pmacro/interaction.RDS")
 fit=lm(govact~negemot*age+posemot+ideology+sex,data=glbwarm)
 summary(fit,digits=3)
 

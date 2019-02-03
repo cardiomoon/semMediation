@@ -42,7 +42,7 @@ ui=fluidPage(
     h2("Select Process Macro Model Number"),
     fluidRow(
         column(2,
-               selectInput("modelno","Model No",choices=pmacro$no,selectize=FALSE,size=28)
+               selectInput("modelno","Model No",choices=sort(pmacro$no),selectize=FALSE,size=28)
                ),
         column(10,
 
@@ -84,7 +84,7 @@ ui=fluidPage(
 
 server=function(input,output,session){
 
-    RV=reactiveValues(number=0)
+    RV=reactiveValues(number=0,triple=0)
 
 
     output$modelPlot=renderPlot(
@@ -107,6 +107,7 @@ server=function(input,output,session){
     })
 
    data=reactive({
+
         if(input$mydata=="uploaded") {
             data<-myimport(input$file$datapath)
         } else if(input$mydata == "mtcars"){
@@ -114,8 +115,9 @@ server=function(input,output,session){
         } else{
              data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
             }
-        data
+       data
     })
+
 
     mylist=reactive({
         i=as.numeric(input$modelno)
@@ -131,6 +133,7 @@ server=function(input,output,session){
             moderators=unlist(strsplit(pmacro$modName[select],":"))
             mylist=c(mylist,moderators)
         }
+        if(i==3) mylist=c(mylist,"Z")
 
         RV$varsNo=length(mylist)
 
@@ -214,9 +217,13 @@ server=function(input,output,session){
 
 
     observeEvent(input$makeEq,{
+
         i=as.numeric(input$modelno)
         select=pmacro$no==i
-        if(i %in% c(4.2,6,6.3,6.4)){
+        if(i %in% c(3)){
+            model=tripleEquation(Y=input$Y,vars=c(input$X,input$W,input$Z),dep=input$Y,
+                                 covar=getCovariates2())
+        } else if(i %in% c(4.2,6,6.3,6.4)){
             temp=unlist(strsplit(pmacro$M[select],":"))
             mediators=c()
             for(j in 1:length(temp)){
@@ -227,42 +234,42 @@ server=function(input,output,session){
             model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add,
                                covar=getCovariates2())
         } else{
-        select=pmacro$no==i
-        #select=3
-        if(pmacro$modName[select]!=""){
-            name=unlist(strsplit(pmacro$modName[select],":"))
-            name
-            modname=c()
-            for(i in 1:length(name)){
-                modname=c(modname,input[[name[i]]])
-            }
-            modname
-            temp=unlist(strsplit(pmacro$modSite[select],":"))
-            temp
-            sites=list()
-            for(i in 1:length(temp)){
-              sites[[i]]=unlist(strsplit(temp[i],","))
-            }
-            sites
-           # moderator=list(name=name,site=sites)
-            moderator=list(name=modname,site=sites)
-            #str(moderator)
+            select=pmacro$no==i
+            #select=3
+            if(pmacro$modName[select]!=""){
+                name=unlist(strsplit(pmacro$modName[select],":"))
+                name
+                modname=c()
+                for(i in 1:length(name)){
+                    modname=c(modname,input[[name[i]]])
+                }
+                modname
+                temp=unlist(strsplit(pmacro$modSite[select],":"))
+                temp
+                sites=list()
+                for(i in 1:length(temp)){
+                    sites[[i]]=unlist(strsplit(temp[i],","))
+                }
+                sites
+                # moderator=list(name=name,site=sites)
+                moderator=list(name=modname,site=sites)
+                #str(moderator)
 
-        } else{
-            moderator=NULL
-        }
+            } else{
+                moderator=NULL
+            }
 
-        pmacro$M[select]
-        if(pmacro$M[select]==""){
-            model=modmedEquation(X=input$X,Y=input$Y,moderator=moderator,
-                                 covar=getCovariates())
-        } else {
-            moderator
-           # model=modmedEquation(X="X",M="M",Y="Y",moderator=moderator)
-            #model
-            model=modmedEquation(X=input$X,M=input$Mi,Y=input$Y,moderator=moderator,
-                                 covar=getCovariates())
-        }
+            pmacro$M[select]
+            if(pmacro$M[select]==""){
+                model=modmedEquation(X=input$X,Y=input$Y,moderator=moderator,
+                                     covar=getCovariates())
+            } else {
+                moderator
+                # model=modmedEquation(X="X",M="M",Y="Y",moderator=moderator)
+                #model
+                model=modmedEquation(X=input$X,M=input$Mi,Y=input$Y,moderator=moderator,
+                                     covar=getCovariates())
+            }
         }
         #cat(model)
 
@@ -273,17 +280,29 @@ server=function(input,output,session){
 
         req(input$Analysis)
 
+        data1<-data()
+        if(input$modelno==3){
+            data1[["interaction0"]]<-data1[[input$X]]*data1[[input$W]]*data1[[input$Z]]
+        }
 
-       fit=sem(model=isolate(input$equation),data=data())
+       fit=sem(model=isolate(input$equation),data=data1)
 
-       if(input$modelno==1){
+       if(input$modelno %in% 1:3){
            probs=c(0.16,0.5,0.84)
-           if(length(unique(data()[[input$W]]))==2){
+           if(length(unique(data()[[input$W]]))<6){
                temp=sort(unique(data()[[input$W]]))
            } else{
                temp=quantile(data()[[input$W]],probs)
            }
            modValues=paste(temp,collapse=",")
+           if(input$modelno %in% 2:3){
+           if(length(unique(data()[[input$Z]]))<6){
+               temp2=sort(unique(data()[[input$Z]]))
+           } else{
+               temp2=quantile(data()[[input$Z]],probs)
+           }
+           modValues2=paste(temp2,collapse=",")
+           }
        }
 
 
@@ -317,7 +336,16 @@ server=function(input,output,session){
 
             if(input$equation!=""){
 
-            estimatesTable2(fit,digits=as.numeric(input$digits),vanilla=input$vanilla) %>%
+                seek=NULL
+                replace=NULL
+                if(input$modelno==3){
+                    seek="interaction0"
+                    replace=paste(input$X,input$W,input$Z,sep=":")
+                }
+                estimatesTable2(fit,vanilla=input$vanilla,
+                                digits=as.numeric(input$digits),
+                                seek=seek,
+                                replace=replace) %>%
                 htmltools_value()
             }
 
@@ -325,16 +353,26 @@ server=function(input,output,session){
 
         output$corTable=renderUI({
                 if(input$equation!=""){
-
-                    corTable2(fit,vanilla=input$vanilla) %>%
+                    seek=NULL
+                    replace=NULL
+                    if(input$modelno==3){
+                        seek="interaction0"
+                        replace=paste(input$X,input$W,input$Z,sep=":")
+                    }
+                    corTable2(fit,vanilla=input$vanilla,seek=seek,replace=replace) %>%
                         htmltools_value()
                 }
         })
 
         output$corPlot=renderPlot({
             if(input$equation!=""){
-
-                corPlot(fit)
+                seek=NULL
+                replace=NULL
+                if(input$modelno==3){
+                    seek="interaction0"
+                    replace=paste(input$X,input$W,input$Z,sep=":")
+                }
+                corPlot(fit,seek=seek,replace=replace)
             }
         })
 
@@ -380,7 +418,10 @@ server=function(input,output,session){
             for(i in 1:length(names)){
                 labels[[names[i]]]=input[[names[i]]]
             }
-            pmacroModel(no=as.numeric(input$modelno),labels=labels,covar=getCovariates())
+
+            covar=getCovariates()
+
+            pmacroModel(no=as.numeric(input$modelno),labels=labels,covar=covar)
             }
         })
         output$statDiagram=renderPlot({
@@ -395,6 +436,11 @@ server=function(input,output,session){
                 labels[[names[i]]]=input[[names[i]]]
             }
             table1=estimatesTable(fit,digits=as.numeric(input$digits))
+            if(input$modelno==3){
+                temp=paste(input$X,input$W,input$Z,sep=":")
+                table1$Predictors[table1$Predictors=="interaction0"]=temp
+            }
+
             statisticalDiagram(no=as.numeric(input$modelno),labels=labels,
                                whatLabel = input$whatLabel,estimateTable=table1,
                                radx=as.numeric(input$radx),
@@ -424,22 +470,45 @@ server=function(input,output,session){
             plotOutput("corPlot"),
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
-            if(input$modelno==1) h2("Moderation Effect"),
-
-            if(input$modelno==1) textInput3("probs","probs",value="",placeholder="0.16,0.5,0.84",width=150),
-            if(input$modelno==1) textInput3("modxvalues","moderator values",value="",placeholder=modValues,width=150),
+            if(input$modelno %in% 1:3) h2("Moderation Effect"),
+            if(input$modelno %in% 1:3) checkboxInput3("switchMod","switch moderator",
+                                                      value=FALSE,width=200),
+            if(input$modelno==1) textInput3("probs","probs",
+                                            value="",placeholder="0.16,0.5,0.84",width=150),
+            if(input$modelno %in% 1:3)
+                textInput3("mod1values","mod1 values",value="",placeholder=modValues,width=150),
+            if(input$modelno %in% 2:3)
+                textInput3("mod2values","mod2 values",value="",placeholder=modValues2,width=150),
             if(input$modelno==1) checkboxInput3("showeffect","show effect",value=TRUE,width=120),
-            if(input$modelno==1) checkboxInput3("plotpoints","show points",value=FALSE,width=120),
-            if(input$modelno==1) checkboxInput3("interval","show interval",value=FALSE,width=120),
-            if(input$modelno==1) pickerInput3("inttype","type",choices=c("confidence","prediction"),width=120),
-            if(input$modelno==1) numericInput3("intwidth","width",value=0.95,min=0.1,max=1,step=0.01),
-            if(input$modelno==1) checkboxInput3("switchMod2","switch moderator",value=FALSE,width=200),
-            if(input$modelno==1) checkboxInput3("linearity","linearity check",value=FALSE,width=200),
+            if(input$modelno %in% 1:3)
+                checkboxInput3("plotpoints","show points",value=FALSE,width=120),
+            if(input$modelno %in% 1:3)
+                checkboxInput3("interval","show interval",value=FALSE,width=120),
+            if(input$modelno %in% 1:3)
+                pickerInput3("inttype","type",choices=c("confidence","prediction"),width=120),
+            if(input$modelno %in% 1:3)
+                numericInput3("intwidth","width",value=0.95,min=0.1,max=1,step=0.01),
+
+            if(input$modelno %in% 1:3) checkboxInput3("linearity","linearity check",
+                                                      value=FALSE,width=200),
             if(input$modelno==1) plotOutput("moderationPlot"),
+            if(input$modelno %in% c(2,3)) plotOutput("interactPlot2"),
+            if(input$modelno %in% 1:3) h2("Simple Slope Analysis"),
+            if(input$modelno %in% 1:3) checkboxInput3("interval2","show confidence interval",
+                                                      value=FALSE,width=220),
+            if(input$modelno==1) verbatimTextOutput("ss"),
+            if(input$modelno==1) plotOutput("ssPlot"),
+
+            if(input$modelno %in% c(2,3)) verbatimTextOutput("ss2"),
+            if(input$modelno %in% c(2,3)) plotOutput("ssPlot2"),
+
+            if(input$modelno %in% 1:3) h2("Johnson-Neyman Intervals"),
             if(input$modelno==1) verbatimTextOutput("JNText"),
             if(input$modelno==1) numericInput3("alpha","alpha",value=0.05,min=0.01,max=1,step=0.01),
-            if(input$modelno==1) checkboxInput3("switchMod","switch moderator",value=FALSE,width=200),
+
             if(input$modelno==1) plotOutput("JNPlot"),
+            if(input$modelno %in% c(2,3)) verbatimTextOutput("JNText2"),
+            if(input$modelno %in% c(2,3)) plotOutput("JNPlot2"),
             verbatimTextOutput("regEquation")
             # h2("Reliability Table"),
             # uiOutput("reliabilityTable"),
@@ -452,25 +521,34 @@ server=function(input,output,session){
 
     })
 
-    observeEvent(input$switchMod2,{
+    observeEvent(input$switchMod,{
         probs=c(0.16,0.5,0.84)
-        if(input$switchMod2) {
-            if(length(unique(data()[[input$X]]))==2){
-                temp=sort(unique(data()[[input$X]]))
-            } else{
-                temp=quantile(data()[[input$X]],probs)
-            }
-        } else{
-            if(length(unique(data()[[input$W]]))==2){
-                temp=sort(unique(data()[[input$W]]))
-            } else{
-                temp=quantile(data()[[input$W]],probs)
-            }
-
+        if(input$modelno==1){
+            var1=ifelse(input$switchMod,input$X,input$W)
+            modValues=getPlaceholder(var1)
+            updateTextInput(session,"mod1values",label=paste0(var1," values"),
+                            value="",placeholder = modValues)
+        }  else if(input$modelno %in% c(2,3)){
+            var1=ifelse(input$switchMod,input$Z,input$W)
+            var2=ifelse(input$switchMod,input$W,input$Z)
+            modValues1=getPlaceholder(var1)
+            modValues2=getPlaceholder(var2)
+            updateTextInput(session,"mod1values",label=paste0(var1," values"),
+                            value=input$mod2values,placeholder = modValues1)
+            updateTextInput(session,"mod2values",label=paste0(var2," values"),
+                            value=input$mod1values,placeholder = modValues2)
         }
-        modValues=paste(temp,collapse=",")
-        updateTextInput(session,"modxvalues",value="",placeholder = modValues)
     })
+
+    getPlaceholder=function(name){
+        probs=c(0.16,0.5,0.84)
+        if(length(unique(data()[[name]]))==2){
+            temp=sort(unique(data()[[name]]))
+        } else{
+            temp=quantile(data()[[name]],probs)
+        }
+        paste(temp,collapse=",")
+    }
 
     observeEvent(input$linearity,{
         if(input$linearity) {
@@ -484,10 +562,11 @@ server=function(input,output,session){
         }
     })
 
+
    observeEvent(input$insertBtn, {
         btn <- input$insertBtn
         id <- length(RV$inserted)/3+1
-        if(input$modelno %in% c(1,2,6.3,6.4)) {
+        if(input$modelno %in% c(1,2,3,6.3,6.4)) {
             covchoices="Y"
         } else if(input$modelno %in% c(4.2,6)) {
             covchoices=c("M1,M2,Y","M1,Y","M2,Y","Y")
@@ -655,22 +734,143 @@ server=function(input,output,session){
     })
 
     getRegEq=reactive({
-         regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
+        if(input$modelno==3){
+           tripleEquation(Y=input$Y,vars=c(input$X,input$W,input$Z),dep=input$Y,
+                          covar=getCovariates2(),mode=1)
+        } else{
+           regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
+        }
     })
 
     output$moderationPlot=renderPlot({
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
-        print(temp)
+        # print(temp)
         fit=eval(parse(text=temp))
         summary(fit)
         probs<-modx.values<-NULL
         if(input$probs!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
-        if(input$modxvalues!="") modx.values=as.numeric(unlist(strsplit(input$modxvalues,",")))
+        if(input$mod1values!="") modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
         condEffect(fit=fit,pred=input$X,modx=input$W,show.Effect=input$showeffect,
-                   switchVars=input$switchMod2,probs=probs,modx.values=modx.values,
+                   switchVars=input$switchMod,probs=probs,modx.values=modx.values,
                    plot.points=input$plotpoints,interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
                    linearity.check=input$linearity)
+    })
+
+    vector2string=function(x){
+        if(x=="") {
+            result="NULL"
+        } else{
+            temp=unlist(strsplit(x,","))
+            result=paste0("c(",paste0(temp,collapse=","),")")
+        }
+        result
+    }
+
+    output$interactPlot2=renderPlot({
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+        # print(temp)
+        fit=eval(parse(text=temp))
+
+        mod1=input$W
+        mod2=input$Z
+        mod1values=vector2string(input$mod1values)
+        mod2values=vector2string(input$mod2values)
+        if(input$switchMod){
+            mod1=input$Z
+            mod2=input$W
+
+        }
+        temp=paste0("interact_plot(fit,pred=",input$X,",modx=",mod1,",modx.values = ",
+                    mod1values,",mod2=",mod2,",mod2.values=",mod2values,
+                    ",plot.points=",input$plotpoints,",interval=",input$interval,
+                      ",int.type='",input$inttype,"',int.width=",input$intwidth,
+                      ",linearity.check=",input$linearity,")")
+        # print(temp)
+        eval(parse(text=temp))
+    })
+
+    output$ss=renderPrint({
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+
+        fit=eval(parse(text=temp))
+        if(input$mod1values=="") {
+            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,",confint =", input$interval2,")")
+        } else{
+            modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+            modx=paste0("c(",paste(modx.values,collapse=","),")")
+            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,
+                        ",modx.values=",modx,",confint =", input$interval2,")")
+        }
+        # print(temp)
+        ss=eval(parse(text=temp))
+        ss
+    })
+
+    output$ss2=renderPrint({
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+        mod1=input$W
+        mod2=input$Z
+        mod1values=vector2string(input$mod1values)
+        mod2values=vector2string(input$mod2values)
+        if(input$switchMod){
+            mod1=input$Z
+            mod2=input$W
+
+        }
+        fit=eval(parse(text=temp))
+        temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
+                    ",modx.values=",mod1values,",mod2.values=",mod2values,
+                    ",confint =", input$interval2,")")
+
+        # cat("In ss2 :",temp,"\n")
+        ss=eval(parse(text=temp))
+        ss
+    })
+
+
+
+    output$ssPlot=renderPlot({
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+
+        fit=eval(parse(text=temp))
+        if(input$mod1values=="") {
+            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,",confint =", input$interval2,")")
+        } else{
+            modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+            modx=paste0("c(",paste(modx.values,collapse=","),")")
+            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,
+                        ",modx.values=",modx,",confint =", input$interval2,")")
+        }
+        ss=eval(parse(text=temp))
+        plot(ss)
+    })
+
+    output$ssPlot2=renderPlot({
+        data1<-data()
+        temp=paste0("lm(",getRegEq(),",data=data1)")
+        mod1=input$W
+        mod2=input$Z
+        mod1values=vector2string(input$mod1values)
+        mod2values=vector2string(input$mod2values)
+        if(input$switchMod){
+            mod1=input$Z
+            mod2=input$W
+
+        }
+        fit=eval(parse(text=temp))
+        temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
+                    ",modx.values=",mod1values,",mod2.values=",mod2values,
+                    ",confint =", input$interval2,")")
+
+        #cat("In ss2 :",temp,"\n")
+        ss=eval(parse(text=temp))
+
+        plot(ss)
     })
 
     output$JNText=renderPrint({
@@ -698,6 +898,26 @@ server=function(input,output,session){
                      vjust=-0.5,hjust=-0.1)+
             annotate("text",x=pos[1],y=pos[2],label=label,parse=TRUE)
 
+
+    })
+
+    output$JNPlot2=renderPlot({
+        data1<-data()
+        fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
+        mod1=input$W
+        mod2=input$Z
+        mod1values=vector2string(input$mod1values)
+        mod2values=vector2string(input$mod2values)
+        if(input$switchMod){
+            mod1=input$Z
+            mod2=input$W
+
+        }
+        temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
+                    ",modx.values=",mod1values,",mod2.values=",mod2values,",jnplot=TRUE)")
+
+        # cat("In JNPlot2 :",temp,"\n")
+        eval(parse(text=temp))
 
     })
 

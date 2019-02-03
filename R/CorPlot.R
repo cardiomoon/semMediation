@@ -34,12 +34,18 @@ corTable=function(fit){
 #' @param fit An object of class lavaan. Result of sem function of package lavaan
 #' @param vanilla Logical. If true, vanilla.table is returned
 #' @param addFooter Logical. If true, footer added
+#' @param seek string to look for
+#' @param replace A string of replacement
 #' @importFrom rrtable df2flextable
 #' @importFrom flextable align color add_footer merge_at
 #' @export
-corTable2=function(fit,vanilla=TRUE,addFooter=FALSE){
+corTable2=function(fit,vanilla=TRUE,addFooter=FALSE,seek=NULL,replace=NULL){
 
     res=corTable(fit)
+    if(!is.null(seek)){
+    colnames(res)[colnames(res)==seek]=replace
+    rownames(res)[rownames(res)==seek]=replace
+    }
     Table=rrtable::df2flextable(res,vanilla=vanilla,add.rownames=TRUE)
     Table=flextable::align(Table,align="center",part="all")
     Table=flextable::color(Table,i=1,j=1,color=ifelse(vanilla,"white","#5B7778"),part="header")
@@ -175,11 +181,15 @@ estimatesTable=function(fit,latent=TRUE,regression=TRUE,mediation=FALSE,covar=FA
 #'@param fit An object of class lavaan. Result of sem function of package lavaan
 #'@param vanilla Logical
 #'@param digits integer indicating the number of decimal places (round) or significant digits (signif) to be used.
-
+#' @param seek string to look for
+#' @param replace A string of replacement
 #'@param ... Further argumant to be passed to estimatesTable()
 #'@export
-estimatesTable2=function(fit,vanilla=FALSE,digits=2,...){
+estimatesTable2=function(fit,vanilla=FALSE,digits=2,seek=NULL,replace=NULL,...){
     result=estimatesTable(fit,digits=digits,...)
+    if(!is.null(seek)){
+        result$Predictors[result$Predictors==seek]=replace
+    }
     df2flextable(result,vanilla=vanilla,digits=digits)
 }
 
@@ -202,6 +212,8 @@ convertPvalue=function(x){
 #' @param label if 0, no label(default), if 1, use r value as label, if 2, use r value with significant mark as label
 #' @param yreverse Logical. if true, reverse the order of y axis.
 #' @param xangle axis.x.text.angle
+#' @param seek string to look for
+#' @param replace A string of replacement
 #' @param ... Further arugement to be passed on to geom_text
 #'
 #' @importFrom ggiraphExtra ggCor
@@ -220,11 +232,12 @@ convertPvalue=function(x){
 #' model=paste0(model,mediationModel)
 #' fit=sem(model,data=ADHD)
 #' corPlot(fit)
-corPlot=function(fit,label=2,yreverse=TRUE,xangle=45,...){
+corPlot=function(fit,label=2,yreverse=TRUE,xangle=45,seek=NULL,replace=NULL,...){
     data=fit@Data@X[[1]]
     colnames(data)=fit@Data@ov$name
     data=data.frame(data)
     data
+    if(!is.null(seek)) colnames(data)[colnames(data)==seek]=replace
     ggiraphExtra::ggCor(data=data,label=label,yreverse=yreverse,xangle=xangle,...)
 }
 

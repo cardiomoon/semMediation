@@ -4,7 +4,8 @@
 \alias{corTable2}
 \title{Make a table with correlation}
 \usage{
-corTable2(fit, vanilla = TRUE, addFooter = FALSE)
+corTable2(fit, vanilla = TRUE, addFooter = FALSE, seek = NULL,
+  replace = NULL)
 }
 \arguments{
 \item{fit}{An object of class lavaan. Result of sem function of package lavaan}
@@ -12,6 +13,10 @@ corTable2(fit, vanilla = TRUE, addFooter = FALSE)
 \item{vanilla}{Logical. If true, vanilla.table is returned}
 
 \item{addFooter}{Logical. If true, footer added}
+
+\item{seek}{string to look for}
+
+\item{replace}{A string of replacement}
 }
 \description{
 Make a table with correlation

@@ -4,7 +4,8 @@
 \alias{corPlot}
 \title{Draw correlation plot}
 \usage{
-corPlot(fit, label = 2, yreverse = TRUE, xangle = 45, ...)
+corPlot(fit, label = 2, yreverse = TRUE, xangle = 45, seek = NULL,
+  replace = NULL, ...)
 }
 \arguments{
 \item{fit}{An object of class lavaan. Result of sem function of package lavaan}
@@ -14,6 +15,10 @@ corPlot(fit, label = 2, yreverse = TRUE, xangle = 45, ...)
 \item{yreverse}{Logical. if true, reverse the order of y axis.}
 
 \item{xangle}{axis.x.text.angle}
+
+\item{seek}{string to look for}
+
+\item{replace}{A string of replacement}
 
 \item{...}{Further arugement to be passed on to geom_text}
 }

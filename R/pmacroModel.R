@@ -73,6 +73,10 @@ pmacroModel=function(no=1,labels=list(),covar=list()){
 
         }
     }
+    if(no==3){
+        straightarrow(c(0.20,0.75),to=c(0.485,0.65),lwd=1,arr.pos=1,arr.type="triangle")
+        textrect(mid=c(0.20,0.75),radx=0.12,rady=0.06,lab=ifelse(is.null(labels$Z),"Z",labels$Z))
+    }
 
 }
 
