@@ -1,7 +1,178 @@
 library(jtools)
 library(ggplot2)
+library(lavaan)
 glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors = FALSE)
 attach(glbwarm)
+
+
+
+
+protest=read.csv("./inst/pmacro/data/protest.csv",stringsAsFactors = FALSE)
+
+names(protest)
+addCatVar(protest,"protest")
+df=protest
+varname="protest"
+
+require(moonBook)
+acs
+addCatVar(acs,"smoking")
+df1=addCatVar(acs,"smoking")
+df1
+
+#' Add dummy vars to data.frame
+#' @param df A data.frame
+#' @param varname Variable name to be converted as factor and add dummies
+#' @export
+#' @examples
+#' addCatVar(iris,"Species")
+addCatVar=function(df,varname){
+    if(!is.factor(df[[varname]])) {
+        df[[varname]]<-factor(df[[varname]])
+    }
+    res=sort(as.numeric(unique(df[[varname]])))
+    for(i in 2:length(res)){
+        df[[paste0("d",i)]]=ifelse(as.numeric(df[[varname]])==i,1,0)
+    }
+    df
+}
+
+
+#'Make interaction equation with dummy categorical variable"
+#'@param Y Name of dependent variable
+#'@param X Optional.Name of independent variable
+#'@param W Name of moderator variable
+#'@param data A data.frame
+#'@param count length of unique values of independent variable
+#'@param prefix A prefix
+#'@examples
+#'cat(makeCatInteraction(Y="mpg",W="wt",count=3))
+#'cat(makeCatInteraction(Y="mpg",X="cyl",W="wt",data=mtcars))
+makeCatInteraction=function(Y="liking",X=NULL,W="sexism",data=NULL,
+                            count=NULL,prefix="b"){
+    if(is.null(count)) count=length(unique(data[[X]]))
+    no=1
+    res=c()
+    for(i in 2:count){
+      res=c(res,paste0(prefix,i-1,"*d",i))
+      no=no+1
+    }
+    res=c(res,paste0(prefix,no,"*",W))
+
+    for(i in 2:count){
+        res=c(res,paste0(prefix,no+i-1,"*d",i,":",W))
+    }
+    temp=paste0(Y," ~ ",paste0(res,collapse="+"))
+    temp=paste0(temp,"\n",W," ~ ",W,".mean*1")
+    temp=paste0(temp,"\n",W," ~~ ",W,".var*",W)
+    temp
+}
+
+protest$protest=protest$protest+1
+protest$protest=factor(protest$protest)
+sort(unique(protest$protest))
+protest$d2=ifelse(protest$protest==2,1,0)
+protest$d3=ifelse(protest$protest==3,1,0)
+
+fit=lm(liking~protest*sexism,data=protest)
+interact_plot(fit,pred=sexism,modx=protest)
+sim_slopes(fit,pred=sexism,modx=protest)
+
+fun0=
+detach(protest)
+equation="
+liking ~ b1*d2+b2*d3+b3*sexism+b4*d2:sexism+ b5*d3:sexism
+sexism ~ sexism.mean*1
+sexism ~~ sexism.var*sexism
+"
+semfit=sem(equation,data=protest)
+summary(semfit)
+str(semfit)
+res=parameterEstimates(semfit)
+res
+res=estimatesTable(semfit)
+
+fun=list()
+fun[[1]]=function(x) {7.706+res$est[3]*x}
+fun[[2]]=function(x) {7.706+res$est[1]+(res$est[3]+res$est[4])*x}
+fun[[3]]=function(x) {7.706+res$est[2]+(res$est[3]+res$est[5])*x}
+
+
+draw1_1=function(res,wahtLabel="est"){
+    res<-res[res$op=="~",]
+    res
+    count=(nrow(count)-1)/2
+
+
+}
+
+seq(from=1,by=0.2,length.out=5)
+nodes=makeNodes(res)
+nodes
+arrows=makeArrows(res)
+arrows
+res
+
+
+
+interact_plot(fit,pred=sexism,modx=protest)+
+    stat_function(fun=fun[[1]])+
+    stat_function(fun=fun[[2]])+
+    stat_function(fun=fun[[3]])
+
+sim_slopes(fit,pred=sexism,modx=protest,mod.values=c(4.250,5.120,5.896),digits=3)
+predict(fit)
+x1=rep(c(4.250,5.120,5.896),each=3)
+x2=factor(rep(1:3,3))
+new=data.frame(sexism=x1,protest=x2)
+y=predict(fit,new)
+
+new$y=y
+library(ggplot2)
+interact_plot(fit,pred=sexism,modx=protest)+
+    annotate("point",x=new$sexism,y=new$y,size=3)
+
+mean(protest$sexism)+c(-1,0,1)*sd(protest$sexism)
+
+predict(fit,new)
+Crabs <- read.table("http://www.da.ugent.be/datasets/crab.dat", header=T)
+Crabs$y <- ifelse(Crabs$Sa > 0, 1, 0)
+fit <- glm(y ~ W, data=Crabs, family=binomial)
+summary(fit)
+
+table.7.5 <- read.table("http://www.da.ugent.be/datasets/Agresti2002.Table.7.5.dat",
+                 header=TRUE)
+
+summary(table.7.5)
+table.7.5$mental <- ordered(table.7.5$mental,
+                            levels = c("well","mild","moderate","impaired"))
+
+str(table.7.5)
+
+set.seed(1234)
+table.7.5[ sample(1:40, 10), ]
+
+library(MASS)
+fit.polr <- polr(mental~ses +life, data=table.7.5)
+summary(fit.polr)
+
+fit.polr <- polr(mental~ses +life, data=table.7.5, method="probit")
+summary(fit.polr)
+
+model <- ' mental ~ ses + life '
+fit <- sem(model, data=table.7.5)
+summary(fit)
+
+model <- ' mental ~ ses + life + ses:life'
+fit <- sem(model, data=table.7.5)
+summary(fit)
+
+
+fit.polr <- polr(mental~ses +life, data=table.7.5, method="probit")
+summary(fit.polr)
+
+table.7.5
+
 glbwarm[["interaction0"]]=negemot*age*sex
 saveRDS(glbwarm,"./inst/pmacro/interaction.RDS")
 fit=lm(govact~negemot*age+posemot+ideology+sex,data=glbwarm)
@@ -267,3 +438,85 @@ relpos=function(p,pos=c(0.5,0.9)){
 }
 
 relpos(p)
+
+
+HS9 <- HolzingerSwineford1939[,c("x1","x2","x3","x4","x5",
+                                 "x6","x7","x8","x9")]
+
+HS9
+HSbinary <- as.data.frame( lapply(HS9, cut, 2, labels=FALSE) )
+HSbinary$school <- HolzingerSwineford1939$school
+head(HSbinary)
+str(HSbinary)
+
+
+Y <- sample(1:4, size = 100, replace = TRUE)
+head(Y, 20)
+
+prop <- table(Y)/sum(table(Y))
+prop
+cprop <- c(0, cumsum(prop))
+cprop
+th <- qnorm(cprop)
+th
+library(MASS)
+X1 <- rnorm(100); X2 <- rnorm(100); X3 <- rnorm(100)
+fit <- polr(ordered(Y) ~ X1 + X2 + X3, method = "probit")
+fit$zeta
+x <- c(3,4,5)
+class(x)
+x <- factor(x)
+class(x)
+x <- ordered(x)
+x
+class(x)
+
+
+library(lavaan)
+varTable(HolzingerSwineford1939)
+
+table.7.5 <- read.table("http://www.da.ugent.be/datasets/Agresti2002.Table.7.5.dat",
+                        header=TRUE)
+
+summary(table.7.5)
+table.7.5$mental <- ordered(table.7.5$mental,
+                            levels = c("well","mild","moderate","impaired"))
+
+str(table.7.5)
+
+set.seed(1234)
+table.7.5[ sample(1:40, 10), ]
+
+library(MASS)
+str(table.7.5)
+fit.polr <- polr(mental~ses +life, data=table.7.5)
+summary(fit.polr)
+
+fit.polr <- polr(mental~ses +life, data=table.7.5, method="probit")
+summary(fit.polr)
+
+model <- ' mental ~ c1*ses + c2*life + c3*ses:life
+ses~ses;life~life
+'
+fit <- sem(model, data=table.7.5,ordered="mental")
+summary(fit)
+
+fit <- sem(model, data=table.7.5,group="mental")
+summary(fit)
+
+HS9 <- HolzingerSwineford1939[,c("x1","x2","x3","x4","x5","x6","x7","x8","x9")]
+HSbinary <- as.data.frame( lapply(HS9, cut, 2, labels=FALSE) )
+HSbinary$school <- HolzingerSwineford1939$school
+head(HSbinary)
+str(HSbinary)
+model<-'visual =~ x1+x2+x3
+            textual =~ x4 + x5 + x6
+            speed =~ x7+x8+x9'
+
+fit <- cfa(model, data=HSbinary, group="school", ordered=names(HSbinary),
+group.equal=c("thresholds", "loadings"))
+summary(fit, fit.measures=TRUE)
+
+fit <- cfa(model, data=HSbinary, group="school", ordered=names(HSbinary),
+           group.equal=c("thresholds", "loadings"),parameterization="theta")
+summary(fit, fit.measures=TRUE)

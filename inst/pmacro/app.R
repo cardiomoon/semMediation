@@ -479,6 +479,8 @@ server=function(input,output,session){
                 textInput3("mod1values","mod1 values",value="",placeholder=modValues,width=150),
             if(input$modelno %in% 2:3)
                 textInput3("mod2values","mod2 values",value="",placeholder=modValues2,width=150),
+            if(input$modelno %in% 1:3) actionButton("applyValue","Apply Values"),
+            if(input$modelno %in% 1:3) br(),
             if(input$modelno==1) checkboxInput3("showeffect","show effect",value=TRUE,width=120),
             if(input$modelno %in% 1:3)
                 checkboxInput3("plotpoints","show points",value=FALSE,width=120),
@@ -743,14 +745,17 @@ server=function(input,output,session){
     })
 
     output$moderationPlot=renderPlot({
+
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
         # print(temp)
         fit=eval(parse(text=temp))
         summary(fit)
         probs<-modx.values<-NULL
-        if(input$probs!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
-        if(input$mod1values!="") modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+        if(isolate(input$probs)!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
+        if(isolate(input$mod1values)!="") modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
         condEffect(fit=fit,pred=input$X,modx=input$W,show.Effect=input$showeffect,
                    switchVars=input$switchMod,probs=probs,modx.values=modx.values,
                    plot.points=input$plotpoints,interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
@@ -768,6 +773,9 @@ server=function(input,output,session){
     }
 
     output$interactPlot2=renderPlot({
+
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
         # print(temp)
@@ -775,8 +783,8 @@ server=function(input,output,session){
 
         mod1=input$W
         mod2=input$Z
-        mod1values=vector2string(input$mod1values)
-        mod2values=vector2string(input$mod2values)
+        mod1values=vector2string(isolate(input$mod1values))
+        mod2values=vector2string(isolate(input$mod2values))
         if(input$switchMod){
             mod1=input$Z
             mod2=input$W
@@ -792,11 +800,14 @@ server=function(input,output,session){
     })
 
     output$ss=renderPrint({
+
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
 
         fit=eval(parse(text=temp))
-        if(input$mod1values=="") {
+        if(isolate(input$mod1values)=="") {
             temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,",confint =", input$interval2,")")
         } else{
             modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
@@ -810,12 +821,15 @@ server=function(input,output,session){
     })
 
     output$ss2=renderPrint({
+
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
         mod1=input$W
         mod2=input$Z
-        mod1values=vector2string(input$mod1values)
-        mod2values=vector2string(input$mod2values)
+        mod1values=vector2string(isolate(input$mod1values))
+        mod2values=vector2string(isolate(input$mod2values))
         if(input$switchMod){
             mod1=input$Z
             mod2=input$W
@@ -834,11 +848,13 @@ server=function(input,output,session){
 
 
     output$ssPlot=renderPlot({
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
 
         fit=eval(parse(text=temp))
-        if(input$mod1values=="") {
+        if(isolate(input$mod1values)=="") {
             temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",input$W,",confint =", input$interval2,")")
         } else{
             modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
@@ -851,12 +867,15 @@ server=function(input,output,session){
     })
 
     output$ssPlot2=renderPlot({
+
+        input$applyValue
+
         data1<-data()
         temp=paste0("lm(",getRegEq(),",data=data1)")
         mod1=input$W
         mod2=input$Z
-        mod1values=vector2string(input$mod1values)
-        mod2values=vector2string(input$mod2values)
+        mod1values=vector2string(isolate(input$mod1values))
+        mod2values=vector2string(isolate(input$mod2values))
         if(input$switchMod){
             mod1=input$Z
             mod2=input$W
@@ -902,12 +921,14 @@ server=function(input,output,session){
     })
 
     output$JNPlot2=renderPlot({
+
+        input$applyValue
         data1<-data()
         fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
         mod1=input$W
         mod2=input$Z
-        mod1values=vector2string(input$mod1values)
-        mod2values=vector2string(input$mod2values)
+        mod1values=vector2string(isolate(input$mod1values))
+        mod2values=vector2string(isolate(input$mod2values))
         if(input$switchMod){
             mod1=input$Z
             mod2=input$W

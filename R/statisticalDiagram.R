@@ -17,13 +17,26 @@
 #'covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),c("Mi","Y")))
 #'statisticalDiagram(no=4,covar=covar)
 #'statisticalDiagram(no=8,covar=covar)
+#'#statisticalDiagram(no=1.1,estimateTable=res)
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE,
                             labels=list(),whatLabel="name",estimateTable=NULL,covar=list()){
 
-      # no=4.2;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
-      # whatLabel="name"
-    nodes=nodes[nodes$no==no, ]
-    arrows1=arrows[arrows$no==no,]
+      # no=1.1;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
+      # whatLabel="est"
+      # estimateTable=res;
+      # labels=list()
+      # covar=list()
+
+    if(no==1.1) {
+        nodes=est2Nodes(estimateTable)
+    } else {
+        nodes=nodes[nodes$no==no, ]
+    }
+    if(no==1.1){
+        arrows1=est2Arrows(estimateTable)
+    } else{
+        arrows1=arrows[arrows$no==no,]
+    }
     nodes
     # Add covariates
     nodes=addNodes(nodes,covar,radx=radx,rady=rady)
@@ -31,7 +44,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     arrows1
     covar
     arrows2=addArrows(arrows1,covar)
-    nodes
+    arrows2
     # print(arrows)
 
     openplotmat()
@@ -73,6 +86,47 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
         drawtext(mid,radx=radx,rady=rady,lab=label,latent=FALSE)
     }
 
+}
+
+#' Make arrows from estimatesTable
+#' @param res A data.frame, result of estimatesTable
+est2Arrows=function(res){
+    no=rep(1.1,nrow(res))
+    name=paste0("b",1:nrow(res))
+    start=res$Predictors
+    end=res$Variables
+    labelpos=rep(0.5,nrow(res))
+    arrowpos=rep(0.84,nrow(res))
+    data.frame(no,name,start,end,labelpos,arrowpos,stringsAsFactors = FALSE)
+}
+
+#' Make nodes from estimatesTable
+#' @param res A data.frame, result of estimatesTable
+est2Nodes=function(res){
+    res
+    count=(nrow(res)-1)/2
+    count
+    if(count%%2==0){
+        if(count<=2) {
+            y=seq(from=(0.6+0.2*(count-1)),by=-0.2,length.out=count+2)
+        } else{
+            y=seq(from=(0.56+1.2*(count-1)),by=-1.2,length.out=count+2)
+        }
+        y=c(y,rep(y[length(y)],count-1))
+    } else{
+        if(count<=2) {
+            y=seq(from=(0.5+0.2*(count-1)),by=-0.2,length.out=count+2)
+        } else{
+            y=seq(from=(0.5+1.2*(count-1)),by=-1.2,length.out=count+2)
+        }
+        y=c(y,rep(y[length(y)],count-1))
+    }
+    y=c(y,0.5)
+    y
+    x=c(rep(0,count+1),seq(from=0.05,by=0.1,length.out=count),1)
+    no=rep(1.1,nrow(res)+1)
+    name=c(res$Predictors,res$Variables[1])
+    data.frame(no=no,name=name,xpos=x,ypos=y,stringsAsFactors = FALSE)
 }
 
 
