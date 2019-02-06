@@ -4,12 +4,14 @@
 \alias{findName}
 \title{convert name with list}
 \usage{
-findName(labels, name = "MiX")
+findName(labels, name = "MiX", exact = FALSE)
 }
 \arguments{
 \item{labels}{A named list}
 
 \item{name}{A name to look for}
+
+\item{exact}{A logical}
 }
 \description{
 convert name with list

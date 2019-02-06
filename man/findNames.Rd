@@ -2,15 +2,17 @@
 % Please edit documentation in R/statisticalDiagram.R
 \name{findNames}
 \alias{findNames}
-\title{convert a vextor of names with list}
+\title{convert a vector of names with list}
 \usage{
-findNames(labels, names)
+findNames(labels, names, exact = FALSE)
 }
 \arguments{
 \item{labels}{A named list}
 
 \item{names}{A character vector to look for}
+
+\item{exact}{A logical}
 }
 \description{
-convert a vextor of names with list
+convert a vector of names with list
 }

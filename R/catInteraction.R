@@ -23,11 +23,13 @@ addCatVar=function(df,varname){
 #'@param data A data.frame
 #'@param count length of unique values of independent variable
 #'@param prefix A prefix
+#'@param covar A list
+#'@export
 #'@examples
 #'cat(catInteraction(Y="mpg",W="wt",count=3))
 #'cat(catInteraction(Y="mpg",X="cyl",W="wt",data=mtcars))
 catInteraction=function(Y="liking",X=NULL,W="sexism",data=NULL,
-                            count=NULL,prefix="b"){
+                            count=NULL,prefix="b",covar=list()){
     if(is.null(count)) count=length(unique(data[[X]]))
     no=1
     res=c()
@@ -41,6 +43,7 @@ catInteraction=function(Y="liking",X=NULL,W="sexism",data=NULL,
         res=c(res,paste0(prefix,no+i-1,"*d",i,":",W))
     }
     temp=paste0(Y," ~ ",paste0(res,collapse="+"))
+    temp=addCovarEquation(temp,covar,prefix="h")
     temp=paste0(temp,"\n",W," ~ ",W,".mean*1")
     temp=paste0(temp,"\n",W," ~~ ",W,".var*",W)
     temp

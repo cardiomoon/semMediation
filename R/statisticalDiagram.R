@@ -24,7 +24,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
       # no=1.1;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
       # whatLabel="est"
       # estimateTable=res;
-      # labels=list()
+      # labels=list("d2"="protest=2",d3="protest=3")
       # covar=list()
 
     if(no==1.1) {
@@ -40,7 +40,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     nodes
     # Add covariates
     nodes=addNodes(nodes,covar,radx=radx,rady=rady)
-    print(nodes)
+    # print(nodes)
     arrows1
     covar
     arrows2=addArrows(arrows1,covar)
@@ -49,8 +49,14 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
 
     openplotmat()
     if( !is.null(estimateTable)) {
-        arrows2$Predictors=findNames(labels,arrows2$start)
+        if(no==1.1){
+            arrows2$Predictors=arrows2$start
+        } else{
+           arrows2$Predictors=findNames(labels,arrows2$start)
+        }
         arrows2$Variables=findNames(labels,arrows2$end)
+        arrows2
+        estimateTable
         arrows3<-left_join(arrows2,estimateTable)
         arrows3$lty=ifelse(arrows3$p<0.05,1,3)
         # print(arrows)
@@ -81,9 +87,15 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
         mid=c(xpos,nodes$ypos[i])
 
        # label=ifelse(is.null(labels[[nodes$name[i]]]),nodes$name[i],labels[[nodes$name[i]]])
-        label=findName(labels,nodes$name[i])
+        label=ifelse(no==1.1,nodes$name[i],findName(labels,nodes$name[i]))
 
         drawtext(mid,radx=radx,rady=rady,lab=label,latent=FALSE)
+        if(no==1.1){
+            if(i<=(nrow(nodes)-2)/2){
+                label=findName(labels,nodes$name[i])
+                textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
+            }
+        }
     }
 
 }
@@ -96,8 +108,8 @@ est2Arrows=function(res){
     start=res$Predictors
     end=res$Variables
     labelpos=rep(0.5,nrow(res))
-    arrowpos=rep(0.84,nrow(res))
-    data.frame(no,name,start,end,labelpos,arrowpos,stringsAsFactors = FALSE)
+    arrpos=rep(0.84,nrow(res))
+    data.frame(no,name,start,end,labelpos,arrpos,stringsAsFactors = FALSE)
 }
 
 #' Make nodes from estimatesTable
@@ -263,13 +275,14 @@ adjustNodes=function(nodes){
     nodes
 }
 
-#'convert a vextor of names with list
+#'convert a vector of names with list
 #'@param labels A named list
 #'@param names A character vector to look for
-findNames=function(labels,names){
+#'@param exact A logical
+findNames=function(labels,names,exact=FALSE){
     result=c()
     for(i in 1:length(names)){
-        result=c(result,findName(labels,names[i]))
+        result=c(result,findName(labels,names[i],exact=exact))
     }
     result
 }
@@ -277,17 +290,19 @@ findNames=function(labels,names){
 #'convert name with list
 #'@param labels A named list
 #'@param name A name to look for
-findName=function(labels,name="MiX"){
+#'@param exact A logical
+findName=function(labels,name="MiX",exact=FALSE){
 
     if(length(labels)==0) {
         result=name
     } else if(!is.null(labels[[name]])) {
         result=labels[[name]]
-    } else{
+    } else if(!exact){
         temp=c()
         for(i in 1:length(labels)){
             grep(names(labels)[i],name)
-            if(length(grep(names(labels)[i],name))>0) temp=c(temp,labels[[names(labels[i])]])
+            if(length(grep(names(labels)[i],name))>0)
+                temp=c(temp,labels[[names(labels[i])]])
             temp
         }
         temp
@@ -296,6 +311,8 @@ findName=function(labels,name="MiX"){
         } else{
             result=paste0(temp,collapse=":")
         }
+    } else{
+        result=name
     }
     result
 }

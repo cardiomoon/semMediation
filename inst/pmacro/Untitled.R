@@ -8,9 +8,34 @@ attach(glbwarm)
 
 
 protest=read.csv("./inst/pmacro/data/protest.csv",stringsAsFactors = FALSE)
+str(protest)
+df=addCatVar(protest,"protest")
+str(df)
 
-names(protest)
-addCatVar(protest,"protest")
+equation=catInteraction(Y="liking",W="sexism",count=3)
+cat(equation)
+
+library(lavaan)
+library(diagram)
+library(dplyr)
+library(semMediation)
+semfit=sem(model=equation,data=df)
+res=estimatesTable(semfit,digits=3)
+res
+statisticalDiagram(no=1.1,estimateTable=res,whatLabel="est",labels=list("d2"="protest=2",d3="protest=3"))
+
+
+fit=lm(liking~protest*sexism,data=df)
+summary(fit)
+
+interact_plot(fit,pred=protest,modx=sexism)
+interact_plot(fit,pred=sexism,modx=protest)
+ss=sim_slopes(fit,pred=sexism,modx=protest)
+plot(ss,digits=3)
+johnson_neyman(fit,pred=sexism,modx=protest)
+johnson_neyman(fit,pred=protest,modx=sexism)
+probe_interaction(fit,pred=sexism,modx=protest)
+
 df=protest
 varname="protest"
 
