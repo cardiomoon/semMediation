@@ -111,11 +111,11 @@ server=function(input,output,session){
 
         if(input$mydata=="uploaded") {
             data<-myimport(input$file$datapath)
-        } else if(input$mydata == "mtcars"){
-            data<-mtcars
-        } else{
-             data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
-            }
+        } else if(input$mydata %in% c("caskets","disaster","estress","glbwarm","pmi","protest","teams")) {
+            data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
+        } else {
+            data<-eval(parse(text=input$mydata))
+        }
        data
     })
 
@@ -465,6 +465,12 @@ server=function(input,output,session){
                     no<-1.1
                 }
             }
+            if(no==1.1){
+                for(i in 2:length(levels(data1[[input$X]]))){
+                    labels[[paste0("d",i)]]=paste0(input$X,"=",levels(data1[[input$X]])[i])
+                    labels[[paste0("d",i,":",input$W)]]=paste0(input$X,"=",levels(data1[[input$X]])[i],":",input$W)
+                }
+            }
 
             statisticalDiagram(no=no,labels=labels,
                                whatLabel = input$whatLabel,estimateTable=table1,
@@ -555,13 +561,13 @@ server=function(input,output,session){
                 modx=input$X
             }
             if(isolate(input$mod1values)=="") {
-                temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,",confint =", input$interval2,")")
+                temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,",confint =", input$interval2,",digits=3)")
             } else{
                 modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
                 modx1=paste0("c(",paste(modx.values,collapse=","),")")
                 temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
                             paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
-                            ",confint =", input$interval2,")")
+                            ",confint =", input$interval2,",digits=3)")
             }
             # print(temp)
             ss=eval(parse(text=temp))
@@ -724,6 +730,7 @@ server=function(input,output,session){
         })
 
         output$regEquation=renderPrint({
+
 
             eq=getRegEq()
             # data1<-data()

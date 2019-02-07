@@ -25,7 +25,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
       # whatLabel="est"
       # estimateTable=res;
       # labels=list("d2"="protest=2",d3="protest=3")
-      # covar=list()
+      # covar=list(name="angry",site=list("liking"))
 
     if(no==1.1) {
         nodes=est2Nodes(estimateTable)
@@ -39,11 +39,15 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     }
     nodes
     # Add covariates
-    nodes=addNodes(nodes,covar,radx=radx,rady=rady)
+    if(no!=1.1) nodes=addNodes(nodes,covar,radx=radx,rady=rady)
     # print(nodes)
     arrows1
     covar
-    arrows2=addArrows(arrows1,covar)
+    if(no==1.1) {
+        arrows2=arrows1
+    } else {
+        arrows2=addArrows(arrows1,covar)
+    }
     arrows2
     # print(arrows)
 
@@ -78,7 +82,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     } else {
         arrows3$label=""
     }
-    # print(arrows3)
+     # print(arrows3)
     drawArrows(arrows3,nodes,xmargin=xmargin,rady=rady,radx=radx)
     nodes
     for(i in 1:nrow(nodes)){
@@ -91,9 +95,9 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
 
         drawtext(mid,radx=radx,rady=rady,lab=label,latent=FALSE)
         if(no==1.1){
-            if(i<=(nrow(nodes)-2)/2){
+            if(i<=nrow(nodes)){
                 label=findName(labels,nodes$name[i])
-                textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
+                if(label!=nodes$name[i]) textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
             }
         }
     }
@@ -114,28 +118,17 @@ est2Arrows=function(res){
 
 #' Make nodes from estimatesTable
 #' @param res A data.frame, result of estimatesTable
-est2Nodes=function(res){
+est2Nodes=function(res,lastxno=2){
     res
-    count=(nrow(res)-1)/2
+    count=nrow(res)-1
     count
-    if(count%%2==0){
-        if(count<=2) {
-            y=seq(from=(0.6+0.2*(count-1)),by=-0.2,length.out=count+2)
-        } else{
-            y=seq(from=(0.56+1.2*(count-1)),by=-1.2,length.out=count+2)
-        }
-        y=c(y,rep(y[length(y)],count-1))
-    } else{
-        if(count<=2) {
-            y=seq(from=(0.5+0.2*(count-1)),by=-0.2,length.out=count+2)
-        } else{
-            y=seq(from=(0.5+1.2*(count-1)),by=-1.2,length.out=count+2)
-        }
-        y=c(y,rep(y[length(y)],count-1))
-    }
-    y=c(y,0.5)
+    yinterval=-0.8/(count-1)
+    start=0.9
+    y=seq(0.9,by=yinterval,length.out = count)
     y
-    x=c(rep(0,count+1),seq(from=0.05,by=0.1,length.out=count),1)
+    y=c(y,0.1,0.5)
+    x=c(rep(0,count-1),seq(from=0.05,by=0.1,length.out=2),1)
+    x
     no=rep(1.1,nrow(res)+1)
     name=c(res$Predictors,res$Variables[1])
     data.frame(no=no,name=name,xpos=x,ypos=y,stringsAsFactors = FALSE)
@@ -204,8 +197,13 @@ drawArrows=function(arrows,nodes,xmargin=0.01,radx=0.10,rady=0.04){
 #'@param covar A list of covariates
 #'@param radx horizontal radius of the box.
 #'@param rady vertical radius of the box.
-addNodes=function(nodes,covar,radx=0.10,rady=0.04){
+#'@param no A numeric
+addNodes=function(nodes,covar,radx=0.10,rady=0.04,no=NULL){
+
     if(length(covar$name)>0){
+        if(no==1.1){
+
+        }
         number<-name<-xpos<-ypos<-c()
         minypos=min(nodes$ypos)
         maxxpos=min(nodes$xpos[nodes$ypos==minypos])

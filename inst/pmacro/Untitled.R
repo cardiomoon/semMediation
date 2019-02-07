@@ -11,8 +11,8 @@ protest=read.csv("./inst/pmacro/data/protest.csv",stringsAsFactors = FALSE)
 str(protest)
 df=addCatVar(protest,"protest")
 str(df)
-
-equation=catInteraction(Y="liking",W="sexism",count=3)
+covar=list(name="angry",site=list("liking"))
+equation=catInteraction(Y="liking",W="sexism",count=3,covar=covar)
 cat(equation)
 
 library(lavaan)
@@ -22,15 +22,45 @@ library(semMediation)
 semfit=sem(model=equation,data=df)
 res=estimatesTable(semfit,digits=3)
 res
+estimateTable=res
+for(i in 2:length(levels(df$protest))){
+   res$Predictors=str_replace(res$Predictors,paste0("d",i),paste0("protest=",levels(df$protest)[i]))
+}
+levels(df$protest)
+names(df)
+
 statisticalDiagram(no=1.1,estimateTable=res,whatLabel="est",labels=list("d2"="protest=2",d3="protest=3"))
 
 
+quantile(df$sexism,c(0.16,0.5,0.84),type=6)
+
+fit=lm(liking~protest*I(sexism-4.250),data=df)
+fit$coef
+
 fit=lm(liking~protest*sexism,data=df)
+require(ggiraphExtra)
+ggPredict(fit,point=FALSE)+theme_bw()
+
+
 summary(fit)
 
 interact_plot(fit,pred=protest,modx=sexism)
+
 interact_plot(fit,pred=sexism,modx=protest)
-ss=sim_slopes(fit,pred=sexism,modx=protest)
+
+
+ss=sim_slopes(fit,pred=sexism,modx=protest,digits=3,confint=TRUE)
+ss$slopes
+library(tibble)
+df=as_tibble(ss$slopes[,c(1,2,4,5)])
+df[]=lapply(df,as.numeric)
+names(df)=c("protest","est","low","high")
+df=as.data.frame(df)
+df[2:4]=round(df[2:4],3)
+df
+ggplot(data=df,aes(y=est,x=protest))+geom_point()+
+    geom_pointrange(aes(ymin=low,ymax=high))+coord_flip()
+
 plot(ss,digits=3)
 johnson_neyman(fit,pred=sexism,modx=protest)
 johnson_neyman(fit,pred=protest,modx=sexism)
@@ -545,3 +575,13 @@ summary(fit, fit.measures=TRUE)
 fit <- cfa(model, data=HSbinary, group="school", ordered=names(HSbinary),
            group.equal=c("thresholds", "loadings"),parameterization="theta")
 summary(fit, fit.measures=TRUE)
+
+
+teams=read.csv("./data/teams.csv",stringsAsFactors = FALSE)
+names(teams)
+fit1=lm(negtone~dysfunc,data=teams)
+summary(fit1)
+fit=lm(perform~dysfunc+negtone*negexp,data=teams)
+summary(fit)
+library(jtools)
+interact_plot(fit,pred=negtone,modx=negexp)
