@@ -232,7 +232,7 @@ server=function(input,output,session){
             model=catInteraction(Y=input$Y,W=input$W,count=length(unique(data()[[input$X]])),
                                  covar=getCovariates2())
         } else if(i %in% c(3)){
-            model=tripleEquation(Y=input$Y,vars=c(input$X,input$W,input$Z),dep=input$Y,
+            model=tripleEquation(X=input$X,Y=input$Y,vars=c(input$W,input$Z),site="c",
                                  covar=getCovariates2())
         } else if(i %in% c(4.2,6,6.3,6.4)){
             temp=unlist(strsplit(pmacro$M[select],":"))
@@ -1033,7 +1033,7 @@ server=function(input,output,session){
 
     getRegEq=reactive({
         if(input$modelno==3){
-           tripleEquation(Y=input$Y,vars=c(input$X,input$W,input$Z),dep=input$Y,
+           tripleEquation(X=input$X,M=NULL,Y=input$Y,vars=c(input$W,input$Z),site="c",
                           covar=getCovariates2(),mode=1)
         } else{
            regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())

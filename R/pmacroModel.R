@@ -2,13 +2,16 @@
 #' @param no process macro model number
 #' @param labels A character list
 #' @param covar A optional list of covariates
+#'@param radx horizontal radius of the box.
+#'@param rady vertical radius of the box.
+#'@param xmargin horizontal margin of plot
 #' @export
 #' @examples
 #' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list("M",c("M","Y"),c("Y")))
 #' pmacroModel(4,covar=covar)
 #' pmacroModel(1,covar=covar)
 #' pmacroModel(1)
-pmacroModel=function(no=1,labels=list(),covar=list()){
+pmacroModel=function(no=1,labels=list(),covar=list(),radx=0.06,rady=0.06,xmargin=0.03){
     # no=76
     # labels=list("X"="age","M"="educ","Y"="interest","W"="policy","Z"="male")
     #labels=list()
@@ -18,7 +21,7 @@ pmacroModel=function(no=1,labels=list(),covar=list()){
         cat("Currently, Model number ",no," is not supported.")
     } else{
         if(no %in% c(4.2,6.0,6.3,6.4)){
-            statisticalDiagram(no,arrowlabel = FALSE,covar=covar)
+            statisticalDiagram(no,arrowlabel = FALSE,covar=covar,radx=radx,rady=rady)
         } else{
     name=list()
     sites=list()
@@ -66,16 +69,54 @@ pmacroModel=function(no=1,labels=list(),covar=list()){
     }
 
     if(no==74) {
-        conceptDiagram2(X=X,M=M,Y=Y,xb=TRUE,covar=covar)
+        conceptDiagram2(X=X,M=M,Y=Y,xb=TRUE,covar=covar,radx=radx,rady=rady,xmargin=xmargin)
     } else {
-        conceptDiagram2(X=X,M=M,Y=Y,moderator = moderator,covar=covar)
+        conceptDiagram2(X=X,M=M,Y=Y,moderator = moderator,covar=covar,radx=radx,rady=rady,xmargin=xmargin)
     }
 
         }
     }
     if(no==3){
         straightarrow(c(0.20,0.75),to=c(0.485,0.65),lwd=1,arr.pos=1,arr.type="triangle")
-        textrect(mid=c(0.20,0.75),radx=0.12,rady=0.06,lab=ifelse(is.null(labels$Z),"Z",labels$Z))
+        textrect(mid=c(0.20,0.75),radx=radx,rady=rady,lab=ifelse(is.null(labels$Z),"Z",labels$Z))
+    }
+    if(no %in% 11:13){
+
+        yinterval=rady*7
+        xend=midPoint(radx+xmargin,0.5,length.out=1)
+        yend=midPoint(0.4,0.4+yinterval,length.out=1)
+        to=c(midPoint(radx+xmargin,xend,length.out=1)-0.02,midPoint(0.5+yinterval,yend,length.out=1))
+        straightarrow(c(radx+xmargin,(0.9+yinterval)/2),to=to,lwd=1,arr.pos=1,arr.type="triangle")
+
+        if(no %in% 12){
+            xend=0.5
+            yend=0.4
+            to=c(midPoint(radx+xmargin,xend,length.out=1)-0.015,midPoint(0.5+yinterval,yend,length.out=1))
+            straightarrow(c(radx+xmargin,(0.9+yinterval)/2),to=to,lwd=1,arr.pos=1,arr.type="triangle")
+
+        }
+
+        textrect(mid=c(radx+xmargin,(0.9+yinterval)/2),radx=radx,rady=rady,lab=ifelse(is.null(labels$Z),"Z",labels$Z))
+
+    }
+    if(no %in% 18:20){
+
+        yinterval=rady*7
+        xend=midPoint(1-(radx+xmargin),0.5,length.out=1)
+        yend=midPoint(0.4,0.4+yinterval,length.out=1)
+        to=c(midPoint(1-(radx+xmargin),xend,length.out=1)+0.02,midPoint(0.5+yinterval,yend,length.out=1))
+        straightarrow(c(1-(radx+xmargin),(0.9+yinterval)/2),to=to,lwd=1,arr.pos=1,arr.type="triangle")
+
+        if(no %in% 19){
+            xend=0.5
+            yend=0.4
+            to=c(midPoint(1-(radx+xmargin),xend,length.out=1)+0.015,midPoint(0.5+yinterval,yend,length.out=1))
+            straightarrow(c(1-(radx+xmargin),(0.9+yinterval)/2),to=to,lwd=1,arr.pos=1,arr.type="triangle")
+
+        }
+
+        textrect(mid=c(1-(radx+xmargin),(0.9+yinterval)/2),radx=radx,rady=rady,lab=ifelse(is.null(labels$Z),"Z",labels$Z))
+
     }
 
 }

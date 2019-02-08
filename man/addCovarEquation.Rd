@@ -17,7 +17,7 @@ addCovarEquation(equation, covar = list(), prefix = "h")
 Add covariates to equation
 }
 \examples{
-equation="Y ~ X*W"
+equation="M ~ X*W"
 covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
 addCovarEquation(equation,covar=covar,prefix=NULL)
 }

@@ -4,8 +4,8 @@
 \alias{tripleEquation}
 \title{Make equation with triple interaction}
 \usage{
-tripleEquation(M = NULL, Y = NULL, vars, dep, suffix = 0, covar,
-  mode = 0)
+tripleEquation(X = NULL, M = NULL, Y = NULL, vars, site,
+  suffix = 0, covar = NULL, mode = 0)
 }
 \arguments{
 \item{M}{Name of mediator}
@@ -14,21 +14,22 @@ tripleEquation(M = NULL, Y = NULL, vars, dep, suffix = 0, covar,
 
 \item{vars}{variable names to be interact}
 
-\item{dep}{name of dependent variable}
-
 \item{suffix}{A number}
 
 \item{covar}{A list of covariates}
 
 \item{mode}{A number}
+
+\item{dep}{name of dependent variable}
 }
 \description{
 Make equation with triple interaction
 }
 \examples{
-vars=c("negemot","sex","age");dep="govact";suffix=0
+X="negemot";M="ideology";Y="govact";vars=c("sex","age");site=c("a","b","c");suffix=0
 covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
-Y="govact"
-tripleEquation(Y=Y,vars=vars,dep=dep,covar=covar)
-tripleEquation(Y=Y,vars=vars,dep=dep,covar=covar,mode=1)
+cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site))
+cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,covar=covar))
+cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,mode=1))
+cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,covar=covar,mode=1))
 }

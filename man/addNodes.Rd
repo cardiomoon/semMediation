@@ -4,7 +4,7 @@
 \alias{addNodes}
 \title{Add covariates to nodes}
 \usage{
-addNodes(nodes, covar, radx = 0.1, rady = 0.04)
+addNodes(nodes, covar, radx = 0.1, rady = 0.04, no = NULL)
 }
 \arguments{
 \item{nodes}{A data.frame}
@@ -14,6 +14,8 @@ addNodes(nodes, covar, radx = 0.1, rady = 0.04)
 \item{radx}{horizontal radius of the box.}
 
 \item{rady}{vertical radius of the box.}
+
+\item{no}{A numeric}
 }
 \description{
 Add covariates to nodes

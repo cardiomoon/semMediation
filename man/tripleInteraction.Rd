@@ -4,12 +4,10 @@
 \alias{tripleInteraction}
 \title{Make triple interaction equation}
 \usage{
-tripleInteraction(vars, dep, prefix = "c", suffix = 0, mode = 0)
+tripleInteraction(vars, prefix = "c", suffix = 0, mode = 0)
 }
 \arguments{
 \item{vars}{variable names to be interact}
-
-\item{dep}{name of dependent variable}
 
 \item{prefix}{A character}
 
@@ -21,7 +19,7 @@ tripleInteraction(vars, dep, prefix = "c", suffix = 0, mode = 0)
 Make triple interaction equation
 }
 \examples{
-vars=c("negemot","sex","age");dep="govact"
-tripleInteraction(vars,dep)
-tripleInteraction(vars,dep,mode=1)
+vars=c("negemot","sex","age")
+tripleInteraction(vars)
+tripleInteraction(vars,mode=1)
 }

@@ -129,105 +129,105 @@ str_detect2=function(list,pattern){
 #' cat(modmedEquation(X=X,M="M",Y=Y,moderator=moderator,range=FALSE,covar=covar))
 modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALSE,covar=list()){
 
-      # M=NULL; labels=NULL;range=FALSE
+  # M=NULL; labels=NULL;range=FALSE
 
 
-      (XM=moderator$name[str_detect2(moderator$site,"a")])
-      (MY=moderator$name[str_detect2(moderator$site,"b")])
-      (XY=moderator$name[str_detect2(moderator$site,"c")])
+  (XM=moderator$name[str_detect2(moderator$site,"a")])
+  (MY=moderator$name[str_detect2(moderator$site,"b")])
+  (XY=moderator$name[str_detect2(moderator$site,"c")])
 
-      # Regression of Moderator
-      XM=c(X,XM)
-      XMstr=interactStr(XM,prefix="a")
-      XMstr
-      if(!is.null(M)) {
-        equation=paste(M,"~",stringr::str_flatten(XMstr,"+"))
-      } else{
-        equation=""
+  # Regression of Moderator
+  XM=c(X,XM)
+  XMstr=interactStr(XM,prefix="a")
+  XMstr
+  if(!is.null(M)) {
+    equation=paste(M,"~",stringr::str_flatten(XMstr,"+"))
+  } else{
+    equation=""
+  }
+  if(length(covar$name)>0){
+    j=1
+    for(i in 1:length(covar$name)){
+      if("Mi" %in% covar$site[[i]]){
+        equation=paste0(equation," + ","f",j,"*",covar$name[i])
+        j=j+1
       }
-      if(length(covar$name)>0){
-        j=1
-        for(i in 1:length(covar$name)){
-          if("Mi" %in% covar$site[[i]]){
-            equation=paste0(equation," + ","f",j,"*",covar$name[i])
-            j=j+1
-          }
-        }
+    }
+  }
+  equation=paste0(equation,"\n")
+  MY=c(M,MY)
+  XY=c(X,XY)
+  skip=ifelse(X %in% MY,TRUE,FALSE)
+  MYstr=interactStr(MY,prefix="b",skip=skip)
+  MYstr
+  skip=FALSE
+  if(!is.null(M)) skip=ifelse(M %in% XY,TRUE,FALSE)
+  XYstr=interactStr(XY,prefix="c",skip=skip)
+  XYstr
+  if(!is.null(M)){
+    temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"+",
+               stringr::str_flatten(MYstr,"+"))
+  } else{
+    temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"))
+  }
+  if(length(covar$name)>0){
+    j=1
+    for(i in 1:length(covar$name)){
+      if("Y" %in% covar$site[[i]]){
+        temp=paste0(temp," + ","g",j,"*",covar$name[i])
+        j=j+1
       }
-      equation=paste0(equation,"\n")
-      MY=c(M,MY)
-      XY=c(X,XY)
-      skip=ifelse(X %in% MY,TRUE,FALSE)
-      MYstr=interactStr(MY,prefix="b",skip=skip)
-      MYstr
-      skip=FALSE
-      if(!is.null(M)) skip=ifelse(M %in% XY,TRUE,FALSE)
-      XYstr=interactStr(XY,prefix="c",skip=skip)
-      XYstr
-      if(!is.null(M)){
-          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"),"+",
-                     stringr::str_flatten(MYstr,"+"))
-      } else{
-          temp=paste(Y,"~",stringr::str_flatten(XYstr,"+"))
-      }
-      if(length(covar$name)>0){
-         j=1
-         for(i in 1:length(covar$name)){
-                  if("Y" %in% covar$site[[i]]){
-                      temp=paste0(temp," + ","g",j,"*",covar$name[i])
-                      j=j+1
-                  }
-         }
-      }
-      temp=paste0(temp,"\n")
-      equation=paste0(equation,temp)
+    }
+  }
+  temp=paste0(temp,"\n")
+  equation=paste0(equation,temp)
 
-      for(i in seq_along(moderator$name)){
-        name=moderator$name[i]
-        temp=paste0(name," ~ ",name,".mean*1\n")
-        temp=paste0(temp,name," ~~ ",name,".var*",name,"\n")
-        equation=paste0(equation,temp)
-      }
-      if(!is.null(M)){
-      XMstr=stringr::str_replace_all(XMstr,":","*")
-      ind1=strGrouping(XMstr,X)$yes
-      ind1
-      MYstr=stringr::str_replace_all(MYstr,":","*")
-      ind2=strGrouping(MYstr,M)$yes
-      ind2
-      ind=paste0("(",str_flatten(ind1,"+"), ")*(",str_flatten(ind2,"+"),")")
-      ind
-      ind.below<-ind.above<-ind
-      for(i in seq_along(moderator$name)){
-          temp=paste0(moderator$name[i],".mean")
-          ind=str_replace_all(ind,moderator$name[i],temp)
-          temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
-          ind.below=str_replace_all(ind.below,moderator$name[i],temp)
-          temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
-          ind.above=str_replace_all(ind.above,moderator$name[i],temp)
-      }
-      ind.below
-      ind.above
-      equation=paste0(equation,"indirect :=",ind,"\n")
+  for(i in seq_along(moderator$name)){
+    name=moderator$name[i]
+    temp=paste0(name," ~ ",name,".mean*1\n")
+    temp=paste0(temp,name," ~~ ",name,".var*",name,"\n")
+    equation=paste0(equation,temp)
+  }
+  if(!is.null(M)){
+    XMstr=stringr::str_replace_all(XMstr,":","*")
+    ind1=strGrouping(XMstr,X)$yes
+    ind1
+    MYstr=stringr::str_replace_all(MYstr,":","*")
+    ind2=strGrouping(MYstr,M)$yes
+    ind2
+    ind=paste0("(",str_flatten(ind1,"+"), ")*(",str_flatten(ind2,"+"),")")
+    ind
+    ind.below<-ind.above<-ind
+    for(i in seq_along(moderator$name)){
+      temp=paste0(moderator$name[i],".mean")
+      ind=str_replace_all(ind,moderator$name[i],temp)
+      temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
+      ind.below=str_replace_all(ind.below,moderator$name[i],temp)
+      temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
+      ind.above=str_replace_all(ind.above,moderator$name[i],temp)
+    }
+    ind.below
+    ind.above
+    equation=paste0(equation,"indirect :=",ind,"\n")
 
-      XYstr=stringr::str_replace_all(XYstr,":","*")
-      XYstr
-      direct=strGrouping(XYstr,X)$yes
-      dir=paste0(str_flatten(direct,"+"))
-      dir.below<-dir.above<-dir
-      for(i in seq_along(moderator$name)){
-          temp=paste0(moderator$name[i],".mean")
-          dir=str_replace_all(dir,moderator$name[i],temp)
-          temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
-          dir.below=str_replace_all(dir.below,moderator$name[i],temp)
-          temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
-          dir.above=str_replace_all(dir.above,moderator$name[i],temp)
-      }
-      equation=paste0(equation,"direct :=",dir,"\n")
-      equation=paste0(equation,"total := direct + indirect\n")
-      if(range){
-          equation=paste0(equation,"indirect.SDbelow :=",ind.below,"\n")
-          equation=paste0(equation,"indirect.SDabove :=",ind.above,"\n")
+    XYstr=stringr::str_replace_all(XYstr,":","*")
+    XYstr
+    direct=strGrouping(XYstr,X)$yes
+    dir=paste0(str_flatten(direct,"+"))
+    dir.below<-dir.above<-dir
+    for(i in seq_along(moderator$name)){
+      temp=paste0(moderator$name[i],".mean")
+      dir=str_replace_all(dir,moderator$name[i],temp)
+      temp=paste0("(",moderator$name[i],".mean-sqrt(",moderator$name[i],".var))")
+      dir.below=str_replace_all(dir.below,moderator$name[i],temp)
+      temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
+      dir.above=str_replace_all(dir.above,moderator$name[i],temp)
+    }
+    equation=paste0(equation,"direct :=",dir,"\n")
+    equation=paste0(equation,"total := direct + indirect\n")
+    if(range){
+      equation=paste0(equation,"indirect.SDbelow :=",ind.below,"\n")
+      equation=paste0(equation,"indirect.SDabove :=",ind.above,"\n")
       equation=paste0(equation,"direct.SDbelow:=",dir.below,"\n")
       equation=paste0(equation,"direct.SDabove:=",dir.above,"\n")
       equation=paste0(equation,"total.SDbelow := direct.SDbelow + indirect.SDbelow\n",
@@ -237,17 +237,17 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
 
 
       if(length(moderator$name)==1) {
-          temp=ind1[str_detect(ind1,fixed("*"))]
-          temp=unlist(str_split(temp,fixed("*")))
-          temp[seq(1,length(temp),2)]
-          ind2
-          equation=paste0(equation,"index.mod.med := ",
-                          temp[seq(1,length(temp),2)],"*",str_flatten(ind2,"+"),"\n")
+        temp=ind1[str_detect(ind1,fixed("*"))]
+        temp=unlist(str_split(temp,fixed("*")))
+        temp[seq(1,length(temp),2)]
+        ind2
+        equation=paste0(equation,"index.mod.med := ",
+                        temp[seq(1,length(temp),2)],"*",str_flatten(ind2,"+"),"\n")
 
       }
-      }
-      }
-      equation
+    }
+  }
+  equation
 
 }
 

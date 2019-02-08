@@ -21,8 +21,8 @@
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE,
                             labels=list(),whatLabel="name",estimateTable=NULL,covar=list()){
 
-      # no=1.1;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
-      # whatLabel="est"
+      # no=11;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
+      # whatLabel="name";estimateTable=NULL;covar=list()
       # estimateTable=res;
       # labels=list("d2"="protest=2",d3="protest=3")
       # covar=list(name="angry",site=list("liking"))
@@ -39,7 +39,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     }
     nodes
     # Add covariates
-    if(no!=1.1) nodes=addNodes(nodes,covar,radx=radx,rady=rady)
+    if(no!=1.1) nodes=addNodes(nodes,covar,radx=radx,rady=rady,no=no)
     # print(nodes)
     arrows1
     covar

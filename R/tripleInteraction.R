@@ -1,16 +1,15 @@
 #' Make triple interaction equation
 #' @param vars variable names to be interact
-#' @param dep name of dependent variable
 #' @param prefix A character
 #' @param suffix A number
 #' @param mode A number
 #' @importFrom utils combn
 #' @export
 #' @examples
-#' vars=c("negemot","sex","age");dep="govact"
-#' tripleInteraction(vars,dep)
-#' tripleInteraction(vars,dep,mode=1)
-tripleInteraction=function(vars,dep,prefix="c",suffix=0,mode=0){
+#' vars=c("negemot","sex","age")
+#' tripleInteraction(vars)
+#' tripleInteraction(vars,mode=1)
+tripleInteraction=function(vars,prefix="c",suffix=0,mode=0){
 
     if(mode){
         temp=paste(vars,collapse="*")
@@ -21,7 +20,7 @@ tripleInteraction=function(vars,dep,prefix="c",suffix=0,mode=0){
     result=c(result,paste0("interaction",suffix))
     temp=paste0(prefix,1:length(result),"*",result)
     }
-    paste0(dep,"~",paste(temp,collapse="+"))
+    temp
 }
 
 #' Make equation with triple interaction
@@ -34,19 +33,49 @@ tripleInteraction=function(vars,dep,prefix="c",suffix=0,mode=0){
 #' @param mode A number
 #' @export
 #' @examples
-#' vars=c("negemot","sex","age");dep="govact";suffix=0
+#' X="negemot";M="ideology";Y="govact";vars=c("sex","age");site=c("a","b","c");suffix=0
 #' covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
-#' Y="govact"
-#' tripleEquation(Y=Y,vars=vars,dep=dep,covar=covar)
-#' tripleEquation(Y=Y,vars=vars,dep=dep,covar=covar,mode=1)
-tripleEquation=function(M=NULL,Y=NULL,vars,dep,suffix=0,covar,mode=0){
-    equation=tripleInteraction(vars,dep,suffix=suffix,mode=mode)
-    if(!is.null(Y)) covar$site=lapply(covar$site,function(x) str_replace(x,"Y",Y))
-    if(!is.null(M)) covar$site=lapply(covar$site,function(x) str_replace(x,"M",M))
-    if(mode){
-        temp=addCovarEquation(equation,covar,prefix=NULL)
-    } else{
-      temp=addCovarEquation(equation,covar,prefix="h")
-    }
-    temp
+#' cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site))
+#' cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,covar=covar))
+#' cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,mode=1))
+#' cat(tripleEquation(X=X,M=M,Y=Y,vars=vars,site=site,covar=covar,mode=1))
+tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars,site,suffix=0,covar=NULL,mode=0){
+   temp1<-temp2<-temp3<-NULL
+   if("a" %in% site) {
+       newvars=c(X,vars)
+       temp1=tripleInteraction(newvars,prefix="a",suffix=suffix,mode=mode)
+       temp1=paste0(M,"~",paste(temp1,collapse="+"))
+       if(!is.null(covar)){
+       covar$site=lapply(covar$site,function(x) str_replace(x,"M",M))
+       if(mode){
+         temp1=addCovarEquation(temp1,covar,prefix=NULL)
+       } else{
+         temp1=addCovarEquation(temp1,covar)
+       }
+       }
+       suffix=suffix+1
+   }
+   if("b" %in% site) {
+     newvars=c(M,vars)
+     temp2=tripleInteraction(newvars,prefix="b",suffix=suffix,mode=mode)
+     suffix=suffix+1
+   }
+   if("c" %in% site) {
+     newvars=c(X,vars)
+     temp3=tripleInteraction(newvars,suffix=suffix,mode=mode)
+   }
+   temp=c(temp2,temp3)
+   temp=paste0(Y,"~",paste(temp,collapse="+"))
+   if(!is.null(covar)){
+      covar$site=lapply(covar$site,function(x) str_replace(x,"Y",Y))
+      if(mode){
+        temp=addCovarEquation(temp,covar,prefix=NULL)
+      } else{
+        temp=addCovarEquation(temp,covar)
+      }
+
+   }
+   temp=c(temp1,temp)
+   equation=paste(temp,collapse="\n")
+   equation
 }

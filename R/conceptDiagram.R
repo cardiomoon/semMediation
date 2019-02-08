@@ -83,7 +83,7 @@ midPoint=function(from=0,to=1,length.out=2){
 #'conceptDiagram2(covar=covar)
 #'@export
 conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE,
-                        radx=0.12,rady=0.06,xmargin=0.03,yinterval=NULL,
+                        radx=0.06,rady=0.06,xmargin=0.03,yinterval=NULL,
                         moderator=list(),labels=list(),covar=list()){
 
       # radx=0.12;rady=0.05;xmargin=0.03;yinterval=NULL
@@ -94,11 +94,11 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
       # moderator
       # library(diagram)
 
-    if(is.null(yinterval)) yinterval=rady*6
+    if(is.null(yinterval)) yinterval=rady*7
     openplotmat()
-    x=c(0+radx+xmargin,0.5)
-    y=c(1-(radx+xmargin),0.5)
-    m=c(0.5,0.5+yinterval)
+    x=c(0+radx+xmargin,0.4)
+    y=c(1-(radx+xmargin),0.4)
+    m=c(0.5,0.4+yinterval)
 
 
     moderator
@@ -107,7 +107,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
     xpos=midPoint(0,1,length(select))
     select
     for(j in seq_along(select)){
-        temp=c(xpos[j],0.5+yinterval-0.05)
+        temp=c(xpos[j],0.4+yinterval-0.05)
         assign(paste0("z",select[j]),temp)
     }
 
@@ -123,7 +123,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
     select
     if(length(select)==1){
         xpos=1-(radx+xmargin)
-        ypos=0.5+yinterval-rady
+        ypos=0.5+yinterval
     } else{
        xpos=midPoint(0.5+2*radx,1-radx,length(select))
        ypos=midPoint(0.5+yinterval+2*rady,0.5+rady,length(select))
@@ -135,7 +135,7 @@ conceptDiagram2=function(X="X",M="M",Y="Y",latent=rep(FALSE,3),xb=FALSE,mc=FALSE
     select=which(moderator$pos==1)
     if(length(select)==1){
         xpos=radx+xmargin
-        ypos=0.5+yinterval-rady
+        ypos=0.5+yinterval
     } else{
     xpos=midPoint(radx-xmargin,0.5-2*radx,length(select))
     ypos=midPoint(0.5+rady,0.5+yinterval+2*rady,length(select))

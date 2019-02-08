@@ -4,7 +4,7 @@
 \alias{est2Nodes}
 \title{Make nodes from estimatesTable}
 \usage{
-est2Nodes(res)
+est2Nodes(res, lastxno = 2)
 }
 \arguments{
 \item{res}{A data.frame, result of estimatesTable}

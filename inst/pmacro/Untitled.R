@@ -32,6 +32,58 @@ names(df)
 statisticalDiagram(no=1.1,estimateTable=res,whatLabel="est",labels=list("d2"="protest=2",d3="protest=3"))
 
 
+pmacro=rbind(pmacro,pmacro[pmacro$no %in% c(15),])
+
+tail(pmacro)
+nrow(pmacro)
+pmacro=rbind(pmacro,pmacro[,])
+pmacro$no[46]=11
+pmacro$no[47]=12
+pmacro$no[48]=13
+pmacro$no[49]=18
+pmacro$no[50]=19
+pmacro$no[51]=20
+
+pmacro$modName[pmacro$no %in% c(14,15,18,19,20)]="W"
+
+nodes[nodes$no %in% c(14,15,18,19,20),]
+nodes$name[c(59,64)]="W"
+nodes$name[c(60,65)]="MiW"
+nodes$name[66]="XW"
+arrows[arrows$no %in% c(14,15),]
+arrows$start[c(68,73)]="W"
+arrows$start[c(69,74)]="MiW"
+arrows$start[c(75)]="XW"
+nodes[nodes$no %in% c(7,8,11:13),]
+pmacro[pmacro$no %in% c(7,8,11:13),]
+
+nodes[nodes$no==3,]
+nodes[nodes$no %in% 11:13,]
+nodes=rbind(nodes,nodes[nodes$no %in% 19,])
+nodes=rbind(nodes,nodes[nrow(nodes),])
+arrows=rbind(arrows,arrows[nrow(arrows),])
+
+nodes[nrow(nodes),]
+arrows[arrows$no==3,]
+arrows=rbind(arrows,arrows[arrows$no %in% 19,])
+tail(arrows,10)
+nrow(arrows)
+arrows=arrows[-c(424:428),]
+arrows<-editData::editData(arrows)
+
+arrows[450:nrow(arrows),]
+arrows$no[450:458]=18
+arrows$no[459:473]=19
+arrows$no[474:nrow(arrows)]=20
+
+nodes<-editData::editData(nodes)
+tail(nodes,10)
+
+devtools::use_data(pmacro,overwrite=TRUE)
+devtools::use_data(nodes,overwrite=TRUE)
+devtools::use_data(arrows,overwrite=TRUE)
+
+str(pmacro)
 quantile(df$sexism,c(0.16,0.5,0.84),type=6)
 
 fit=lm(liking~protest*I(sexism-4.250),data=df)
