@@ -5,7 +5,7 @@
 \title{Make concept Diagram}
 \usage{
 conceptDiagram2(X = "X", M = "M", Y = "Y", latent = rep(FALSE, 3),
-  xb = FALSE, mc = FALSE, radx = 0.12, rady = 0.06,
+  xb = FALSE, mc = FALSE, radx = 0.06, rady = 0.06,
   xmargin = 0.03, yinterval = NULL, moderator = list(),
   labels = list(), covar = list())
 }

@@ -1,10 +1,11 @@
 library(jtools)
 library(ggplot2)
 library(lavaan)
-glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors = FALSE)
+glbwarm=read.csv("./data/glbwarm.csv",stringsAsFactors = FALSE)
 attach(glbwarm)
 
-
+fit=lm(ideology ~ negemot*age*sex+negemot+age+negemot:age,data=glbwarm)
+summary(fit)
 
 
 protest=read.csv("./inst/pmacro/data/protest.csv",stringsAsFactors = FALSE)
@@ -637,3 +638,11 @@ fit=lm(perform~dysfunc+negtone*negexp,data=teams)
 summary(fit)
 library(jtools)
 interact_plot(fit,pred=negtone,modx=negexp)
+
+
+pmacro[27,]
+pmacro$modSite[27]="a,c:b:b"
+
+X="negemot";Y="govact";suffix=0
+vars=list(name=list(c("sex","age")),site=list(c("c")))
+cat(tripleEquation(X=X,Y=Y,vars=vars))

@@ -4,7 +4,8 @@
 \alias{tripleInteraction}
 \title{Make triple interaction equation}
 \usage{
-tripleInteraction(vars, prefix = "c", suffix = 0, mode = 0)
+tripleInteraction(vars, prefix = "c", suffix = 0, mode = 0,
+  addPrefix = TRUE)
 }
 \arguments{
 \item{vars}{variable names to be interact}
@@ -14,6 +15,8 @@ tripleInteraction(vars, prefix = "c", suffix = 0, mode = 0)
 \item{suffix}{A number}
 
 \item{mode}{A number}
+
+\item{addPrefix}{A logical}
 }
 \description{
 Make triple interaction equation

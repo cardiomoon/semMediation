@@ -4,7 +4,8 @@
 \alias{pmacroModel}
 \title{draw conceptual diagram of process macro model}
 \usage{
-pmacroModel(no = 1, labels = list(), covar = list())
+pmacroModel(no = 1, labels = list(), covar = list(), radx = 0.06,
+  rady = 0.06, xmargin = 0.03)
 }
 \arguments{
 \item{no}{process macro model number}
@@ -12,6 +13,12 @@ pmacroModel(no = 1, labels = list(), covar = list())
 \item{labels}{A character list}
 
 \item{covar}{A optional list of covariates}
+
+\item{radx}{horizontal radius of the box.}
+
+\item{rady}{vertical radius of the box.}
+
+\item{xmargin}{horizontal margin of plot}
 }
 \description{
 draw conceptual diagram of process macro model

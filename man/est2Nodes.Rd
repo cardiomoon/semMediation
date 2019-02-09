@@ -8,6 +8,8 @@ est2Nodes(res, lastxno = 2)
 }
 \arguments{
 \item{res}{A data.frame, result of estimatesTable}
+
+\item{lastxno}{A numeric}
 }
 \description{
 Make nodes from estimatesTable

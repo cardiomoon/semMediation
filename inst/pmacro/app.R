@@ -134,7 +134,7 @@ server=function(input,output,session){
             moderators=unlist(strsplit(pmacro$modName[select],":"))
             mylist=c(mylist,moderators)
         }
-        if(i==3) mylist=c(mylist,"Z")
+        if(i %in% c(3,11:13,18:20)) mylist=c(mylist,"Z")
 
         RV$varsNo=length(mylist)
 
@@ -232,7 +232,12 @@ server=function(input,output,session){
             model=catInteraction(Y=input$Y,W=input$W,count=length(unique(data()[[input$X]])),
                                  covar=getCovariates2())
         } else if(i %in% c(3)){
-            model=tripleEquation(X=input$X,Y=input$Y,vars=c(input$W,input$Z),site="c",
+            model=tripleEquation(X=input$X,Y=input$Y,
+                                 vars=getTripleVars(),covar=getCovariates2())
+        } else if(i %in% c(11:13,18:20)){
+            model=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
+                                 vars=getTripleVars(),
+                                 moderator=getModerator(),
                                  covar=getCovariates2())
         } else if(i %in% c(4.2,6,6.3,6.4)){
             temp=unlist(strsplit(pmacro$M[select],":"))
@@ -244,7 +249,7 @@ server=function(input,output,session){
             cat("i=",i,",add=",add,"\n")
             model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add,
                                covar=getCovariates2())
-        } else{
+        } else if(i %in% c(1,2)){
             select=pmacro$no==i
             #select=3
             if(pmacro$modName[select]!=""){
@@ -281,6 +286,12 @@ server=function(input,output,session){
                 model=modmedEquation(X=input$X,M=input$Mi,Y=input$Y,moderator=moderator,
                                      covar=getCovariates())
             }
+        } else{
+            model=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
+                                 vars=getTripleVars(),
+                                 moderator=getModerator(),
+                                 covar=getCovariates2())
+
         }
         #cat(model)
 
@@ -292,7 +303,7 @@ server=function(input,output,session){
         req(input$Analysis)
 
         data1<-data()
-        if(input$modelno==3){
+        if(input$modelno %in% c(3,11:13,18:20)){
             data1[["interaction0"]]<-data1[[input$X]]*data1[[input$W]]*data1[[input$Z]]
         }
 
@@ -731,18 +742,45 @@ server=function(input,output,session){
 
         output$regEquation=renderPrint({
 
+            # cat("getTripleVars()\n")
+            # str(getTripleVars())
+            # cat("getModerator()\n")
+            # str(getModerator())
+
 
             eq=getRegEq()
+
+            # cat("eq=",eq,"\n")
+            # str(eq)
+            # cat("input$modelno=",input$modelno,"\n")
+            # cat("input$modelno %in% c(11:13,18:20)=",input$modelno %in% c(11:13,18:20),"\n")
+
             # data1<-data()
             if(input$modelno=="1"){
                 if(input$factorX){
                     data1[[input$X]]=factor(data1[[input$X]])
                 }
             }
-            # print(eq)
-            fit=eval(parse(text=paste0("lm(",eq,",data=data1)")))
+            eq=unlist(strsplit(eq,"\n"))
 
-            summary(fit)
+            if(length(eq)==1){
+
+               cat("Regression Analysis\n\n")
+               fit=eval(parse(text=paste0("lm(",eq,",data=data1)")))
+               summary(fit)
+            } else{
+                cat("Regression Analysis for Mediator\n\n")
+                temp=paste0("lm(",eq[1],",data=data1)")
+                cat("Model=",temp,"\n")
+                fit1=eval(parse(text=temp))
+                print(summary(fit1))
+
+                cat("\n\nRegression Analysis for Dependent Variable\n\n")
+                temp=paste0("lm(",eq[2],",data=data1)")
+                cat("Model=",temp,"\n")
+                fit2=eval(parse(text=temp))
+                summary(fit2)
+            }
         })
 
 
@@ -992,16 +1030,10 @@ server=function(input,output,session){
     i=as.numeric(input$modelno)
     select=pmacro$no==i
     if(i %in% c(4.2,6,6.3,6.4)){
-        # temp=unlist(strsplit(pmacro$M[select],":"))
-        # mediators=c()
-        # for(j in 1:length(temp)){
-        #     mediators=c(mediators,input[[temp[j]]])
-        # }
-        # add=ifelse(i==4.2,FALSE,TRUE)
-        # cat("i=",i,",add=",add,"\n")
-        # model=makeEquation(X=input$X,M=mediators,Y=input$Y,add2ndMediation = add,
-        #                    covar=getCovariates2())
+
         moderator=NULL
+    } else if( i %in% c(13,20)){
+       moderator=list(name=input$W,site=list("c"))
     } else{
         select=pmacro$no==i
         #select=3
@@ -1032,12 +1064,42 @@ server=function(input,output,session){
     })
 
     getRegEq=reactive({
+
         if(input$modelno==3){
-           tripleEquation(X=input$X,M=NULL,Y=input$Y,vars=c(input$W,input$Z),site="c",
+           result=tripleEquation(X=input$X,Y=input$Y,
+                          vars=getTripleVars(),
                           covar=getCovariates2(),mode=1)
+        } else if(input$modelno %in% c(11:13,18:20)){
+            result=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
+                           vars=getTripleVars(),
+                           moderator=getModerator(),
+                           covar=getCovariates2(),mode=1)
+        } else if(input$modelno %in% c(1:2)){
+           result=regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
         } else{
-           regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
+            result=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
+                                  vars=getTripleVars(),
+                                  moderator=getModerator(),
+                                  covar=getCovariates2(),mode=1)
         }
+        result
+    })
+
+    getTripleVars=reactive({
+        vars=NULL
+        if(input$modelno %in% c(3,11:13)){
+            name=list(c(input$W,input$Z))
+            if(input$modelno==3) site=list("c")
+            else if(input$modelno %in% c(11,13)) site=list("a")
+            else if(input$modelno==12) site=list(c("a","c"))
+            vars=list(name=name,site=site)
+        } else if(input$modelno %in% c(18:20)){
+            name=list(c(input$W,input$Z))
+            if(input$modelno %in% c(18,20)) site=list("b")
+            else if(input$modelno==19) site=list(c("b","c"))
+            vars=list(name=name,site=site)
+        }
+        vars
     })
 
     vector2string=function(x){

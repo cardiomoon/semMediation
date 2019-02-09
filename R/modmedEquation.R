@@ -33,22 +33,34 @@ meanCentering=function(data,names){
 #'@param x character vector
 #'@param prefix prefix
 #'@param skip whether or not skip
+#'@param count Numeric
+#'@param addPrefix A logical
 #'@examples
 #'interactStr(LETTERS[1])
-#'interactStr(LETTERS[1:2])
-#'interactStr(LETTERS[1:2],skip=TRUE)
+#'interactStr(LETTERS[1:3])
+#'interactStr(LETTERS[1:3],skip=TRUE)
 #'@export
-interactStr=function(x,prefix="a",skip=FALSE){
+interactStr=function(x,prefix="a",skip=FALSE,count=1,addPrefix=TRUE){
     res=c()
-    count=1
     for(i in seq_along(x)){
         if((i!=2) | (skip==FALSE)){
-        temp=paste0(prefix,ifelse(length(x)>1,count,""),"*",x[i])
+
+            if(addPrefix) {
+                temp=paste0(prefix,ifelse(length(x)>1,count,
+                                          ifelse(count>1,count,"")),"*",x[i])}
+            else{
+                temp=x[i]
+            }
         res=c(res,temp)
         count=count+1
         }
         if(i>1){
-            temp=paste0(prefix,ifelse(length(x)>1,count,""),"*",x[1],":",x[i])
+            if(addPrefix){
+            temp=paste0(prefix,ifelse(length(x)>1,count,ifelse(count>1,count,""))
+                        ,"*",x[1],":",x[i])
+            } else{
+                temp=paste0(x[1],":",x[i])
+            }
             res=c(res,temp)
             count=count+1
         }
@@ -130,7 +142,7 @@ str_detect2=function(list,pattern){
 modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALSE,covar=list()){
 
   # M=NULL; labels=NULL;range=FALSE
-
+  # labels=NULL;range=FALSE;covar=list()
 
   (XM=moderator$name[str_detect2(moderator$site,"a")])
   (MY=moderator$name[str_detect2(moderator$site,"b")])
@@ -189,10 +201,12 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
     equation=paste0(equation,temp)
   }
   if(!is.null(M)){
+    XMstr
     XMstr=stringr::str_replace_all(XMstr,":","*")
     ind1=strGrouping(XMstr,X)$yes
     ind1
     MYstr=stringr::str_replace_all(MYstr,":","*")
+    MYstr
     ind2=strGrouping(MYstr,M)$yes
     ind2
     ind=paste0("(",str_flatten(ind1,"+"), ")*(",str_flatten(ind2,"+"),")")
@@ -208,6 +222,7 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
     }
     ind.below
     ind.above
+    ind
     equation=paste0(equation,"indirect :=",ind,"\n")
 
     XYstr=stringr::str_replace_all(XYstr,":","*")
@@ -223,6 +238,7 @@ modmedEquation=function(X="",M=NULL,Y="",moderator=list(),labels=NULL,range=FALS
       temp=paste0("(",moderator$name[i],".mean+sqrt(",moderator$name[i],".var))")
       dir.above=str_replace_all(dir.above,moderator$name[i],temp)
     }
+    dir
     equation=paste0(equation,"direct :=",dir,"\n")
     equation=paste0(equation,"total := direct + indirect\n")
     if(range){

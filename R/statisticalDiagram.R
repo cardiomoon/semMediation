@@ -118,6 +118,7 @@ est2Arrows=function(res){
 
 #' Make nodes from estimatesTable
 #' @param res A data.frame, result of estimatesTable
+#' @param lastxno A numeric
 est2Nodes=function(res,lastxno=2){
     res
     count=nrow(res)-1

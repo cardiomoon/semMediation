@@ -4,7 +4,8 @@
 \alias{interactStr}
 \title{make interaction equation}
 \usage{
-interactStr(x, prefix = "a", skip = FALSE)
+interactStr(x, prefix = "a", skip = FALSE, count = 1,
+  addPrefix = TRUE)
 }
 \arguments{
 \item{x}{character vector}
@@ -12,12 +13,16 @@ interactStr(x, prefix = "a", skip = FALSE)
 \item{prefix}{prefix}
 
 \item{skip}{whether or not skip}
+
+\item{count}{Numeric}
+
+\item{addPrefix}{A logical}
 }
 \description{
 make interaction equation
 }
 \examples{
 interactStr(LETTERS[1])
-interactStr(LETTERS[1:2])
-interactStr(LETTERS[1:2],skip=TRUE)
+interactStr(LETTERS[1:3])
+interactStr(LETTERS[1:3],skip=TRUE)
 }
