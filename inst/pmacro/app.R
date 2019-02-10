@@ -9,6 +9,8 @@ library(flextable)
 library(semTools)
 library(jtools)
 library(ggplot2)
+library(mediation)
+library(interactions)
 
 dataFiles=list.files(path="data","*.csv")
 dataNames=str_extract(dataFiles,"[^.]*")
@@ -70,7 +72,7 @@ ui=fluidPage(
     ),
     fluidRow(
         h2("Make Equation"),
-        column(2,actionButton("makeEq","make Equation",width="150px"),
+        column(3,actionButton("makeEq","make Equation",width="150px"),
                hr(),
                actionButton("resetEq","reset Equation",width="150px")
         ),
@@ -491,69 +493,107 @@ server=function(input,output,session){
 
         })
 
-        output$moderationPlot=renderPlot({
+        # output$moderationPlot=renderPlot({
+        #
+        #     input$applyValue
+        #
+        #     # data1<-data()
+        #     temp=paste0("lm(",getRegEq(),",data=data1)")
+        #     # str(data1)
+        #     # print(temp)
+        #     fit=eval(parse(text=temp))
+        #
+        #     probs<-modx.values<-NULL
+        #     if(isolate(input$probs)!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
+        #     if(isolate(input$mod1values)!="") modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+        #
+        #     if(modelno==1.1){
+        #         # str(fit)
+        #         temp=paste0("interact_plot(model=fit,pred=",input$W,",modx=",input$X,
+        #                     ",interval=",input$interval,
+        #                     ",int.type='",input$inttype,"',int.width=",input$intwidth,
+        #                     ",plot.points=",input$plotpoints,
+        #                     ",linearity.check=",input$linearity,")")
+        #         # print(temp)
+        #         eval(parse(text=temp))
+        #         # ,modx.values=modx.values,
+        #         #                    plot.points=input$plotpoints,
+        #         #                    linearity.check=input$linearity)
+        #     } else {
+        #         pred=input$X
+        #         modx=input$W
+        #     condEffect(fit=fit,pred=pred,modx=modx,show.Effect=input$showeffect,
+        #                switchVars=input$switchMod,probs=probs,modx.values=modx.values,
+        #                plot.points=input$plotpoints,interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
+        #                linearity.check=input$linearity)
+        #     }
+        # })
+        #
+        #
+        #
+        # output$interactPlot2=renderPlot({
+        #
+        #     input$applyValue
+        #
+        #     # data1<-data()
+        #     temp=paste0("lm(",getRegEq(),",data=data1)")
+        #     # print(temp)
+        #     fit=eval(parse(text=temp))
+        #
+        #     mod1=input$W
+        #     mod2=input$Z
+        #     mod1values=vector2string(isolate(input$mod1values))
+        #     mod2values=vector2string(isolate(input$mod2values))
+        #     if(input$switchMod){
+        #         mod1=input$Z
+        #         mod2=input$W
+        #
+        #     }
+        #     temp=paste0("interact_plot(fit,pred=",input$X,",modx=",mod1,",modx.values = ",
+        #                 mod1values,",mod2=",mod2,",mod2.values=",mod2values,
+        #                 ",plot.points=",input$plotpoints,",interval=",input$interval,
+        #                 ",int.type='",input$inttype,"',int.width=",input$intwidth,
+        #                 ",linearity.check=",input$linearity,")")
+        #     print(temp)
+        #     eval(parse(text=temp))
+        # })
+
+        output$interactPlot3=renderPlot({
 
             input$applyValue
 
             # data1<-data()
-            temp=paste0("lm(",getRegEq(),",data=data1)")
-            # str(data1)
+            eq<- getRegEq()
+            eq<-unlist(strsplit(eq,"\n"))
+            if(length(eq)>1) eq=eq[2]
+            temp=paste0("lm(",eq,",data=data1)")
             # print(temp)
             fit=eval(parse(text=temp))
 
-            probs<-modx.values<-NULL
-            if(isolate(input$probs)!="") probs=as.numeric(unlist(strsplit(input$probs,",")))
-            if(isolate(input$mod1values)!="") modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
-
-            if(modelno==1.1){
-                # str(fit)
-                temp=paste0("interact_plot(model=fit,pred=",input$W,",modx=",input$X,
-                            ",interval=",input$interval,
-                            ",int.type='",input$inttype,"',int.width=",input$intwidth,
-                            ",plot.points=",input$plotpoints,
-                            ",linearity.check=",input$linearity,")")
-                # print(temp)
-                eval(parse(text=temp))
-                # ,modx.values=modx.values,
-                #                    plot.points=input$plotpoints,
-                #                    linearity.check=input$linearity)
-            } else {
-                pred=input$X
-                modx=input$W
-            condEffect(fit=fit,pred=pred,modx=modx,show.Effect=input$showeffect,
-                       switchVars=input$switchMod,probs=probs,modx.values=modx.values,
-                       plot.points=input$plotpoints,interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
-                       linearity.check=input$linearity)
-            }
-        })
-
-
-
-        output$interactPlot2=renderPlot({
-
-            input$applyValue
-
-            # data1<-data()
-            temp=paste0("lm(",getRegEq(),",data=data1)")
-            # print(temp)
-            fit=eval(parse(text=temp))
-
-            mod1=input$W
-            mod2=input$Z
-            mod1values=vector2string(isolate(input$mod1values))
-            mod2values=vector2string(isolate(input$mod2values))
-            if(input$switchMod){
-                mod1=input$Z
-                mod2=input$W
-
-            }
-            temp=paste0("interact_plot(fit,pred=",input$X,",modx=",mod1,",modx.values = ",
-                        mod1values,",mod2=",mod2,",mod2.values=",mod2values,
+            mod1=input$moderator1
+            mod2=input$moderator2
+            mod3<-""
+            if(!is.null(input$moderator3)) mod3=input$moderator3
+            if(mod3==""){
+            temp=paste0("interact_plot(fit,pred=",mod1,",modx=",mod2,
+                           # ",modx.values = ",mod1values,
+                        # ",mod2=",mod2,
+                        # ",mod2.values=",mod2values,
                         ",plot.points=",input$plotpoints,",interval=",input$interval,
                         ",int.type='",input$inttype,"',int.width=",input$intwidth,
                         ",linearity.check=",input$linearity,")")
+            } else{
+                temp=paste0("interact_plot(fit,pred=",mod1,",modx=",mod2,
+                            # ",modx.values = ",mod1values,
+                            ",mod2=",mod3,
+                            # ",mod2.values=",mod2values,
+                            ",plot.points=",input$plotpoints,",interval=",input$interval,
+                            ",int.type='",input$inttype,"',int.width=",input$intwidth,
+                            ",linearity.check=",input$linearity,")")
+            }
             # print(temp)
             eval(parse(text=temp))
+
         })
 
         output$ss=renderPrint({
@@ -565,21 +605,18 @@ server=function(input,output,session){
 
             fit=eval(parse(text=temp))
 
-            pred=input$X
-            modx=input$W
-            if(modelno==1.1){
-                pred=input$W
-                modx=input$X
-            }
-            if(isolate(input$mod1values)=="") {
+            pred=input$moderator1
+            modx=input$moderator2
+
+            # if(isolate(input$mod1values)=="") {
                 temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,",confint =", input$interval2,",digits=3)")
-            } else{
-                modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
-                modx1=paste0("c(",paste(modx.values,collapse=","),")")
-                temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
-                            paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
-                            ",confint =", input$interval2,",digits=3)")
-            }
+            # } else{
+            #     modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+            #     modx1=paste0("c(",paste(modx.values,collapse=","),")")
+            #     temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
+            #                 paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
+            #                 ",confint =", input$interval2,",digits=3)")
+            # }
             # print(temp)
             ss=eval(parse(text=temp))
             ss
@@ -591,18 +628,19 @@ server=function(input,output,session){
 
             # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
-            mod1=input$W
-            mod2=input$Z
-            mod1values=vector2string(isolate(input$mod1values))
-            mod2values=vector2string(isolate(input$mod2values))
-            if(input$switchMod){
-                mod1=input$Z
-                mod2=input$W
-
-            }
+            pred=input$moderator1
+            mod1=input$moderator2
+            mod2=input$moderator3
+            # mod1values=vector2string(isolate(input$mod1values))
+            # mod2values=vector2string(isolate(input$mod2values))
+            # if(input$switchMod){
+            #     mod1=input$Z
+            #     mod2=input$W
+            #
+            # }
             fit=eval(parse(text=temp))
             temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
-                        ",modx.values=",mod1values,",mod2.values=",mod2values,
+                        # ",modx.values=",mod1values,",mod2.values=",mod2values,
                         ",confint =", input$interval2,")")
 
             # cat("In ss2 :",temp,"\n")
@@ -619,21 +657,24 @@ server=function(input,output,session){
             temp=paste0("lm(",getRegEq(),",data=data1)")
 
             fit=eval(parse(text=temp))
-            pred=input$X
-            modx=input$W
-            if(modelno==1.1){
-                pred=input$W
-                modx=input$X
-            }
-            if(isolate(input$mod1values)=="") {
+
+            pred=input$moderator1
+            modx=input$moderator2
+            # mod2=input$moderator3pred=input$X
+            # modx=input$W
+            # if(modelno==1.1){
+            #     pred=input$W
+            #     modx=input$X
+            # }
+            # if(isolate(input$mod1values)=="") {
                 temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,",confint =", input$interval2,")")
-            } else{
-                modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
-                modx1=paste0("c(",paste(modx.values,collapse=","),")")
-                temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
-                            paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
-                            ",confint =", input$interval2,")")
-            }
+            # } else{
+            #     modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
+            #     modx1=paste0("c(",paste(modx.values,collapse=","),")")
+            #     temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
+            #                 paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
+            #                 ",confint =", input$interval2,")")
+            # }
             ss=eval(parse(text=temp))
             plot(ss)
         })
@@ -644,18 +685,21 @@ server=function(input,output,session){
 
             # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
-            mod1=input$W
-            mod2=input$Z
-            mod1values=vector2string(isolate(input$mod1values))
-            mod2values=vector2string(isolate(input$mod2values))
-            if(input$switchMod){
-                mod1=input$Z
-                mod2=input$W
-
-            }
+            pred=input$moderator1
+            mod1=input$moderator2
+            mod2=input$moderator3
+            # mod1=input$W
+            # mod2=input$Z
+            # mod1values=vector2string(isolate(input$mod1values))
+            # mod2values=vector2string(isolate(input$mod2values))
+            # if(input$switchMod){
+            #     mod1=input$Z
+            #     mod2=input$W
+            #
+            # }
             fit=eval(parse(text=temp))
-            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
-                        ",modx.values=",mod1values,",mod2.values=",mod2values,
+            temp=paste0("sim_slopes(fit,pred=",pred,",modx=",mod1,",mod2=",mod2,
+                        # ",modx.values=",mod1values,",mod2.values=",mod2values,
                         ",confint =", input$interval2,")")
 
             #cat("In ss2 :",temp,"\n")
@@ -666,23 +710,17 @@ server=function(input,output,session){
 
         output$JNText=renderPrint({
             # data1<-data()
-            fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
+            temp= paste0("lm(",getRegEq(),",data=data1)")
+            cat("fit=lm(",getRegEq(),",data=",input$mydata,")\n")
+            fit=eval(parse(text=temp))
+
+            pred=input$moderator1
+            modx=input$moderator2
 
 
-            if(modelno==1.1){
-                pred=input$W
-                modx=input$X
-
-                johnson_neyman(fit,pred=pred,modx=modx,plot=FALSE,digits=3)
-            }else{
-                pred=input$X
-                modx=input$W
-                pred=ifelse(input$switchMod,input$W,input$X)
-                modx=ifelse(input$switchMod,input$X,input$W)
-
-                johnson_neyman(fit,pred=pred,modx=modx,alpha=input$alpha,plot=FALSE,digits=3)
-            }
-
+            temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",alpha=",input$alpha,",plot=FALSE)")
+            cat(temp,"\n\n")
+            eval(parse(text=temp))
 
 
         })
@@ -691,31 +729,22 @@ server=function(input,output,session){
             fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
             # pred=ifelse(input$switchMod,input$W,input$X)
             # modx=ifelse(input$switchMod,input$X,input$W)
-            if(modelno==1.1){
-                pred=input$W
-                modx=input$X
+            pred=input$moderator1
+            modx=input$moderator2
 
-                johnson_neyman(fit,pred=pred,modx=modx)
-            }else{
-                pred=input$X
-                modx=input$W
-                pred=ifelse(input$switchMod,input$W,input$X)
-                modx=ifelse(input$switchMod,input$X,input$W)
+            # XM=paste(pred,modx,sep=":")
+            # label=paste0("italic(theta) [italic(X) %->% italic(Y)] == ",
+            #              sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
 
-
-            XM=paste(input$X,input$W,sep=":")
-            label=paste0("italic(theta) [italic(X) %->% italic(Y)] == ",
-                         sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
-
-            result=johnson_neyman(fit,pred=pred,modx=modx,plot=FALSE,alpha=input$alpha)
-            pos=relpos(result$plot)
-            result$plot+
-                annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
-                         vjust=-0.5,hjust=-0.1)+
-                annotate("text",x=pos[1],y=pos[2],label=label,parse=TRUE)
-        }
-
-
+            temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",alpha=",input$alpha,")")
+            print(temp)
+            eval(parse(text=temp))
+            # pos=relpos(result$plot)
+            # result$plot
+            # +
+            #     annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
+            #              vjust=-0.5,hjust=-0.1)+
+            #     annotate("text",x=pos[1],y=pos[2],label=label,parse=TRUE)
         })
 
         output$JNPlot2=renderPlot({
@@ -723,17 +752,14 @@ server=function(input,output,session){
             input$applyValue
             # data1<-data()
             fit=eval(parse(text=paste0("lm(",getRegEq(),",data=data1)")))
-            mod1=input$W
-            mod2=input$Z
-            mod1values=vector2string(isolate(input$mod1values))
-            mod2values=vector2string(isolate(input$mod2values))
-            if(input$switchMod){
-                mod1=input$Z
-                mod2=input$W
+            pred=input$moderator1
+            mod1=input$moderator2
+            mod2=input$moderator3
 
-            }
-            temp=paste0("sim_slopes(fit,pred=",input$X,",modx=",mod1,",mod2=",mod2,
-                        ",modx.values=",mod1values,",mod2.values=",mod2values,",jnplot=TRUE)")
+
+            temp=paste0("sim_slopes(fit,pred=",pred,",modx=",mod1,",mod2=",mod2,
+                        # ",modx.values=",mod1values,",mod2.values=",mod2values,
+                        ",jnplot=TRUE)")
 
             # cat("In JNPlot2 :",temp,"\n")
             eval(parse(text=temp))
@@ -767,21 +793,39 @@ server=function(input,output,session){
 
                cat("Regression Analysis\n\n")
                fit=eval(parse(text=paste0("lm(",eq,",data=data1)")))
+               cat("fit=lm(",eq,",data=",input$mydata,")\nsummary(fit)\n")
                summary(fit)
             } else{
                 cat("Regression Analysis for Mediator\n\n")
                 temp=paste0("lm(",eq[1],",data=data1)")
-                cat("Model=",temp,"\n")
+                cat("fit1=",paste0("lm(",eq[1],",data=",input$mydata,")"),"\n")
                 fit1=eval(parse(text=temp))
                 print(summary(fit1))
 
                 cat("\n\nRegression Analysis for Dependent Variable\n\n")
                 temp=paste0("lm(",eq[2],",data=data1)")
-                cat("Model=",temp,"\n")
+                cat("fit2=",paste0("lm(",eq[2],",data=",input$mydata,")"),"\n")
                 fit2=eval(parse(text=temp))
-                summary(fit2)
+                print(summary(fit2))
+                cat("\n\nMediation Effect\n\n")
+                cat(paste0("fitMed=mediate(fit1,fit2,treat='",input$X,
+                    "',mediator='",input$Mi,"')\n"))
+                fitMed=mediate(fit1,fit2,treat=input$X,mediator=input$Mi)
+                cat("summary(fitMed)\n")
+                print(summary(fitMed))
+                cat("\n\nBootstrap\n\n")
+                cat(paste0("fitMedBoot=mediate(fitM,fitY,boot=TRUE,sims=10,
+                                   treat='",input$X,"',mediator='",input$Mi,"')\n"))
+                cat("summary(fitMedBoot)\n")
+                fitMedBoot=mediate(fit1,fit2,boot=TRUE,sims=10,
+                                   treat=input$X,mediator=input$Mi)
+                print(summary(fitMedBoot))
+
+
             }
         })
+
+        allModerator<-getAllModerators()
 
 
         tagList(
@@ -805,30 +849,36 @@ server=function(input,output,session){
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
             if(input$modelno %in% 1:3) h2("Moderation Effect"),
-            if(input$modelno %in% 1:3) checkboxInput3("switchMod","switch moderator",
-                                                      value=FALSE,width=200),
-            if(input$modelno==1) textInput3("probs","probs",
-                                            value="",placeholder="0.16,0.5,0.84",width=150),
-            if(input$modelno %in% 1:3)
-                textInput3("mod1values","mod1 values",value="",placeholder=modValues,width=150),
-            if(input$modelno %in% 2:3)
-                textInput3("mod2values","mod2 values",value="",placeholder=modValues2,width=150),
-            if(input$modelno %in% 1:3) actionButton("applyValue","Apply Values"),
-            if(input$modelno %in% 1:3) br(),
-            if(modelno==1) checkboxInput3("showeffect","show effect",value=TRUE,width=120),
-            if(input$modelno %in% 1:3)
+            # if(input$modelno %in% 1:3) checkboxInput3("switchMod","switch moderator",
+            #                                           value=FALSE,width=200),
+            # if(input$modelno==1) textInput3("probs","probs",
+            #                                 value="",placeholder="0.16,0.5,0.84",width=150),
+            # if(input$modelno %in% 1:3)
+            #     textInput3("mod1values","mod1 values",value="",placeholder=modValues,width=150),
+            # if(input$modelno %in% 2:3)
+            #     textInput3("mod2values","mod2 values",value="",placeholder=modValues2,width=150),
+            # if(input$modelno %in% 1:3) actionButton("applyValue","Apply Values"),
+            # if(input$modelno %in% 1:3) br(),
+            # if(modelno==1) checkboxInput3("showeffect","show effect",value=TRUE,width=120),
+            if(length(allModerator)>0)
                 checkboxInput3("plotpoints","show points",value=FALSE,width=120),
-            if(input$modelno %in% 1:3)
+            if(length(allModerator)>0)
                 checkboxInput3("interval","show interval",value=FALSE,width=120),
-            if(input$modelno %in% 1:3)
+            if(length(allModerator)>0)
                 pickerInput3("inttype","type",choices=c("confidence","prediction"),width=120),
-            if(input$modelno %in% 1:3)
+            if(length(allModerator)>0)
                 numericInput3("intwidth","width",value=0.95,min=0.1,max=1,step=0.01),
 
-            if(input$modelno %in% 1:3) checkboxInput3("linearity","linearity check",
+            if(length(allModerator)>0) checkboxInput3("linearity","linearity check",
                                                       value=FALSE,width=200),
-            if(input$modelno==1) plotOutput("moderationPlot"),
-            if(input$modelno %in% c(2,3)) plotOutput("interactPlot2"),
+            # if(input$modelno==1) plotOutput("moderationPlot"),
+            # if(input$modelno %in% c(2,3)) plotOutput("interactPlot2"),
+            br(),
+
+            if(length(allModerator)>0) pickerInput3("moderator1","predictor",choices=allModerator,width="150px"),
+            if(length(allModerator)>0) pickerInput3("moderator2","moderator1",choices=allModerator,width="150px"),
+            if(length(allModerator)>2) pickerInput3("moderator3","moderator2",choices=c("",allModerator),width="150px",options=list(title="Select...")),
+            if(length(allModerator)>0) plotOutput("interactPlot3"),
             if(input$modelno %in% 1:3) h2("Simple Slope Analysis"),
             if(input$modelno %in% 1:3) checkboxInput3("interval2","show confidence interval",
                                                       value=FALSE,width=220),
@@ -838,13 +888,13 @@ server=function(input,output,session){
             if(input$modelno %in% c(2,3)) verbatimTextOutput("ss2"),
             if(input$modelno %in% c(2,3)) plotOutput("ssPlot2"),
 
-            if(modelno %in% 1:3) h2("Johnson-Neyman Intervals"),
-            if(modelno==1) verbatimTextOutput("JNText"),
-            if(modelno==1) numericInput3("alpha","alpha",value=0.05,min=0.01,max=1,step=0.01),
+            if(modelno %in% c(1:3)) h2("Johnson-Neyman Intervals"),
+            if(modelno %in% c(1)) verbatimTextOutput("JNText"),
+            if(modelno %in% c(1:3)) numericInput3("alpha","alpha",value=0.05,min=0.01,max=1,step=0.01),
 
-            if(modelno==1) plotOutput("JNPlot"),
-            if(input$modelno %in% c(2,3)) verbatimTextOutput("JNText2"),
-            if(input$modelno %in% c(2,3)) plotOutput("JNPlot2"),
+            if(modelno %in% c(1)) plotOutput("JNPlot"),
+            if(modelno %in% c(2:3)) verbatimTextOutput("JNText2"),
+            if(modelno %in% c(2:3)) plotOutput("JNPlot2"),
             verbatimTextOutput("regEquation")
             # h2("Reliability Table"),
             # uiOutput("reliabilityTable"),
@@ -855,6 +905,19 @@ server=function(input,output,session){
 
         )
 
+    })
+
+    observeEvent(input$moderator1,{
+        allModerator=getAllModerators()
+        temp=setdiff(allModerator,input$moderator1)
+        updatePickerInput(session,"moderator2",choices=temp)
+        updatePickerInput(session,"moderator3",choices=c("",temp))
+    })
+
+    observeEvent(input$moderator2,{
+        allModerator=getAllModerators()
+        temp=setdiff(allModerator,c(input$moderator1,input$moderator2))
+        updatePickerInput(session,"moderator3",choices=c("",temp))
     })
 
     observeEvent(input$switchMod,{
@@ -1061,6 +1124,30 @@ server=function(input,output,session){
         }
         moderator
     }
+    })
+
+    getAllModerators=reactive({
+        data1<-data()
+        i=input$modelno
+        if(i==1){
+            if(is.factor(data1[[input$X]]) |(input$factorX)){
+                i<-1.1
+            }
+        }
+        if(i==1.1){
+          res=c(input$W,input$X)
+        } else{
+        eq<- getRegEq()
+        eq<-unlist(strsplit(eq,"\n"))
+        if(length(eq)>1) eq=eq[2]
+        temp=paste0("lm(",eq,",data=data1)")
+        # print(temp)
+        fit=eval(parse(text=temp))
+        modNames=names(fit$coef)
+        temp=modNames[str_detect(modNames,":")]
+        res=unique(unlist(strsplit(temp,":")))
+        }
+        res
     })
 
     getRegEq=reactive({

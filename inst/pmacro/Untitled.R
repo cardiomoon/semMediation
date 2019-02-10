@@ -629,15 +629,130 @@ fit <- cfa(model, data=HSbinary, group="school", ordered=names(HSbinary),
            group.equal=c("thresholds", "loadings"),parameterization="theta")
 summary(fit, fit.measures=TRUE)
 
+##############
+#  Moderated Mediation
+################
 
-teams=read.csv("./data/teams.csv",stringsAsFactors = FALSE)
+teams=read.csv("./inst/pmacro/data/teams.csv",stringsAsFactors = FALSE)
 names(teams)
-fit1=lm(negtone~dysfunc,data=teams)
-summary(fit1)
-fit=lm(perform~dysfunc+negtone*negexp,data=teams)
-summary(fit)
+fitM=lm(negtone~dysfunc,data=teams)
+summary(fitM)
+library(gvlma)
+gvlma(fitM)
+fit=lm(perform~dysfunc*negtone,data=teams)
+names(fitY$coef)
+summary(fitY)
+gvlma(fitY)
+fitMed=mediate(fitM,fitY,treat="dysfunc",mediator="negtone")
+summary(fitMed)
+plot(fitMed)
+fitMedBoot=mediate(fitM,fitY,boot=TRUE,sims=10,treat="dysfunc",mediator="negtone")
+summary(fitMedBoot)
+plot(fitMedBoot)
+
+negexp.low=mean(teams$negexp)-sd(teams$negexp)
+negexp.low
+mod.med.low=mediate(fitM,fitY,
+                    covariates=list(negexp=negexp.low),boot=TRUE,
+                    boot.ci.type="bca",sims=10,treat="dysfunc",mediator="negtone")
+
+summary(mod.med.low)
+plot(mod.med.low)
+negexp.high=mean(teams$negexp)+sd(teams$negexp)
+negexp.high
+mod.med.high=mediate(fitM,fitY,
+                    covariates=list(negexp=negexp.high),boot=TRUE,
+                    boot.ci.type="bca",sims=10,treat="dysfunc",mediator="negtone")
+
+summary(mod.med.high)
+plot(mod.med.high)
+
+test.modmed(fitMedBoot,covariates.1 = list(negexp=negexp.low),
+            covariates.2 =list(negexp=negexp.high),sims=10)
+
+
 library(jtools)
-interact_plot(fit,pred=negtone,modx=negexp)
+fit=lm(mpg~wt*am,data=mtcars)
+summary(fit)
+
+fun=list()
+fun[[1]]=function(x){fit$coef[1]+fit$coef[2]*x}
+fun[[2]]=function(x){fit$coef[1]+fit$coef[3]+(fit$coef[2]+fit$coef[4])*x}
+x=c(relxpos(p,1/5),relxpos(p,4/5))
+y=c(fun[[1]](x[1]),fun[[2]](x[2]))
+slope=c(fit$coef[2],fit$coef[2]+fit$coef[4])
+label=paste0("am=",0:1)
+df=data.frame(x,y,slope,label,stringsAsFactors = FALSE)
+df
+df$slope2=df$slope*ratio
+df$angle2=df$slope2*180/pi
+library(ggplot2)
+
+p<-ggplot(data=mtcars,aes(x=wt,y=mpg))+
+    stat_function(fun=fun[[1]])+
+    stat_function(fun=fun[[2]])
+
+p+  geom_text(data=df,aes(x=x,y=y,label=label,angle=angle2),vjust=1.1)+
+    coord_fixed(ratio=ratio)
+
+p+  geom_text(data=df,aes(x=x,y=y,label=label,angle=angle2),vjust=1.2)
+
+
+ratio=getAspectRatio(p)
+
+getAspectRatio=function(p){
+    xmin=layer_scales(p)$x$range$range[1]
+    xmax=layer_scales(p)$x$range$range[2]
+    ymin=layer_scales(p)$y$range$range[1]
+    ymax=layer_scales(p)$y$range$range[2]
+    (xmax-xmin)/(ymax-ymin)
+}
+
+
+ratio = 1/2   ### set to the desired fixed aspect ratio
+d <- data.frame(xmin=c(0,0,0), xmax=c(50,100,100), ymin=c(0,0,0), ymax=c(100,100,50), annotation=c("slope 1/2","slope 1","slope 2"))
+d
+ggplot(data=d, mapping=aes(x=xmin, xend=xmax, y=ymin, yend=ymax, label=annotation)) +
+    geom_segment() +
+    geom_text(mapping=aes(x=(xmax-xmin)/2,y=(ymax-ymin)/2,
+                          angle=atan2((ymax-ymin)*ratio,(xmax-xmin))*180/pi),
+              vjust=-0.5) +
+    coord_fixed(ratio=ratio)
+
+
+
+relxpos=function(p,pos=c(0.5)){
+    xmin=layer_scales(p)$x$range$range[1]
+    xmax=layer_scales(p)$x$range$range[2]
+    xmin+(xmax-xmin)*pos
+}
+
+relypos=function(p,pos=c(0.5)){
+    ymin=layer_scales(p)$y$range$range[1]
+    ymax=layer_scales(p)$y$range$range[2]
+    ymin+(ymax-ymin)*pos
+}
+
+geom_text(data=df,aes(x=x,y=y,label=label,angle=angle))
+
+
+interact_plot(fit,pred=wt,modx=am)+
+    geom_text(x=4,y=16.2725,label="am=0",angle=atan(-3.7859*180/pi))
+fun[[1]](4)
+
+interact_plot(fit,pred=negtone,modx=negexp,modx.values=c(-0.531,-0.060,0.600))
+
+########################
+# Moderated mediation
+################################
+
+
+
+
+stargazer::stargazer(fitM,fitY,type="text")
+
+library(jtools)
+interact_plot(fit,pred=negtone,modx=negexp,modx.values=c(-0.531,-0.060,0.600))
 
 
 pmacro[27,]
@@ -646,3 +761,26 @@ pmacro$modSite[27]="a,c:b:b"
 X="negemot";Y="govact";suffix=0
 vars=list(name=list(c("sex","age")),site=list(c("c")))
 cat(tripleEquation(X=X,Y=Y,vars=vars))
+
+
+data=myimport("~/Downloads/김지혜.xlsx")
+data
+
+fit=lm(자아탄력성~가족탄력성:성별,data=data)
+summary(fit)
+interact_plot(fit,pred=가족탄력성,modx=성별)
+
+caskets=read.csv("./inst/pmacro/data/caskets.csv",stringsAsFactors = FALSE)
+caskets
+fit=lm(interest~age*policy,data=caskets)
+summary(fit)
+interact_plot(fit,pred=age,modx=policy)
+interact_plot(fit,pred=policy,modx=age)
+johnson_neyman(fit,pred=age,modx=policy)
+johnson_neyman(fit,pred=policy,modx=age)
+
+fit=lm(formula = Sepal.Length ~ Species * Sepal.Width, data = iris)
+summary(fit)
+interact_plot(fit,modx=Species,pred=Sepal.Width)
+johnson_neyman(fit,modx=Species,pred=Sepal.Width)
+johnson_neyman(fit,pred=Species,modx=Sepal.Width)
