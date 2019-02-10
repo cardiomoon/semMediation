@@ -639,7 +639,11 @@ fitM=lm(negtone~dysfunc,data=teams)
 summary(fitM)
 library(gvlma)
 gvlma(fitM)
-fit=lm(perform~dysfunc*negtone,data=teams)
+fitY=lm(perform~dysfunc+negtone*negexp,data=teams)
+
+stargazer::stargazer(fitM,fitY,type="text")
+modelsSummary(fitM,fitY)
+
 names(fitY$coef)
 summary(fitY)
 gvlma(fitY)
@@ -750,6 +754,9 @@ interact_plot(fit,pred=negtone,modx=negexp,modx.values=c(-0.531,-0.060,0.600))
 
 
 stargazer::stargazer(fitM,fitY,type="text")
+
+modelsSummary(fitM,fitY)
+x
 
 library(jtools)
 interact_plot(fit,pred=negtone,modx=negexp,modx.values=c(-0.531,-0.060,0.600))

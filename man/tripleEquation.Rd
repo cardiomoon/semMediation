@@ -32,8 +32,11 @@ Make equation with triple interaction
 }
 \examples{
 X="negemot";M="ideology";Y="govact";suffix=0
+cat(tripleEquation(X=X,M=M,Y=Y))
 vars=list(name=list(c("sex","age")),site=list(c("a")))
-moderator=list(name=c("W"),site=list(c("b","c")))
+X="negemot";Y="govact";suffix=0
+moderator=list(name=c("W"),site=list(c("c")))
+cat(tripleEquation(X=X,Y=Y,moderator=moderator))
 covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
 cat(tripleEquation(X=X,M=M,Y=Y,moderator=moderator,covar=covar))
 cat(tripleEquation(X=X,M=M,Y=Y,moderator=moderator,covar=covar,mode=1))

@@ -431,7 +431,24 @@ server=function(input,output,session){
             }
         })
 
+        output$mediationTable=renderUI({
+            if(input$equation!=""){
+                data1<-data()
+                eq=getRegEq()
 
+            eq=unlist(strsplit(eq,"\n"))
+
+            temp1=paste0("lm(",eq[1],",data=data1)")
+            print(temp1)
+            fit1=eval(parse(text=temp1))
+            temp2=paste0("lm(",eq[2],",data=data1)")
+            print(temp2)
+            fit2=eval(parse(text=temp2))
+            x=modelsSummary(fit1,fit2)
+            modelsSummaryTable(x) %>%
+                htmltools_value()
+            }
+        })
         # output$diagram=renderGrViz({
         #
         #
@@ -807,6 +824,10 @@ server=function(input,output,session){
                 cat("fit2=",paste0("lm(",eq[2],",data=",input$mydata,")"),"\n")
                 fit2=eval(parse(text=temp))
                 print(summary(fit2))
+
+                cat("\n\nTable Summarizing Model Coefficients\n\n")
+                x=modelsSummary(fit1,fit2)
+                print(x)
                 cat("\n\nMediation Effect\n\n")
                 cat(paste0("fitMed=mediate(fit1,fit2,treat='",input$X,
                     "',mediator='",input$Mi,"')\n"))
@@ -848,7 +869,9 @@ server=function(input,output,session){
             plotOutput("corPlot"),
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
-            if(input$modelno %in% 1:3) h2("Moderation Effect"),
+            if(as.numeric(modelno)>3) h2("Summary of Model Coefficient"),
+            if(as.numeric(modelno)>3) uiOutput("mediationTable"),
+            if(length(allModerator)>0) h2("Moderation Effect"),
             # if(input$modelno %in% 1:3) checkboxInput3("switchMod","switch moderator",
             #                                           value=FALSE,width=200),
             # if(input$modelno==1) textInput3("probs","probs",
