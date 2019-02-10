@@ -2,7 +2,10 @@
 #' @param x object of class modelSummary
 #' @importFrom officer fp_border
 #' @importFrom flextable flextable merge_h_range align hline_top hline add_header
-#' @importFrom flextable bold fontsize width italic
+#' @importFrom flextable bold fontsize width italic set_header_labels
+#' @importFrom stats pf
+#' @importFrom dplyr select
+#' @importFrom tidyselect everything
 #' @export
 #' @return A flextable
 modelsSummaryTable=function(x){
@@ -10,15 +13,14 @@ modelsSummaryTable=function(x){
     Y=attr(x,"modelNames")[2]
 
     result=x
-    result$name=rownames(result)
+    result[["name1"]]=rownames(result)
     result$s=""
-    result<-result %>% select(name,everything())
+    result<-result %>% select("name1",everything())
     count=nrow(result)
-    names(result)
-    col_keys=c("name",names(result)[2:5],"s",names(result)[6:9])
+    col_keys=c("name1",names(result)[2:5],"s",names(result)[6:9])
     ft<-flextable(result,col_keys=col_keys)
     ft
-    ft<-ft %>% set_header_labels(name="Antecedent",coef1="Coef",se1="SE",t1="t",p1="p",s="",coef2="Coef",se2="SE",t2="t",p2="p") %>%
+    ft<-ft %>% set_header_labels(name1="Antecedent",coef1="Coef",se1="SE",t1="t",p1="p",s="",coef2="Coef",se2="SE",t2="t",p2="p") %>%
     merge_h_range (i=(count-4):count,j1=2,j2=5) %>%
         merge_h_range (i=(count-4):count,j1=7,j2=10) %>%
         align(align="center",part="all")
@@ -62,15 +64,15 @@ modelsSummary=function(fit1,fit2){
 
     df1=data.frame(summary(fit1)$coef)
     colnames(df1)=c("coef1","se1","t1","p1")
-    df1$name=rownames(df1)
+    df1[["name1"]]=rownames(df1)
 
     df2=data.frame(summary(fit2)$coef)
     colnames(df2)=c("coef2","se2","t2","p2")
 
-    df2$name=rownames(df2)
-    df=full_join(df1,df2,by="name")
-    df<-df %>% select(name,everything())
-    rownames(df)=df$name
+    df2[["name1"]]=rownames(df2)
+    df=full_join(df1,df2,by="name1")
+    df<-df %>% select("name1",everything())
+    rownames(df)=df[["name1"]]
     df<-df[-1]
     df[]=lapply(df,myformat)
     df<-df[c(2:nrow(df),1),]
@@ -112,7 +114,7 @@ pformat=function(x){
 }
 
 #'Get information of a model
-#' @param fit1 object of class lm
+#' @param fit object of class lm
 #' @param digits integer indicating the number of decimal places
 getInfo=function(fit,digits=3){
     fmt=paste0("%.0",digits,"f")

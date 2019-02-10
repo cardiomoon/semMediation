@@ -7,9 +7,9 @@
 getInfo(fit, digits = 3)
 }
 \arguments{
-\item{digits}{integer indicating the number of decimal places}
+\item{fit}{object of class lm}
 
-\item{fit1}{object of class lm}
+\item{digits}{integer indicating the number of decimal places}
 }
 \description{
 Get information of a model

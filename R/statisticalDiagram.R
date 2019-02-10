@@ -35,13 +35,13 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     if(no==1.1){
         arrows1=est2Arrows(estimateTable)
     } else{
-        arrows1=arrows[arrows$no==no,]
+        arrows1=parrows1[parrows1$no==no,]
     }
     nodes
     # Add covariates
     if(no!=1.1) nodes=addNodes(nodes,covar,radx=radx,rady=rady,no=no)
     # print(nodes)
-    arrows1
+
     covar
     if(no==1.1) {
         arrows2=arrows1
@@ -84,7 +84,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     }
      # print(arrows3)
     drawArrows(arrows3,nodes,xmargin=xmargin,rady=rady,radx=radx)
-    nodes
+
     for(i in 1:nrow(nodes)){
         xpos=nodes$xpos[i]
         xpos=adjustxpos(xpos,xmargin,radx)
