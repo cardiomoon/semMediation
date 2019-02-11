@@ -789,7 +789,8 @@ caskets=read.csv("./inst/pmacro/data/caskets.csv",stringsAsFactors = FALSE)
 caskets
 fit=lm(interest~age*policy,data=caskets)
 summary(fit)
-interact_plot(fit,pred=age,modx=policy)
+library(interactions)
+
 interact_plot(fit,pred=policy,modx=age)
 johnson_neyman(fit,pred=age,modx=policy)
 johnson_neyman(fit,pred=policy,modx=age)
@@ -799,3 +800,49 @@ summary(fit)
 interact_plot(fit,modx=Species,pred=Sepal.Width)
 johnson_neyman(fit,modx=Species,pred=Sepal.Width)
 johnson_neyman(fit,pred=Species,modx=Sepal.Width)
+
+
+caskets=read.csv("./inst/pmacro/data/caskets.csv",stringsAsFactors = FALSE)
+fit=lm(interest ~ age*policy*educ+age,data=caskets)
+summary(fit)
+
+temp="interact_plot(fit,pred=age,modx=policy,plot.points=FALSE,interval=FALSE,int.type='confidence',int.width=0.95,linearity.check=FALSE)"
+eval(parse(text=temp))
+p<-interact_plot(fit,pred="age",modx="policy",plot.points=FALSE,interval=FALSE,int.type='confidence',int.width=0.95,linearity.check=FALSE)
+p+theme(text=element_text(family="NanumGothic"))
+
+glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors = FALSE)
+glbwarm$interaction0=glbwarm$negemot*glbwarm$age*glbwarm$sex
+
+
+model="ideology ~ a1*negemot+a2*age+a3*sex+a4*negemot:age+a5*negemot:sex+a6*age:sex+a7*interaction0
+govact ~ b1*ideology+c1*negemot+c2*age+c3*sex+c4*negemot:age+c5*negemot:sex+c6*age:sex+c7*interaction0
+age ~ age.mean*1
+age ~~ age.var*age
+sex ~ sex.mean*1
+sex ~~ sex.var*sex
+indirect :=(a1+a4*age.mean+a5*sex.mean)*(b1)
+direct :=c1+c4*age.mean+c5*sex.mean
+total := direct + indirect
+indirect.SDbelow :=(a1+a4*(age.mean-sqrt(age.var))+a5*(sex.mean-sqrt(sex.var)))*(b1)
+indirect.SDabove :=(a1+a4*(age.mean+sqrt(age.var))+a5*(sex.mean+sqrt(sex.var)))*(b1)
+direct.SDbelow:=c1+c4*(age.mean-sqrt(age.var))+c5*(sex.mean-sqrt(sex.var))
+direct.SDabove:=c1+c4*(age.mean+sqrt(age.var))+c5*(sex.mean+sqrt(sex.var))
+total.SDbelow := direct.SDbelow + indirect.SDbelow
+total.SDabove := direct.SDabove + indirect.SDabove
+prop.mediated.SDbelow := indirect.SDbelow / total.SDbelow
+prop.mediated.SDabove := indirect.SDabove / total.SDabove
+"
+library(lavaan)
+fit=sem(model=model,data=glbwarm)
+
+
+res=mtcars
+seek=c("hp","wt")
+seek
+replace=paste0(seek,"rep")
+replace
+for(i in seq_along(seek)) {
+colnames(res)[colnames(res)==seek[i]]=replace[i]
+}
+colnames(res)

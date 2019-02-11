@@ -43,8 +43,10 @@ corTable2=function(fit,vanilla=TRUE,addFooter=FALSE,seek=NULL,replace=NULL){
 
     res=corTable(fit)
     if(!is.null(seek)){
-    colnames(res)[colnames(res)==seek]=replace
-    rownames(res)[rownames(res)==seek]=replace
+        for(i in seq_along(seek)) {
+    colnames(res)[colnames(res)==seek[i]]=replace[i]
+    rownames(res)[rownames(res)==seek[i]]=replace[i]
+        }
     }
     Table=rrtable::df2flextable(res,vanilla=vanilla,add.rownames=TRUE)
     Table=flextable::align(Table,align="center",part="all")
@@ -188,7 +190,9 @@ estimatesTable=function(fit,latent=TRUE,regression=TRUE,mediation=FALSE,covar=FA
 estimatesTable2=function(fit,vanilla=FALSE,digits=2,seek=NULL,replace=NULL,...){
     result=estimatesTable(fit,digits=digits,...)
     if(!is.null(seek)){
-        result$Predictors[result$Predictors==seek]=replace
+        for(i in seq_along(seek)){
+        result$Predictors[result$Predictors==seek[i]]=replace[i]
+        }
     }
     df2flextable(result,vanilla=vanilla,digits=digits)
 }
@@ -237,7 +241,11 @@ corPlot=function(fit,label=2,yreverse=TRUE,xangle=45,seek=NULL,replace=NULL,...)
     colnames(data)=fit@Data@ov$name
     data=data.frame(data)
     data
-    if(!is.null(seek)) colnames(data)[colnames(data)==seek]=replace
+    if(!is.null(seek)) {
+        for(i in seq_along(seek)) {
+        colnames(data)[colnames(data)==seek[i]]=replace[i]
+        }
+    }
     ggiraphExtra::ggCor(data=data,label=label,yreverse=yreverse,xangle=xangle,...)
 }
 

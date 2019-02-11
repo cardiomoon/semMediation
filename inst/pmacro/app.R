@@ -309,8 +309,13 @@ server=function(input,output,session){
         req(input$Analysis)
 
         data1<-data()
-        if(input$modelno %in% c(3,11:13,18:20)){
+        if(input$modelno %in% c(3,11:13)){
             data1[["interaction0"]]<-data1[[input$X]]*data1[[input$W]]*data1[[input$Z]]
+        } else if(input$modelno %in% c(18:20)){
+            data1[["interaction0"]]<-data1[[input$Mi]]*data1[[input$W]]*data1[[input$Z]]
+            if(input$modelno==19){
+                data1[["interaction1"]]<-data1[[input$X]]*data1[[input$W]]*data1[[input$Z]]
+            }
         }
 
         modelno<-input$modelno
@@ -374,9 +379,16 @@ server=function(input,output,session){
 
                 seek=NULL
                 replace=NULL
-                if(input$modelno==3){
+                if(input$modelno %in% c(3,11:13)){
                     seek="interaction0"
                     replace=paste(input$X,input$W,input$Z,sep=":")
+                } else if(input$modelno %in% c(18:20)){
+                    seek="interaction0"
+                    replace=paste(input$Mi,input$W,input$Z,sep=":")
+                    if(input$modelno==19){
+                        seek="interaction1"
+                        replace=paste(input$X,input$W,input$Z,sep=":")
+                    }
                 }
                 estimatesTable2(fit,vanilla=input$vanilla,
                                 digits=as.numeric(input$digits),
@@ -391,9 +403,16 @@ server=function(input,output,session){
                 if(input$equation!=""){
                     seek=NULL
                     replace=NULL
-                    if(input$modelno==3){
+                    if(input$modelno %in% c(3,11:13)){
                         seek="interaction0"
                         replace=paste(input$X,input$W,input$Z,sep=":")
+                    } else if(input$modelno %in% c(18:20)){
+                        seek="interaction0"
+                        replace=paste(input$Mi,input$W,input$Z,sep=":")
+                        if(input$modelno==19){
+                            seek="interaction1"
+                            replace=paste(input$X,input$W,input$Z,sep=":")
+                        }
                     }
                     corTable2(fit,vanilla=input$vanilla,seek=seek,replace=replace) %>%
                         htmltools_value()
@@ -404,9 +423,16 @@ server=function(input,output,session){
             if(input$equation!=""){
                 seek=NULL
                 replace=NULL
-                if(input$modelno==3){
+                if(input$modelno %in% c(3,11:13)){
                     seek="interaction0"
                     replace=paste(input$X,input$W,input$Z,sep=":")
+                } else if(input$modelno %in% c(18:20)){
+                    seek="interaction0"
+                    replace=paste(input$Mi,input$W,input$Z,sep=":")
+                    if(input$modelno==19){
+                        seek="interaction1"
+                        replace=paste(input$X,input$W,input$Z,sep=":")
+                    }
                 }
                 corPlot(fit,seek=seek,replace=replace)+
                     theme(text=element_text(family="NanumGothic"))
@@ -492,9 +518,18 @@ server=function(input,output,session){
                 labels[[names[i]]]=input[[names[i]]]
             }
             table1=estimatesTable(fit,digits=as.numeric(input$digits))
-            if(input$modelno==3){
+
+            if(input$modelno %in% c(3,11:13)){
                 temp=paste(input$X,input$W,input$Z,sep=":")
                 table1$Predictors[table1$Predictors=="interaction0"]=temp
+            } else if(input$modelno %in% c(18:20)){
+
+                temp=paste(input$Mi,input$W,input$Z,sep=":")
+                table1$Predictors[table1$Predictors=="interaction0"]=temp
+                if(input$modelno==19){
+                    temp1=paste(input$X,input$W,input$Z,sep=":")
+                    table1$Predictors[table1$Predictors=="interaction1"]=temp1
+                }
             }
             no=as.numeric(input$modelno)
             if(no==1){
@@ -591,8 +626,10 @@ server=function(input,output,session){
             eq<-unlist(strsplit(eq,"\n"))
             if(length(eq)>1) eq=eq[2]
             temp=paste0("lm(",eq,",data=data1)")
-            # print(temp)
+            cat("interactionPlot3\n")
+            cat("temp=",temp,"\n")
             fit=eval(parse(text=temp))
+            print(summary(fit))
 
             mod1=input$moderator1
             mod2=input$moderator2
@@ -615,7 +652,7 @@ server=function(input,output,session){
                             ",int.type='",input$inttype,"',int.width=",input$intwidth,
                             ",linearity.check=",input$linearity,")")
             }
-            # print(temp)
+            print(temp)
             p<-eval(parse(text=temp))
             p+theme(text=element_text(family="NanumGothic"))
 
@@ -814,6 +851,10 @@ server=function(input,output,session){
                 }
             }
             eq=unlist(strsplit(eq,"\n"))
+
+            cat("getAllModerators()\n")
+            print(getAllModerators())
+            cat("\n")
 
             if(length(eq)==1){
 
@@ -1176,6 +1217,7 @@ server=function(input,output,session){
         # print(temp)
         fit=eval(parse(text=temp))
         modNames=names(fit$coef)
+        print(modNames)
         temp=modNames[str_detect(modNames,":")]
         res=unique(unlist(strsplit(temp,":")))
         }

@@ -42,7 +42,8 @@ tripleInteraction=function(vars,prefix="c",suffix=0,mode=0,addPrefix=TRUE){
 #' @examples
 #' X="negemot";M="ideology";Y="govact";suffix=0
 #' cat(tripleEquation(X=X,M=M,Y=Y))
-#' vars=list(name=list(c("sex","age")),site=list(c("a")))
+#' vars=list(name=list(c("sex","age")),site=list(c("a","c")))
+#' vars=list(name=list(c("W","Z"),c("V","Q")),site=list(c("a","b","c"),c("a","b","c")))
 #' X="negemot";Y="govact";suffix=0
 #' moderator=list(name=c("W"),site=list(c("c")))
 #' cat(tripleEquation(X=X,Y=Y,moderator=moderator))
@@ -58,12 +59,12 @@ tripleInteraction=function(vars,prefix="c",suffix=0,mode=0,addPrefix=TRUE){
 #' cat(tripleEquation(X=X,Y=Y,vars=vars))
 tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list(),covar=NULL,range=TRUE,mode=0){
 
-     # moderator=list();covar=NULL;mode=0;M=NULL
+      # moderator=list();covar=NULL;mode=0;M=NULL
      # mode=0;M=NULL;vars=NULL
      #
 
     # cat("str(vars)\n")
-    # str(vars)
+     # str(vars)
     # cat("str(moderator)\n")
     # str(moderator)
 
@@ -75,10 +76,12 @@ tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list()
    (XY=moderator$name[str_detect2(moderator$site,"c")])
 
     res=seekNameVars(vars,"a")
-    if(!is.null(res)) {
-       newvars=c(X,res)
-       temp1=tripleInteraction(newvars,prefix="a",suffix=suffix,mode=mode,addPrefix=FALSE)
-       suffix=suffix+1
+    if(length(res)>0) {
+        for(i in 1:length(res)){
+           newvars=c(X,vars$name[[res[i]]])
+           temp1=c(temp1,tripleInteraction(newvars,prefix="a",suffix=suffix,mode=mode,addPrefix=FALSE))
+           suffix=suffix+1
+        }
    }
    temp1
    if(!is.null(M)){
@@ -98,10 +101,13 @@ tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list()
        }
    }
    res=seekNameVars(vars,"b")
-   if(!is.null(res)) {
-     newvars=c(M,res)
-     temp2=tripleInteraction(newvars,prefix="b",suffix=suffix,mode=mode,addPrefix=FALSE)
-     suffix=suffix+1
+   length(res)
+   if(length(res)>0) {
+       for(i in 1:length(res)){
+          newvars=c(M,vars$name[[res[i]]])
+          temp2=c(temp2,tripleInteraction(newvars,prefix="b",suffix=suffix,mode=mode,addPrefix=FALSE))
+          suffix=suffix+1
+       }
    }
    temp2
    MY=c(M,MY)
@@ -113,10 +119,25 @@ tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list()
    }
 
    res=seekNameVars(vars,"c")
-   if(!is.null(res)) {
-      newvars=c(X,res)
-     temp3=tripleInteraction(newvars,suffix=suffix,mode=mode,addPrefix=FALSE)
+
+   if(length(res)>0) {
+       for(i in 1:length(res)){
+        newvars=c(X,vars$name[[res[i]]])
+        if("a" %in% vars$site[[res[i]]]){
+            newsuffix=0
+            if(res[i]>1){
+                for(j in 1:res[i]){
+                    if("a" %in% vars$site[[j]]) newsuffix=newsuffix+1
+                }
+            }
+        } else{
+            newsuffix=suffix
+        }
+        temp3=c(temp3,tripleInteraction(newvars,suffix=newsuffix,mode=mode,addPrefix=FALSE))
+        suffix=suffix+1
+       }
    }
+
    XY=c(X,XY)
    XY
    XYstr=interactStr(XY,addPrefix=FALSE)
@@ -158,16 +179,20 @@ tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list()
 #' @param site Site for look kor
 #' @export
 #' @examples
-#' vars=list(name=list(c("sex","age"),c("ese","sex")),site=list(c("a","b"),"c"))
+#' vars=list(name=list(c("W","Z"),c("V","Q")),site=list(c("a","c"),c("b","c")))
+#' vars=list(name=list(c("W","Z")),site=list(c("a","c")))
+#' seekNameVars(vars,"a")
+#' seekNameVars(vars,"b")
 #' seekNameVars(vars,"c")
 seekNameVars=function(vars,site="a"){
-    result<-NULL
+    result<-c()
     if(!is.null(vars)){
     select=which(unlist(lapply(lapply(vars$site,str_detect,site),any)))
-    if(length(select)==1) result<-vars$name[[select]]
+    result<-select
     }
     result
 }
+
 
 
 #'Treat moderator name with mean value
