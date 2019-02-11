@@ -102,6 +102,14 @@ interact_plot(fit,pred=protest,modx=sexism)
 interact_plot(fit,pred=sexism,modx=protest)
 
 
+require(jtools)
+require(interactions)
+require(ggplot2)
+fit=lm(mpg~wt*hp,data=mtcars)
+ss=sim_slopes(fit,pred=wt,modx=hp,digits=3,confint=TRUE)
+
+johnson_neyman(fit,pred=wt,modx=hp)$plot+labs(x="중량")+theme(text=element_text(family="NanumGothic"))
+plot(ss)+labs(x="중량")+theme(text=element_text(family="NanumGothic"))
 ss=sim_slopes(fit,pred=sexism,modx=protest,digits=3,confint=TRUE)
 ss$slopes
 library(tibble)

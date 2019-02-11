@@ -27,6 +27,8 @@ pickerInput3=function(...){
     div(style="display:inline-block;",pickerInput(...))
 }
 
+theme_set(theme_bw(base_family = "NanumGothic"))
+
 ui=fluidPage(
 
     h2("Select Data"),
@@ -90,14 +92,16 @@ server=function(input,output,session){
     RV=reactiveValues(number=0,triple=0)
 
 
-    output$modelPlot=renderPlot(
+    output$modelPlot=renderPlot({
+        par(family="NanumGothic")
+
         if(input$plotChoice==1) {
             pmacroModel(as.numeric(input$modelno))
         } else{
                 statisticalDiagram(as.numeric(input$modelno))
             }
 
-    )
+    })
 
     observeEvent(input$file,{
 
@@ -404,7 +408,8 @@ server=function(input,output,session){
                     seek="interaction0"
                     replace=paste(input$X,input$W,input$Z,sep=":")
                 }
-                corPlot(fit,seek=seek,replace=replace)
+                corPlot(fit,seek=seek,replace=replace)+
+                    theme(text=element_text(family="NanumGothic"))
             }
         })
 
@@ -459,6 +464,7 @@ server=function(input,output,session){
         # })
 
         output$concept=renderPlot({
+            par(family="NanumGothic")
             if(input$equation!=""){
 
 
@@ -474,6 +480,7 @@ server=function(input,output,session){
             }
         })
         output$statDiagram=renderPlot({
+            par(family="NanumGothic")
 
             input$makeEq
 
@@ -609,7 +616,8 @@ server=function(input,output,session){
                             ",linearity.check=",input$linearity,")")
             }
             # print(temp)
-            eval(parse(text=temp))
+            p<-eval(parse(text=temp))
+            p+theme(text=element_text(family="NanumGothic"))
 
         })
 
@@ -693,7 +701,7 @@ server=function(input,output,session){
             #                 ",confint =", input$interval2,")")
             # }
             ss=eval(parse(text=temp))
-            plot(ss)
+            plot(ss)+theme(text=element_text(family="NanumGothic"))
         })
 
         output$ssPlot2=renderPlot({
@@ -722,7 +730,7 @@ server=function(input,output,session){
             #cat("In ss2 :",temp,"\n")
             ss=eval(parse(text=temp))
 
-            plot(ss)
+            plot(ss)+theme(text=element_text(family="NanumGothic"))
         })
 
         output$JNText=renderPrint({
@@ -754,8 +762,9 @@ server=function(input,output,session){
             #              sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
 
             temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",alpha=",input$alpha,")")
-            print(temp)
-            eval(parse(text=temp))
+            # print(temp)
+            p<-eval(parse(text=temp))
+            p$plot+theme(text=element_text(family="NanumGothic"))
             # pos=relpos(result$plot)
             # result$plot
             # +
@@ -779,7 +788,7 @@ server=function(input,output,session){
                         ",jnplot=TRUE)")
 
             # cat("In JNPlot2 :",temp,"\n")
-            eval(parse(text=temp))
+            eval(parse(text=temp))+theme(text=element_text(family="NanumGothic"))
 
         })
 
