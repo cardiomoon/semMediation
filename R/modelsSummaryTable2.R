@@ -1,0 +1,173 @@
+#' Make Model Coef Table
+#' @param x object of class modelSummary
+#' @importFrom officer fp_border
+#' @importFrom flextable flextable merge_h_range align hline_top hline add_header
+#' @importFrom flextable bold fontsize width italic set_header_labels
+#' @importFrom stats pf
+#' @importFrom dplyr select
+#' @importFrom tidyselect everything
+#' @export
+#' @return A flextable
+modelsSummaryTable=function(x){
+    M=attr(x,"modelNames")[1]
+    Y=attr(x,"modelNames")[2]
+
+    result=x
+    result[["name1"]]=rownames(result)
+    result$s=""
+    result<-result %>% select("name1",everything())
+    count=nrow(result)
+    col_keys=c("name1",names(result)[2:5],"s",names(result)[6:9])
+    ft<-flextable(result,col_keys=col_keys)
+    ft
+    ft<-ft %>% set_header_labels(name1="Antecedent",coef1="Coef",se1="SE",t1="t",p1="p",s="",coef2="Coef",se2="SE",t2="t",p2="p") %>%
+    merge_h_range (i=(count-4):count,j1=2,j2=5) %>%
+        merge_h_range (i=(count-4):count,j1=7,j2=10) %>%
+        align(align="center",part="all")
+    ft
+    ft<-ft %>%
+        hline_top(part="header",border=fp_border(color="white",width=0)) %>%
+        hline_top(j=2:5,part="header",border=fp_border(color="black",width=1)) %>%
+        hline_top(j=7:10,part="header",border=fp_border(color="black",width=1))
+
+    ft
+    big_border=fp_border(color="black",width=2)
+    ft %>%
+        add_header(coef1=M,se1="",t1="",p1="",s="",coef2=Y,se2="",t2="",p2="",top=TRUE) %>%
+        hline_top(j=2:10,part="header",border=fp_border(color="black",width=1)) %>%
+        hline(i=1,j=2:5,part="header",border=fp_border(color="black",width=1)) %>%
+        hline(i=1,j=7:10,part="header",border=fp_border(color="black",width=1))%>%
+        merge_h_range (i=1,j1=2,j2=5,part="header") %>%
+        merge_h_range (i=1,j1=7,j2=10,part="header") %>%
+        add_header(coef1="Consequent",se1="",t1="",p1="",s="",
+                   coef2="",se2="",t2="",p2="",top=TRUE) %>%
+        hline_top(part="header",border=big_border) %>%
+        hline(i=1,j=2:10,part="header",border=fp_border(color="black",width=1))%>%
+        merge_h_range (i=1,j1=2,j2=10,part="header") %>%
+        align(align="center",part="all") %>%
+        bold(part="header") %>%
+        fontsize(part="all",size=12) %>%
+        hline(i=count-5,border=fp_border(color="gray"),part="body")%>%
+        width(j=6,width=0.01) %>%
+        italic(i=3,j=c(3:5,8:10),italic=TRUE,part="header")
+
+}
+
+#' Make Model Coef Summary
+#' @param fit1 object of class lm
+#' @param fit2 object of class lm
+#' @importFrom dplyr full_join
+#' @export
+#' @return A data.frame
+modelsSummary=function(fit1,fit2){
+
+
+    df1=data.frame(summary(fit1)$coef)
+    colnames(df1)=c("coef1","se1","t1","p1")
+    df1[["name1"]]=rownames(df1)
+
+    df2=data.frame(summary(fit2)$coef)
+    colnames(df2)=c("coef2","se2","t2","p2")
+
+    df2[["name1"]]=rownames(df2)
+    df=full_join(df1,df2,by="name1")
+    df<-df %>% select("name1",everything())
+    rownames(df)=df[["name1"]]
+    df<-df[-1]
+    df[]=lapply(df,myformat)
+    df<-df[c(2:nrow(df),1),]
+    rownames(df)[nrow(df)]="Constant"
+    df[[4]]=pformat(df[[4]])
+    df[[8]]=pformat(df[[8]])
+    df
+    coef1=getInfo(fit1)
+    coef2=getInfo(fit2)
+    se1<-t1<-p1<-se2<-t2<-p2<-rep("",5)
+    df2=data.frame(coef1,se1,t1,p1,coef2,se2,t2,p2)
+    rownames(df2)=c("Observations","R2","Adjusted R2","Residual SE","F statistic")
+    df2
+    df=rbind(df,df2)
+    class(df)=c("modelSummary","data.frame")
+    M=names(fit1$model)[1]
+    Y=names(fit2$model)[1]
+    attr(df,"modelNames")=c(M,Y)
+    df
+
+}
+
+#'Format a numeric vector
+#'@param x A numeric vector
+#'@param digits integer indicating the number of decimal places
+myformat=function(x,digits=3){
+    fmt=paste0("%.0",digits,"f")
+    x=sprintf(fmt,x)
+    x[x=="NA"]<-""
+    x
+}
+
+#' Make p value format
+#'@param x A numeric vector
+pformat=function(x){
+    temp=substr(x,2,nchar(x))
+    temp[temp==".000"]="<.001"
+    temp
+}
+
+#'Get information of a model
+#' @param fit object of class lm
+#' @param digits integer indicating the number of decimal places
+getInfo=function(fit,digits=3){
+    fmt=paste0("%.0",digits,"f")
+    r1=nrow(fit$model)
+    x<-summary(fit)
+    r2=sprintf(fmt,x$r.squared)
+    r3=sprintf(fmt,x$adj.r.squared)
+    r4=paste0(sprintf(fmt,x$sigma)," ( df = ",round(x$df[2]),")")
+    f=paste0("F(",round(x$fstatistic[2]),",",round(x$fstatistic[3]),") = ",
+             sprintf(fmt,x$fstatistic[1]))
+    p=format.pval(pf(x$fstatistic[1L],
+                   x$fstatistic[2L], x$fstatistic[3L], lower.tail = FALSE),
+                digits = 3)
+    p=substr(p,2,digits+2)
+    if(p==".000") p="< .001"
+    else p=paste0("= ",p)
+    f=paste0(f,", p ",p)
+    result=c(r1,r2,r3,r4,f)
+    result
+}
+
+
+
+#'S3 method print for object modelSummary
+#'@param x Object of class modelSummary
+#'@param ... additional arguments to pass to print.modelSummary
+#'@importFrom stringr str_pad
+#'@export
+print.modelSummary=function(x,...){
+    cat(paste(rep("=",85),collapse = ""),"\n")
+    cat(paste0(str_pad("",20,"both"),str_pad("Consequent",65,"both")),"\n")
+    cat(paste0(str_pad("",20,"both"),paste(rep("-",65),collapse = "")),"\n")
+    names=attr(x,"modelNames")
+    cat(paste0(str_pad("",20,"both"),str_pad(names[1],32,"both"),str_pad(names[2],32,"both")),"\n")
+    cat(paste0(str_pad("",20,"both"),paste(rep("-",32),collapse = "")," ",
+               paste(rep("-",32),collapse = "")),"\n")
+    cat(paste0(str_pad("Antecedent",20,"both"),str_pad("Coef",8,"both"),str_pad("SE",8,"both"),str_pad("t",8,"both"),str_pad("p",8,"both")," ",str_pad("Coef",8,"both"),str_pad("SE",8,"both"),str_pad("t",8,"both"),str_pad("p",8,"both")),"\n")
+
+
+    cat(paste(rep("-",85),collapse = ""),"\n")
+    for(i in 1:(nrow(x)-5)){
+        cat(str_pad(rownames(x)[i],20,"both"))
+        for(j in 1:4) cat(str_pad(x[i,j],6,"left")," ")
+        cat(" ")
+        for(j in 5:8) cat(str_pad(x[i,j],6,"left")," ")
+        cat("\n")
+    }
+    cat(paste(rep("-",85),collapse = ""),"\n")
+    for(i in (nrow(x)-4):nrow(x)){
+        cat(str_pad(rownames(x)[i],20,"both"))
+        cat(str_pad(x[i,1],32,"both"))
+        cat(" ")
+        cat(str_pad(x[i,5],32,"both"),"\n")
+    }
+    cat(paste(rep("=",85),collapse = ""),"\n")
+}
