@@ -20,9 +20,10 @@
 #'statisticalDiagram(no=4,covar=covar)
 #'statisticalDiagram(no=8,covar=covar)
 #'#statisticalDiagram(no=1.1,fit=fit)
-#'statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE,labels=list(X="knowledge",Mi="empathy",Y="intervention"),whatLabel="est",radx=0.06)
-#'statisticalDiagram(no=4,fit=fit,labels=list(X="knowledge",Mi="empathy",Y="intervention"))
-#'statisticalDiagram(no=4,fit=fit)
+#'#labels=list(X="knowledge",Mi="empathy",Y="intervention")
+#'#statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE,labels=labels,whatLabel="est",radx=0.06)
+#'#statisticalDiagram(no=4,fit=fit,labels=list(X="knowledge",Mi="empathy",Y="intervention"))
+#'#statisticalDiagram(no=4,fit=fit)
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE,
                             labels=list(),whatLabel="name",fit=NULL,estimateTable=NULL,
                             covar=list(),

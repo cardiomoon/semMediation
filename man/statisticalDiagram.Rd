@@ -6,7 +6,8 @@
 \usage{
 statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
   arrowlabel = TRUE, labels = list(), whatLabel = "name",
-  fit = NULL, covar = list(), includeLatentVars = FALSE)
+  fit = NULL, estimateTable = NULL, covar = list(),
+  includeLatentVars = FALSE)
 }
 \arguments{
 \item{no}{process macro model number}
@@ -25,6 +26,8 @@ statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
 
 \item{fit}{An object of class lavaan. Result of lavaan::sem()}
 
+\item{estimateTable}{A data.frame}
+
 \item{covar}{Optional list of covariates}
 
 \item{includeLatentVars}{A logical}
@@ -40,6 +43,8 @@ covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),
 statisticalDiagram(no=4,covar=covar)
 statisticalDiagram(no=8,covar=covar)
 #statisticalDiagram(no=1.1,fit=fit)
-statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE)
-statisticalDiagram(no=4,fit=fit)
+#labels=list(X="knowledge",Mi="empathy",Y="intervention")
+#statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE,labels=labels,whatLabel="est",radx=0.06)
+#statisticalDiagram(no=4,fit=fit,labels=list(X="knowledge",Mi="empathy",Y="intervention"))
+#statisticalDiagram(no=4,fit=fit)
 }
