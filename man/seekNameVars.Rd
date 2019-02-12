@@ -15,6 +15,9 @@ seekNameVars(vars, site = "a")
 select names of variables from list var
 }
 \examples{
-vars=list(name=list(c("sex","age"),c("ese","sex")),site=list(c("a","b"),"c"))
+vars=list(name=list(c("W","Z"),c("V","Q")),site=list(c("a","c"),c("b","c")))
+vars=list(name=list(c("W","Z")),site=list(c("a","c")))
+seekNameVars(vars,"a")
+seekNameVars(vars,"b")
 seekNameVars(vars,"c")
 }

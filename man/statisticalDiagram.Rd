@@ -6,7 +6,7 @@
 \usage{
 statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
   arrowlabel = TRUE, labels = list(), whatLabel = "name",
-  estimateTable = NULL, covar = list())
+  fit = NULL, covar = list(), includeLatentVars = FALSE)
 }
 \arguments{
 \item{no}{process macro model number}
@@ -23,9 +23,11 @@ statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
 
 \item{whatLabel}{What should the edge labels indicate in the path diagram? Choices are c("est","std","name")}
 
-\item{estimateTable}{A data.frame. Result of estimateTable()}
+\item{fit}{An object of class lavaan. Result of lavaan::sem()}
 
 \item{covar}{Optional list of covariates}
+
+\item{includeLatentVars}{A logical}
 }
 \description{
 Draw statistical diagram
@@ -37,5 +39,7 @@ statisticalDiagram(no=1,covar=covar)
 covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),c("Mi","Y")))
 statisticalDiagram(no=4,covar=covar)
 statisticalDiagram(no=8,covar=covar)
-#statisticalDiagram(no=1.1,estimateTable=res)
+#statisticalDiagram(no=1.1,fit=fit)
+statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE)
+statisticalDiagram(no=4,fit=fit)
 }

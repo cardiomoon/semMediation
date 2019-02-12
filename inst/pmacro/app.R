@@ -545,9 +545,11 @@ server=function(input,output,session){
             }
 
             statisticalDiagram(no=no,labels=labels,
-                               whatLabel = input$whatLabel,estimateTable=table1,
+                               whatLabel = input$whatLabel,estimateTable=table1,fit=fit,
                                radx=as.numeric(input$radx),
-                               covar=getCovariates())
+                               covar=getCovariates(),
+                               includeLatentVars = input$includeLatentVars)
+
 
 
         })
@@ -912,6 +914,7 @@ server=function(input,output,session){
             selectInput3("radx","box width",
                          choices=c("0.04","0.06","0.08","0.10","0.12","0.14"),
                          selected="0.10"),
+            checkboxInput3("includeLatentVars","include Latent Vars",value=FALSE,width=200),
             plotOutput("statDiagram",height="500px",width="700px"),
             h2("Correlation Table"),
             uiOutput("corTable"),

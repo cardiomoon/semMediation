@@ -6,8 +6,10 @@
 #'@param arrowlabel logical whether or not draw arrowlabel
 #'@param labels A character list
 #'@param whatLabel What should the edge labels indicate in the path diagram? Choices are c("est","std","name")
-#'@param estimateTable A data.frame. Result of estimateTable()
+#'@param fit An object of class lavaan. Result of lavaan::sem()
+#'@param estimateTable A data.frame
 #'@param covar Optional list of covariates
+#'@param includeLatentVars A logical
 #'@importFrom dplyr left_join
 #'@export
 #'@examples
@@ -17,16 +19,26 @@
 #'covar=list(name=c("posemot","ideology","sex"),site=list(c("Mi","Y"),c("Mi","Y"),c("Mi","Y")))
 #'statisticalDiagram(no=4,covar=covar)
 #'statisticalDiagram(no=8,covar=covar)
-#'#statisticalDiagram(no=1.1,estimateTable=res)
+#'#statisticalDiagram(no=1.1,fit=fit)
+#'statisticalDiagram(no=4,fit=fit,includeLatentVars=TRUE,labels=list(X="knowledge",Mi="empathy",Y="intervention"),whatLabel="est",radx=0.06)
+#'statisticalDiagram(no=4,fit=fit,labels=list(X="knowledge",Mi="empathy",Y="intervention"))
+#'statisticalDiagram(no=4,fit=fit)
 statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRUE,
-                            labels=list(),whatLabel="name",estimateTable=NULL,covar=list()){
+                            labels=list(),whatLabel="name",fit=NULL,estimateTable=NULL,
+                            covar=list(),
+                            includeLatentVars=FALSE){
 
-      # no=11;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
-      # whatLabel="name";estimateTable=NULL;covar=list()
-      # estimateTable=res;
+      # no=4;radx=0.10;rady=0.04;xmargin=0.01;arrowlabel=TRUE;labels=list()
+      # whatLabel="est";estimateTable=NULL;covar=list()
+      # labels=list(X="knowledge",Mi="empathy",Y="intervention")
+      # fit=fit;includeLatentVars=TRUE;estimateTable=NULL
+
       # labels=list("d2"="protest=2",d3="protest=3")
       # covar=list(name="angry",site=list("liking"))
 
+    if(!is.null(fit)) {
+      if(is.null(estimateTable)) estimateTable<-estimatesTable(fit)
+    }
     if(no==1.1) {
         nodes=est2Nodes(estimateTable)
     } else {
@@ -51,7 +63,6 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     arrows2
     # print(arrows)
 
-    openplotmat()
     if( !is.null(estimateTable)) {
         if(no==1.1){
             arrows2$Predictors=arrows2$start
@@ -59,17 +70,41 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
            arrows2$Predictors=findNames(labels,arrows2$start)
         }
         arrows2$Variables=findNames(labels,arrows2$end)
+
+
         arrows2
         estimateTable
-        arrows3<-left_join(arrows2,estimateTable)
+        # temp=c()
+        # for(i in 1:nrow(estimateTable)){
+        #    temp=c(temp,names(labels)[str_detect(labels,estimateTable$Variables[i])])
+        # }
+        # temp
+        # estimateTable$start=temp
+        # estimateTable
+        arrows2
+        if(includeLatentVars){
+          arrows3<-full_join(arrows2,estimateTable,by=c("Predictors","Variables"))
+          arrows3
+          arrows3$no=  arrows3$no[1]
+          arrows3$name[is.na(arrows3$name)]=""
+          arrows3$start[is.na(arrows3$start)]=arrows3$Predictors[is.na(arrows3$start)]
+          arrows3$end[is.na(arrows3$end)]=arrows3$Variables[is.na(arrows3$end)]
+          arrows3$labelpos=0.5
+          arrows3$arrpos=0.84
+          arrows3$end=changeLabelName(arrows3$end,labels)
+
+        } else{
+          arrows3<-left_join(arrows2,estimateTable,by=c("Predictors","Variables"))
+        }
         arrows3$lty=ifelse(arrows3$p<0.05,1,3)
-        # print(arrows)
-
-
-    } else{
-        arrows2$lty=1
-        arrows3<-arrows2
+        # print(arrows3)
+    }  else{
+      arrows2$lty=1
+      arrows3<-arrows2
     }
+
+
+
 
     if(arrowlabel){
         if(whatLabel=="name") {
@@ -82,25 +117,178 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     } else {
         arrows3$label=""
     }
-     # print(arrows3)
-    drawArrows(arrows3,nodes,xmargin=xmargin,rady=rady,radx=radx)
+    # print(arrows3)
 
-    for(i in 1:nrow(nodes)){
-        xpos=nodes$xpos[i]
-        xpos=adjustxpos(xpos,xmargin,radx)
-        mid=c(xpos,nodes$ypos[i])
 
-       # label=ifelse(is.null(labels[[nodes$name[i]]]),nodes$name[i],labels[[nodes$name[i]]])
-        label=ifelse(no==1.1,nodes$name[i],findName(labels,nodes$name[i]))
+    if((!is.null(fit))&(includeLatentVars)){
+      nodes=addLatentNodes(nodes,fit,labels)
+      nodes=adjustPosNodes(nodes)
 
-        drawtext(mid,radx=radx,rady=rady,lab=label,latent=FALSE)
-        if(no==1.1){
-            if(i<=nrow(nodes)){
-                label=findName(labels,nodes$name[i])
-                if(label!=nodes$name[i]) textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
-            }
-        }
     }
+    arrows3
+    nodes
+
+
+
+    drawStatDiagram(no=no,arrows=arrows3,nodes=nodes,labels=labels,xmargin=xmargin,radx=radx,rady=rady,fit)
+    # openplotmat()
+    #
+    # drawArrows(arrows3,nodes,xmargin=xmargin,rady=rady,radx=radx)
+    #
+    # for(i in 1:nrow(nodes)){
+    #     xpos=nodes$xpos[i]
+    #     xpos=adjustxpos(xpos,xmargin,radx)
+    #     mid=c(xpos,nodes$ypos[i])
+    #
+    #    # label=ifelse(is.null(labels[[nodes$name[i]]]),nodes$name[i],labels[[nodes$name[i]]])
+    #     label=ifelse(no==1.1,nodes$name[i],findName(labels,nodes$name[i]))
+    #
+    #     drawtext(mid,radx=radx,rady=rady,lab=label,latent=FALSE)
+    #     if(no==1.1){
+    #         if(i<=nrow(nodes)){
+    #             label=findName(labels,nodes$name[i])
+    #             if(label!=nodes$name[i]) textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
+    #         }
+    #     }
+    # }
+
+}
+
+
+#'Change Label Names
+#'@param x A character vector
+#'@param labels A list
+changeLabelName=function(x,labels){
+   x
+  names(unlist(labels))
+  res=c()
+  for(i in 1:length(x)){
+      if(x[i] %in% unlist(labels)){
+          res=c(res,names(unlist(labels))[which(str_detect(labels,x[i]))])
+      } else{
+        res=c(res,x[i])
+      }
+  }
+  res
+}
+
+
+#'Adjust position odf nodes
+#'@param nodes A data.frame
+adjustPosNodes=function(nodes){
+   if(min(nodes$xpos)<0){
+    nodes$xpos[(nodes$xpos<0.3)&(nodes$xpos>=0)]=nodes$xpos[(nodes$xpos<0.3)&(nodes$xpos>=0)]+0.2
+    nodes$xpos[nodes$xpos<0]=0
+
+  }
+  if(max(nodes$xpos)>1){
+    nodes$xpos[(nodes$xpos>0.7)&(nodes$xpos<=1)]=nodes$xpos[(nodes$xpos>0.7)&(nodes$xpos<=1)]-0.2
+    nodes$xpos[nodes$xpos>1]=1
+  }
+
+  nodes
+}
+
+#'Extract Latent Variables Names
+#'@param fit An object of class lavaan. Result of lavaan::sem()
+extractLatentVarName=function(fit){
+  res=parameterEstimates(fit)
+  res=res[res$op=="=~",]
+  unique(res$lhs)
+}
+
+#'Extract Latent Variables Data
+#'@param fit An object of class lavaan. Result of lavaan::sem()
+#'@param labels A list
+extractLatentVar=function(fit,labels){
+  res=parameterEstimates(fit)
+  res=res[res$op=="=~",]
+  if(nrow(res)>0){
+  temp=c()
+  for(i in 1:nrow(res)){
+    temp=c(temp,names(labels)[str_detect(labels,res$lhs[i])])
+  }
+  temp
+  res$name=temp
+  }
+  res
+}
+
+
+#'Add latent nodes information to nodes
+#'@param nodes A data.frame
+#'@param fit An object of class lavaan. Result of lavaan::sem()
+#'@param labels A list
+addLatentNodes=function(nodes,fit,labels){
+  nodes
+  res=extractLatentVar(fit,labels)
+  no<-name<-xpos<-ypos<-c()
+  yinterval=0.12
+
+  count=length(res$name[res$name=="X"])
+  start=ifelse(count>4,0.1+yinterval*(count-1),nodes$ypos[nodes$name=="X"]+yinterval*(count-1)/2)
+  ypos=seq(start,by=-yinterval,length.out = count)
+  no=rep(nodes$no[1],count)
+  xpos=rep(-0.1,count)
+  name=res$rhs[res$name=="X"]
+  df=data.frame(no,name,xpos,ypos,stringsAsFactors = FALSE)
+  nodes<-rbind(nodes,df)
+
+  count=length(res$name[res$name=="Mi"])
+  start=ifelse(count>4,0.1,nodes$xpos[nodes$name=="Mi"]-0.1*(count-1)/2)
+  xpos=seq(start,by=0.1,length.out = count)
+  no=rep(nodes$no[1],count)
+  ypos=rep(nodes$ypos[nodes$name=="Mi"]+0.1,count)
+  name=res$rhs[res$name=="Mi"]
+  df=data.frame(no,name,xpos,ypos,stringsAsFactors = FALSE)
+  df
+  nodes<-rbind(nodes,df)
+
+  count=length(res$name[res$name=="Y"])
+  start=ifelse(count>4,0.1+yinterval*(count-1),nodes$ypos[nodes$name=="Y"]+yinterval*(count-1)/2)
+  ypos=seq(start,by=-yinterval,length.out = count)
+  no=rep(nodes$no[1],count)
+  xpos=rep(1.1,count)
+  name=res$rhs[res$name=="Y"]
+  df=data.frame(no,name,xpos,ypos,stringsAsFactors = FALSE)
+  df
+  nodes<-rbind(nodes,df)
+  nodes
+}
+
+#'draw StatDiagram
+#'@param no process macro model number
+#'@param arrows A data.frame
+#'@param nodes A data.frame
+#'@param labels A list
+#'@param xmargin horizontal margin of plot
+#'@param radx horizontal radius of the box.
+#'@param rady vertical radius of the box.
+#'@param fit An object of class lavaan. Result of lavaan::sem()
+#'@export
+drawStatDiagram=function(no,arrows,nodes,labels,xmargin,radx,rady,fit=NULL){
+
+  print(nodes)
+  print(arrows)
+  openplotmat()
+  drawArrows(arrows,nodes,xmargin=xmargin,rady=rady,radx=radx)
+  LVnames=c()
+  if(!is.null(fit)) LVnames=extractLatentVarName(fit)
+  for(i in 1:nrow(nodes)){
+    xpos=nodes$xpos[i]
+    xpos=adjustxpos(xpos,xmargin,radx)
+    mid=c(xpos,nodes$ypos[i])
+    # label=ifelse(is.null(labels[[nodes$name[i]]]),nodes$name[i],labels[[nodes$name[i]]])
+    label=ifelse(no==1.1,nodes$name[i],findName(labels,nodes$name[i]))
+
+    drawtext(mid,radx=radx,rady=rady,lab=label,latent=ifelse(label %in% LVnames,TRUE,FALSE))
+    if(no==1.1){
+      if(i<=nrow(nodes)){
+        label=findName(labels,nodes$name[i])
+        if(label!=nodes$name[i]) textplain(mid+c(0,-0.07),radx=radx,rady=rady,lab=label,latent=FALSE)
+      }
+    }
+  }
 
 }
 
@@ -199,6 +387,7 @@ drawArrows=function(arrows,nodes,xmargin=0.01,radx=0.10,rady=0.04){
 #'@param radx horizontal radius of the box.
 #'@param rady vertical radius of the box.
 #'@param no A numeric
+#'@export
 addNodes=function(nodes,covar,radx=0.10,rady=0.04,no=NULL){
 
     if(length(covar$name)>0){
@@ -229,6 +418,7 @@ addNodes=function(nodes,covar,radx=0.10,rady=0.04,no=NULL){
 #'Add covariates to arrows
 #'@param arrows A data.frame
 #'@param covar A list of covariates
+#'@export
 addArrows=function(arrows,covar){
     if(length(covar$name)>0){
         number<-name<-start<-end<-labelpos<-arrpos<-c()
@@ -278,6 +468,7 @@ adjustNodes=function(nodes){
 #'@param labels A named list
 #'@param names A character vector to look for
 #'@param exact A logical
+#'@export
 findNames=function(labels,names,exact=FALSE){
     result=c()
     for(i in 1:length(names)){
