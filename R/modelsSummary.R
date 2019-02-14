@@ -3,9 +3,8 @@ require(tidyverse)
 
 
 #' Make Model Coef Summary
-#' @param ... Objects of class lm
+#' @param fit A list of objects of class lm
 #' @importFrom dplyr full_join
-#' @importFrom rlang ensyms
 #' @importFrom purrr reduce
 #' @export
 #' @return A data.frame
@@ -13,18 +12,18 @@ require(tidyverse)
 #' fit1=lm(mpg~wt,data=mtcars)
 #' fit2=lm(mpg~wt*hp,data=mtcars)
 #' fit3=lm(mpg~wt*hp*am,data=mtcars)
-#' modelsSummary(fit1)
-#' modelsSummary(fit1,fit2)
-#' modelsSummary(fit1,fit2,fit3)
-modelsSummary=function(...){
+#' modelsSummary(list(fit1))
+#' modelsSummary(list(fit1,fit2))
+#' modelsSummary(list(fit1,fit2,fit3))
+modelsSummary=function(fit){
 
-    res=ensyms(...)
-    count=length(res)
 
-    fit<-df<-coef<-list()
+    count=length(fit)
+
+    df<-coef<-list()
     modelNames=c()
     for(i in 1 :count){
-        fit[[i]]=eval(res[[i]])
+
         df[[i]]=data.frame(summary(fit[[i]])$coef)
         colnames(df[[i]])=paste0(c("coef","se","t","p"),i)
         df[[i]][["name1"]]=rownames(df[[i]])
@@ -138,11 +137,11 @@ centerPrint=function(string,width){
 #' fit1=lm(mpg~wt,data=mtcars)
 #' fit2=lm(mpg~wt*hp,data=mtcars)
 #' fit3=lm(mpg~wt*hp*am,data=mtcars)
-#' x=modelsSummary(fit1)
+#' x=modelsSummary(list(fit1))
 #' modelsSummaryTable(x)
-#' x=modelsSummary(fit1,fit2)
+#' x=modelsSummary(list(fit1,fit2))
 #' modelsSummaryTable(x)
-#' x=modelsSummary(fit1,fit2,fit3)
+#' x=modelsSummary(list(fit1,fit2,fit3))
 #' modelsSummaryTable(x)
 modelsSummaryTable=function(x){
     modelNames=attr(x,"modelNames")

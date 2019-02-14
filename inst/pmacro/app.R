@@ -475,7 +475,7 @@ server=function(input,output,session){
             temp2=paste0("lm(",eq[2],",data=data1)")
             print(temp2)
             fit2=eval(parse(text=temp2))
-            x=modelsSummary(fit1,fit2)
+            x=modelsSummary(list(fit1,fit2))
             modelsSummaryTable(x) %>%
                 htmltools_value()
             }
@@ -628,10 +628,10 @@ server=function(input,output,session){
             eq<-unlist(strsplit(eq,"\n"))
             if(length(eq)>1) eq=eq[2]
             temp=paste0("lm(",eq,",data=data1)")
-            cat("interactionPlot3\n")
-            cat("temp=",temp,"\n")
+            # cat("interactionPlot3\n")
+            # cat("temp=",temp,"\n")
             fit=eval(parse(text=temp))
-            print(summary(fit))
+            # print(summary(fit))
 
             mod1=input$moderator1
             mod2=input$moderator2
@@ -645,6 +645,9 @@ server=function(input,output,session){
                         ",plot.points=",input$plotpoints,",interval=",input$interval,
                         ",int.type='",input$inttype,"',int.width=",input$intwidth,
                         ",linearity.check=",input$linearity,")")
+              # p<-interact_plot(fit,pred=mod1,modx=mod2,plots.point=input$plotpoints,
+              #                  interval=input$interval,int.type=input$inttype,int.width=input$intwidth,
+              #                  linearity.check=input$linearity)
             } else{
                 temp=paste0("interact_plot(fit,pred=",mod1,",modx=",mod2,
                             # ",modx.values = ",mod1values,
@@ -654,7 +657,7 @@ server=function(input,output,session){
                             ",int.type='",input$inttype,"',int.width=",input$intwidth,
                             ",linearity.check=",input$linearity,")")
             }
-            print(temp)
+            # print(temp)
             p<-eval(parse(text=temp))
             p+theme(text=element_text(family="NanumGothic"))
 
@@ -878,7 +881,7 @@ server=function(input,output,session){
                 print(summary(fit2))
 
                 cat("\n\nTable Summarizing Model Coefficients\n\n")
-                x=modelsSummary(fit1,fit2)
+                x=modelsSummary(list(fit1,fit2))
                 print(x)
                 cat("\n\nMediation Effect\n\n")
                 cat(paste0("fitMed=mediate(fit1,fit2,treat='",input$X,

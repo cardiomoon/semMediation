@@ -19,10 +19,10 @@ Make Model Coef Table
 fit1=lm(mpg~wt,data=mtcars)
 fit2=lm(mpg~wt*hp,data=mtcars)
 fit3=lm(mpg~wt*hp*am,data=mtcars)
-x=modelsSummary(fit1)
+x=modelsSummary(list(fit1))
 modelsSummaryTable(x)
-x=modelsSummary(fit1,fit2)
+x=modelsSummary(list(fit1,fit2))
 modelsSummaryTable(x)
-x=modelsSummary(fit1,fit2,fit3)
+x=modelsSummary(list(fit1,fit2,fit3))
 modelsSummaryTable(x)
 }
