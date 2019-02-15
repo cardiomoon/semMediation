@@ -4,10 +4,12 @@
 \alias{modelsSummary}
 \title{Make Model Coef Summary}
 \usage{
-modelsSummary(fit)
+modelsSummary(fit, labels = NULL)
 }
 \arguments{
 \item{fit}{A list of objects of class lm}
+
+\item{labels}{optional list}
 }
 \value{
 A data.frame
@@ -19,7 +21,9 @@ Make Model Coef Summary
 fit1=lm(mpg~wt,data=mtcars)
 fit2=lm(mpg~wt*hp,data=mtcars)
 fit3=lm(mpg~wt*hp*am,data=mtcars)
-modelsSummary(list(fit1))
+labels=list(Y="mpg",X="wt",W="hp",Z="am")
+modelsSummary(list(fit1),labels=labels)
+modelsSummary(list(fit1,fit2),labels=labels)
 modelsSummary(list(fit1,fit2))
-modelsSummary(list(fit1,fit2,fit3))
+modelsSummary(list(fit1,fit2,fit3),labels=labels)
 }

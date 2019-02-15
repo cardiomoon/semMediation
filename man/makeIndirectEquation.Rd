@@ -5,7 +5,8 @@
 \title{Make indirect equation}
 \usage{
 makeIndirectEquation(X, M, temp1, temp2, temp3, moderatorNames,
-  range = FALSE)
+  range = FALSE, data = NULL, rangemode = 1, probs = c(0.16, 0.5,
+  0.84))
 }
 \arguments{
 \item{X}{A character string}
@@ -21,6 +22,12 @@ makeIndirectEquation(X, M, temp1, temp2, temp3, moderatorNames,
 \item{moderatorNames}{A character vector}
 
 \item{range}{A logical}
+
+\item{data}{A data.frame}
+
+\item{rangemode}{range mode}
+
+\item{probs}{numeric vector of probabilities with values in [0,1]}
 }
 \description{
 Make indirect equation
@@ -33,4 +40,6 @@ temp3="c1*negemot"
 moderatorNames=c("age","sex")
 cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames))
 cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE))
+glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
+cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
 }

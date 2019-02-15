@@ -159,13 +159,36 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
 #'Change Label Names
 #'@param x A character vector
 #'@param labels A list
-changeLabelName=function(x,labels){
-   x
-  names(unlist(labels))
+#'@param add A logical
+#'@export
+#'@examples
+#'labels=list(X="skeptic",Mi="empathy",Y="intervention",W="frame")
+#'x=c("skeptic","test","empathy","skeptic:frame")
+#'changeLabelName(x,labels)
+#'changeLabelName(x,labels,add=TRUE)
+changeLabelName=function(x,labels,add=FALSE){
   res=c()
   for(i in 1:length(x)){
-      if(x[i] %in% unlist(labels)){
-          res=c(res,names(unlist(labels))[which(str_detect(labels,x[i]))])
+      if(str_detect(x[i],":")){
+         temp=unlist(strsplit(x[i],":"))
+         temp2=c()
+         for(j in 1:length(temp)){
+           temp3=names(unlist(labels))[which(str_detect(labels,temp[j]))]
+           temp2=c(temp2,temp3)
+         }
+         temp2=paste0(temp2,collapse=":")
+         if(add){
+           res=c(res,paste0(temp2,"(",x[i],")"))
+         } else{
+           res=c(res,temp2)
+         }
+      }  else if(x[i] %in% unlist(labels)){
+          if(add){
+            temp=names(unlist(labels))[which(str_detect(labels,x[i]))]
+            res=c(res,paste0(temp,"(",x[i],")"))
+          } else{
+             res=c(res,names(unlist(labels))[which(str_detect(labels,x[i]))])
+          }
       } else{
         res=c(res,x[i])
       }

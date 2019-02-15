@@ -76,6 +76,8 @@ ui=fluidPage(
         h2("Make Equation"),
         column(3,actionButton("makeEq","make Equation",width="150px"),
                hr(),
+               radioButtons("rangemode","range mode",choices=c("mean+/-sd"=1,"probs=c(0.16,0.5,0.84)"=2)),
+               hr(),
                actionButton("resetEq","reset Equation",width="150px")
         ),
         column(4,
@@ -239,12 +241,14 @@ server=function(input,output,session){
                                  covar=getCovariates2())
         } else if(i %in% c(3)){
             model=tripleEquation(X=input$X,Y=input$Y,
-                                 vars=getTripleVars(),covar=getCovariates2())
+                                 vars=getTripleVars(),covar=getCovariates2(),
+                                 data=data1,rangemode=input$rangemode)
         } else if(i %in% c(11:13,18:20)){
             model=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
                                  vars=getTripleVars(),
                                  moderator=getModerator(),
-                                 covar=getCovariates2())
+                                 covar=getCovariates2(),
+                                 data=data1,rangemode=input$rangemode)
         } else if(i %in% c(4.2,6,6.3,6.4)){
             temp=unlist(strsplit(pmacro$M[select],":"))
             mediators=c()
@@ -296,7 +300,9 @@ server=function(input,output,session){
             model=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
                                  vars=getTripleVars(),
                                  moderator=getModerator(),
-                                 covar=getCovariates2())
+                                 covar=getCovariates2(),
+                                 data=data1,
+                                 rangemode=input$rangemode)
 
         }
         #cat(model)
@@ -467,15 +473,28 @@ server=function(input,output,session){
                 data1<-data()
                 eq=getRegEq()
 
+                names<-mylist()
+                labels=list()
+                for(i in 1:length(names)){
+                    labels[[names[i]]]=input[[names[i]]]
+                }
+                cov=getCovNames()
+                if(length(cov)>1){
+                    for(i in 1:length(cov)){
+                        labels[[paste0("C",i)]]=cov[i]
+                    }
+                }
+
             eq=unlist(strsplit(eq,"\n"))
 
-            temp1=paste0("lm(",eq[1],",data=data1)")
-            print(temp1)
-            fit1=eval(parse(text=temp1))
-            temp2=paste0("lm(",eq[2],",data=data1)")
-            print(temp2)
-            fit2=eval(parse(text=temp2))
-            x=modelsSummary(list(fit1,fit2))
+            temp<-fit<-list()
+
+            for(i in 1:length(eq)){
+                temp[[i]]=paste0("lm(",eq[i],",data=data1)")
+                fit[[i]]=eval(parse(text=temp[[i]]))
+            }
+
+            x=modelsSummary(fit,labels=labels)
             modelsSummaryTable(x) %>%
                 htmltools_value()
             }
@@ -626,12 +645,12 @@ server=function(input,output,session){
             # data1<-data()
             eq<- getRegEq()
             eq<-unlist(strsplit(eq,"\n"))
-            if(length(eq)>1) eq=eq[2]
+            if(length(eq)>1) eq=eq[length(eq)]
             temp=paste0("lm(",eq,",data=data1)")
-            # cat("interactionPlot3\n")
-            # cat("temp=",temp,"\n")
+             cat("interactionPlot3\n")
+             cat("temp=",temp,"\n")
             fit=eval(parse(text=temp))
-            # print(summary(fit))
+             print(summary(fit))
 
             mod1=input$moderator1
             mod2=input$moderator2
@@ -657,7 +676,7 @@ server=function(input,output,session){
                             ",int.type='",input$inttype,"',int.width=",input$intwidth,
                             ",linearity.check=",input$linearity,")")
             }
-            # print(temp)
+             print(temp)
             p<-eval(parse(text=temp))
             p+theme(text=element_text(family="NanumGothic"))
 
@@ -857,9 +876,9 @@ server=function(input,output,session){
             }
             eq=unlist(strsplit(eq,"\n"))
 
-            cat("getAllModerators()\n")
-            print(getAllModerators())
-            cat("\n")
+            # cat("getAllModerators()\n")
+            # print(getAllModerators())
+            # cat("\n")
 
             if(length(eq)==1){
 
@@ -868,33 +887,44 @@ server=function(input,output,session){
                cat("fit=lm(",eq,",data=",input$mydata,")\nsummary(fit)\n")
                summary(fit)
             } else{
-                cat("Regression Analysis for Mediator\n\n")
-                temp=paste0("lm(",eq[1],",data=data1)")
-                cat("fit1=",paste0("lm(",eq[1],",data=",input$mydata,")"),"\n")
-                fit1=eval(parse(text=temp))
-                print(summary(fit1))
 
-                cat("\n\nRegression Analysis for Dependent Variable\n\n")
-                temp=paste0("lm(",eq[2],",data=data1)")
-                cat("fit2=",paste0("lm(",eq[2],",data=",input$mydata,")"),"\n")
-                fit2=eval(parse(text=temp))
-                print(summary(fit2))
+                names<-mylist()
+                labels=list()
+                for(i in 1:length(names)){
+                    labels[[names[i]]]=input[[names[i]]]
+                }
+                cov=getCovNames()
+                if(length(cov)>1){
+                    for(i in 1:length(cov)){
+                        labels[[paste0("C",i)]]=cov[i]
+                    }
+                }
 
+                temp<-fit<-list()
+
+                for(i in 1:length(eq)){
+                    temp[[i]]=paste0("lm(",eq[i],",data=data1)")
+                    fit[[i]]=eval(parse(text=temp[[i]]))
+                    cat("\nRegression Analysis for Equation",i,"\n\n")
+                    cat(paste0("fit[[",i,"]]="),paste0("lm(",eq[i],",data=",input$mydata,")"),"\n")
+                    print(summary(fit[[i]]))
+                }
                 cat("\n\nTable Summarizing Model Coefficients\n\n")
-                x=modelsSummary(list(fit1,fit2))
+                x=modelsSummary(fit,labels=labels)
                 print(x)
                 cat("\n\nMediation Effect\n\n")
-                cat(paste0("fitMed=mediate(fit1,fit2,treat='",input$X,
-                    "',mediator='",input$Mi,"')\n"))
-                fitMed=mediate(fit1,fit2,treat=input$X,mediator=input$Mi)
+                mediator=ifelse(is.null(input$Mi),input$M1,input$Mi)
+                cat(paste0("fitMed=mediate(fit[[1]],fit[[length(fit)]],treat='",input$X,
+                    "',mediator='",mediator,"')\n"))
+                fitMed=mediate(fit[[1]],fit[[length(fit)]],treat=input$X,mediator=mediator)
                 cat("summary(fitMed)\n")
                 print(summary(fitMed))
                 cat("\n\nBootstrap\n\n")
-                cat(paste0("fitMedBoot=mediate(fitM,fitY,boot=TRUE,sims=10,
-                                   treat='",input$X,"',mediator='",input$Mi,"')\n"))
+                cat(paste0("fitMedBoot=mediate(fit[[1]],fit[[length(fit)]],boot=TRUE,sims=10,
+                                   treat='",input$X,"',mediator='",mediator,"')\n"))
                 cat("summary(fitMedBoot)\n")
-                fitMedBoot=mediate(fit1,fit2,boot=TRUE,sims=10,
-                                   treat=input$X,mediator=input$Mi)
+                fitMedBoot=mediate(fit[[1]],fit[[length(fit)]],boot=TRUE,sims=10,
+                                   treat=input$X,mediator=mediator)
                 print(summary(fitMedBoot))
 
 
@@ -1218,9 +1248,9 @@ server=function(input,output,session){
         } else{
         eq<- getRegEq()
         eq<-unlist(strsplit(eq,"\n"))
-        if(length(eq)>1) eq=eq[2]
+        if(length(eq)>1) eq=eq[length(eq)]
         temp=paste0("lm(",eq,",data=data1)")
-        # print(temp)
+        print(temp)
         fit=eval(parse(text=temp))
         modNames=names(fit$coef)
         print(modNames)
@@ -1243,6 +1273,20 @@ server=function(input,output,session){
                            covar=getCovariates2(),mode=1)
         } else if(input$modelno %in% c(1:2)){
            result=regEquation(X=input$X,Y=input$Y,moderator=getModerator(),covar=getCovariates2())
+        } else if(input$modelno %in% c(4.2,6,6.3,6.4)){
+            secondIndirect=TRUE
+            if(input$modelno==4.3) secondIndirect=FALSE
+            names<-mylist()
+            labels=list()
+            for(i in 1:length(names)){
+                labels[[names[i]]]=input[[names[i]]]
+            }
+            temp=names[str_detect(names,"M")]
+            temp=findNames(labels=labels,temp)
+
+            result=regEquation(X=input$X,M=temp, Y=input$Y,secondIndirect=secondIndirect,
+                               moderator=getModerator(),
+                               covar=getCovariates2())
         } else{
             result=tripleEquation(X=input$X,M=input$Mi,Y=input$Y,
                                   vars=getTripleVars(),

@@ -4,6 +4,7 @@ require(tidyverse)
 
 #' Make Model Coef Summary
 #' @param fit A list of objects of class lm
+#' @param labels optional list
 #' @importFrom dplyr full_join
 #' @importFrom purrr reduce
 #' @export
@@ -12,10 +13,12 @@ require(tidyverse)
 #' fit1=lm(mpg~wt,data=mtcars)
 #' fit2=lm(mpg~wt*hp,data=mtcars)
 #' fit3=lm(mpg~wt*hp*am,data=mtcars)
-#' modelsSummary(list(fit1))
+#' labels=list(Y="mpg",X="wt",W="hp",Z="am")
+#' modelsSummary(list(fit1),labels=labels)
+#' modelsSummary(list(fit1,fit2),labels=labels)
 #' modelsSummary(list(fit1,fit2))
-#' modelsSummary(list(fit1,fit2,fit3))
-modelsSummary=function(fit){
+#' modelsSummary(list(fit1,fit2,fit3),labels=labels)
+modelsSummary=function(fit,labels=NULL){
 
 
     count=length(fit)
@@ -31,6 +34,7 @@ modelsSummary=function(fit){
         coef[[i]]=getInfo(fit[[i]])
         modelNames=c(modelNames,names(fit[[i]]$model)[1])
     }
+    if(!is.null(labels)) modelNames=changeLabelName(modelNames,labels,add=TRUE)
 
     if(count==1){
         mydf=df[[1]]
@@ -57,6 +61,7 @@ modelsSummary=function(fit){
     res=full_join(mydf,df2,by=paste0("coef",1:count))
     res[is.na(res)]=""
     res
+    if(!is.null(labels)) finalNames=changeLabelName(finalNames,labels,add=TRUE)
     rownames(res)=finalNames
     res
     class(res)=c("modelSummary","data.frame")
@@ -85,7 +90,7 @@ print.modelSummary=function(x,...){
     for(i in 1:count){cat(centerPrint(names[i],colwidth))}
     cat("\n")
     cat(paste0(centerPrint("",left)))
-    for(i in 1:count) cat(paste(rep("-",colwidth),collapse = "")," ")
+    for(i in 1:count) cat(paste0(rep("-",colwidth),collapse = "")," ")
     cat("\n")
     cat(paste0(centerPrint("Antecedent",left)))
     for(i in 1:count) cat(paste0(centerPrint("Coef",8),centerPrint("SE",8),centerPrint("t",8),centerPrint("p",8)," "))
@@ -116,6 +121,7 @@ print.modelSummary=function(x,...){
 #' Print a string in center
 #' @param string A string
 #' @param width A numeric
+#' @export
 centerPrint=function(string,width){
     str_pad(string,width,side="both")
 }
@@ -230,6 +236,7 @@ modelsSummaryTable=function(x){
 #'Format a numeric vector
 #'@param x A numeric vector
 #'@param digits integer indicating the number of decimal places
+#'@export
 myformat=function(x,digits=3){
     fmt=paste0("%.0",digits,"f")
     x=sprintf(fmt,x)
@@ -239,6 +246,7 @@ myformat=function(x,digits=3){
 
 #' Make p value format
 #'@param x A numeric vector
+#'@export
 pformat=function(x){
     temp=substr(x,2,nchar(x))
     temp[temp==".000"]="<.001"

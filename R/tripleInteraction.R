@@ -38,6 +38,9 @@ tripleInteraction=function(vars,prefix="c",suffix=0,mode=0,addPrefix=TRUE){
 #' @param covar A list of covariates
 #' @param mode A number
 #' @param range A logical
+#' @param data A data.frame
+#' @param rangemode range mode
+#' @param probs numeric vector of probabilities with values in [0,1]
 #' @export
 #' @examples
 #' X="negemot";M="ideology";Y="govact";suffix=0
@@ -57,7 +60,8 @@ tripleInteraction=function(vars,prefix="c",suffix=0,mode=0,addPrefix=TRUE){
 #' X="negemot";Y="govact";suffix=0
 #' vars=list(name=list(c("sex","age")),site=list(c("c")))
 #' cat(tripleEquation(X=X,Y=Y,vars=vars))
-tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list(),covar=NULL,range=TRUE,mode=0){
+tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list(),
+                        covar=NULL,range=TRUE,mode=0,data=NULL,rangemode=1,probs=c(0.16,0.5,0.84)){
 
       # moderator=list();covar=NULL;mode=0;M=NULL
      # mode=0;M=NULL;vars=NULL
@@ -166,7 +170,7 @@ tripleEquation=function(X=NULL,M=NULL,Y=NULL,vars=NULL,suffix=0,moderator=list()
            temp=paste0(temp,name," ~~ ",name,".var*",name,"\n")
            equation=paste0(equation,temp)
        }
-       temp=makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=range)
+       temp=makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=range,data=data,rangemode=rangemode)
        equation=paste0(equation,temp)
 
    }
@@ -198,20 +202,33 @@ seekNameVars=function(vars,site="a"){
 #'Treat moderator name with mean value
 #'@param ind An equation
 #'@param moderatorNames character vectors
+#' @param data A data.frame
+#' @param rangemode range mode
+#' @param probs numeric vector of probabilities with values in [0,1]
 #'@export
 #'@examples
 #'ind="(a1+a4*sex+a5*age)*(b1)"
 #'moderatorNames=c("age","sex")
 #'treatModerator(ind,moderatorNames)
-treatModerator=function(ind,moderatorNames){
+treatModerator=function(ind,moderatorNames,data=NULL,rangemode=1,probs=c(0.16,0.5,0.84)){
     ind.below<-ind.above<-ind
     for(i in seq_along(moderatorNames)){
+      if(rangemode==2){
+        values=quantile(data[[moderatorNames[i]]],probs=probs,type=6)
+        temp=as.character(values[2])
+        ind=str_replace_all(ind,moderatorNames[i],temp)
+        temp=as.character(values[1])
+        ind.below=str_replace_all(ind.below,moderatorNames[i],temp)
+        temp=as.character(values[3])
+        ind.above=str_replace_all(ind.above,moderatorNames[i],temp)
+      } else{
         temp=paste0(moderatorNames[i],".mean")
         ind=str_replace_all(ind,moderatorNames[i],temp)
         temp=paste0("(",moderatorNames[i],".mean-sqrt(",moderatorNames[i],".var))")
         ind.below=str_replace_all(ind.below,moderatorNames[i],temp)
         temp=paste0("(",moderatorNames[i],".mean+sqrt(",moderatorNames[i],".var))")
         ind.above=str_replace_all(ind.above,moderatorNames[i],temp)
+      }
     }
     list(ind,ind.below,ind.above)
 }
@@ -224,6 +241,9 @@ treatModerator=function(ind,moderatorNames){
 #'@param temp3 A character vector
 #'@param moderatorNames A character vector
 #'@param range A logical
+#' @param data A data.frame
+#' @param rangemode range mode
+#' @param probs numeric vector of probabilities with values in [0,1]
 #'@export
 #'@examples
 #'X="negemot";M="ideology"
@@ -233,7 +253,10 @@ treatModerator=function(ind,moderatorNames){
 #'moderatorNames=c("age","sex")
 #'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames))
 #'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE))
-makeIndirectEquation=function(X,M,temp1,temp2,temp3,moderatorNames,range=FALSE){
+#'glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
+#'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
+makeIndirectEquation=function(X,M,temp1,temp2,temp3,moderatorNames,
+                              range=FALSE,data=NULL,rangemode=1,probs=c(0.16,0.5,0.84)){
     equation=""
     if(!is.null(M)){
 
@@ -243,7 +266,7 @@ makeIndirectEquation=function(X,M,temp1,temp2,temp3,moderatorNames,range=FALSE){
         ind2=strGrouping(temp2,M)$yes
         ind=paste0("(",str_flatten(ind1,"+"), ")*(",str_flatten(ind2,"+"),")")
 
-        res=treatModerator(ind,moderatorNames)
+        res=treatModerator(ind,moderatorNames,data=data,rangemode=rangemode,probs=probs)
         ind<-res[[1]]
         ind.below=res[[2]]
         ind.above=res[[3]]
@@ -253,21 +276,21 @@ makeIndirectEquation=function(X,M,temp1,temp2,temp3,moderatorNames,range=FALSE){
         direct=strGrouping(temp3,X)$yes
         dir=paste0(str_flatten(direct,"+"))
         dir
-        res=treatModerator(dir,moderatorNames)
+        res=treatModerator(dir,moderatorNames,data=data,rangemode=rangemode,probs=probs)
         dir<-res[[1]]
         dir.below=res[[2]]
         dir.above=res[[3]]
         equation=paste0(equation,"direct :=",dir,"\n")
         equation=paste0(equation,"total := direct + indirect\n")
         if(range){
-            equation=paste0(equation,"indirect.SDbelow :=",ind.below,"\n")
-            equation=paste0(equation,"indirect.SDabove :=",ind.above,"\n")
-            equation=paste0(equation,"direct.SDbelow:=",dir.below,"\n")
-            equation=paste0(equation,"direct.SDabove:=",dir.above,"\n")
-            equation=paste0(equation,"total.SDbelow := direct.SDbelow + indirect.SDbelow\n",
-                            "total.SDabove := direct.SDabove + indirect.SDabove\n")
-            equation=paste0(equation,"prop.mediated.SDbelow := indirect.SDbelow / total.SDbelow\n",
-                            "prop.mediated.SDabove := indirect.SDabove / total.SDabove\n")
+            equation=paste0(equation,"indirect.below :=",ind.below,"\n")
+            equation=paste0(equation,"indirect.above :=",ind.above,"\n")
+            equation=paste0(equation,"direct.below:=",dir.below,"\n")
+            equation=paste0(equation,"direct.above:=",dir.above,"\n")
+            equation=paste0(equation,"total.below := direct.below + indirect.below\n",
+                            "total.above := direct.above + indirect.above\n")
+            equation=paste0(equation,"prop.mediated.below := indirect.below / total.below\n",
+                            "prop.mediated.above := indirect.above / total.above\n")
 
 
             if(length(moderatorNames)==1) {

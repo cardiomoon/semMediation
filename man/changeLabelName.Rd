@@ -4,13 +4,21 @@
 \alias{changeLabelName}
 \title{Change Label Names}
 \usage{
-changeLabelName(x, labels)
+changeLabelName(x, labels, add = FALSE)
 }
 \arguments{
 \item{x}{A character vector}
 
 \item{labels}{A list}
+
+\item{add}{A logical}
 }
 \description{
 Change Label Names
+}
+\examples{
+labels=list(X="skeptic",Mi="empathy",Y="intervention",W="frame")
+x=c("skeptic","test","empathy","skeptic:frame")
+changeLabelName(x,labels)
+changeLabelName(x,labels,add=TRUE)
 }

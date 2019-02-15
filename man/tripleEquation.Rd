@@ -6,7 +6,7 @@
 \usage{
 tripleEquation(X = NULL, M = NULL, Y = NULL, vars = NULL,
   suffix = 0, moderator = list(), covar = NULL, range = TRUE,
-  mode = 0)
+  mode = 0, data = NULL, rangemode = 1, probs = c(0.16, 0.5, 0.84))
 }
 \arguments{
 \item{X}{Name of independent variable}
@@ -26,6 +26,12 @@ tripleEquation(X = NULL, M = NULL, Y = NULL, vars = NULL,
 \item{range}{A logical}
 
 \item{mode}{A number}
+
+\item{data}{A data.frame}
+
+\item{rangemode}{range mode}
+
+\item{probs}{numeric vector of probabilities with values in [0,1]}
 }
 \description{
 Make equation with triple interaction

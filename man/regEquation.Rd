@@ -5,7 +5,7 @@
 \title{Make regression equation}
 \usage{
 regEquation(X = "X", M = NULL, Y = "Y", moderator = list(),
-  covar = list())
+  covar = list(), secondIndirect = FALSE)
 }
 \arguments{
 \item{X}{A character vectors indicating independent variables}
@@ -17,6 +17,8 @@ regEquation(X = "X", M = NULL, Y = "Y", moderator = list(),
 \item{moderator}{moderator}
 
 \item{covar}{covariates}
+
+\item{secondIndirect}{A logical}
 }
 \description{
 Make regression equation
@@ -24,6 +26,8 @@ Make regression equation
 \examples{
 X="X";M=NULL;Y="Y"; moderator=list(name="W",site=list("c"))
 regEquation(X,M,Y,moderator)
-covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M","Y"),"Y","Y"))
+M=c("M1","M2")
+regEquation(X,M,Y,moderator,secondIndirect=TRUE)
+covar=list(name=c("C1","C2","C3"),label=c("ese","sex","tenure"),site=list(c("M1","Y"),"Y","Y"))
 regEquation(X,M,Y,moderator,covar=covar)
 }
