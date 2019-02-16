@@ -253,8 +253,8 @@ treatModerator=function(ind,moderatorNames,data=NULL,rangemode=1,probs=c(0.16,0.
 #'moderatorNames=c("age","sex")
 #'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames))
 #'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE))
-#'glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
-#'cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
+#'#glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
+#'#cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
 makeIndirectEquation=function(X,M,temp1,temp2,temp3,moderatorNames,
                               range=FALSE,data=NULL,rangemode=1,probs=c(0.16,0.5,0.84)){
     equation=""

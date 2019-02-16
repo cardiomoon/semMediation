@@ -4,7 +4,7 @@
 \name{nodes}
 \alias{nodes}
 \title{Node Data Set for drawing stastical diagram of process macro model}
-\format{A data,frame with 327 rows and 4 variables
+\format{A data.frame with 327 rows and 4 variables
 \describe{
   \item{no}{process macro model number}
   \item{name}{name of node}

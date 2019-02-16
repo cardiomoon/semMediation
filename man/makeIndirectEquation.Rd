@@ -40,6 +40,6 @@ temp3="c1*negemot"
 moderatorNames=c("age","sex")
 cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames))
 cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE))
-glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
-cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
+#glbwarm=read.csv("./inst/pmacro/data/glbwarm.csv",stringsAsFactors=FALSE)
+#cat(makeIndirectEquation(X,M,temp1,temp2,temp3,moderatorNames,range=TRUE,data=glbwarm,rangemode=2))
 }

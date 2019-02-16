@@ -48,7 +48,7 @@ statisticalDiagram=function(no=1,radx=0.10,rady=0.04,xmargin=0.01,arrowlabel=TRU
     if(no==1.1){
         arrows1=est2Arrows(estimateTable)
     } else{
-        arrows1=parrows1[parrows1$no==no,]
+        arrows1=parrows[parrows$no==no,]
     }
     nodes
     # Add covariates
@@ -292,8 +292,8 @@ addLatentNodes=function(nodes,fit,labels){
 #'@export
 drawStatDiagram=function(no,arrows,nodes,labels,xmargin,radx,rady,fit=NULL){
 
-  print(nodes)
-  print(arrows)
+  # print(nodes)
+  # print(arrows)
   openplotmat()
   drawArrows(arrows,nodes,xmargin=xmargin,rady=rady,radx=radx)
   LVnames=c()

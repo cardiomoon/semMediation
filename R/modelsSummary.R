@@ -1,7 +1,3 @@
-require(rlang)
-require(tidyverse)
-
-
 #' Make Model Coef Summary
 #' @param fit A list of objects of class lm
 #' @param labels optional list
@@ -217,7 +213,8 @@ modelsSummaryTable=function(x){
         hline_top(part="header",border=big_border) %>%
         hline(i=1,j=2:(count*5),part="header",border=fp_border(color="black",width=1))%>%
         merge_h_range (i=1,j1=2,j2=count*5,part="header") %>%
-        align(align="center",part="all") %>%
+        align(align="center",part="header") %>%
+        align(align="right",part="body") %>%
         bold(part="header") %>%
         fontsize(part="all",size=12) %>%
         hline(i=rowcount-5,border=fp_border(color="gray"),part="body")

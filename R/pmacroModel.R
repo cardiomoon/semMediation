@@ -15,6 +15,9 @@ pmacroModel=function(no=1,labels=list(),covar=list(),radx=0.06,rady=0.06,xmargin
     # no=76
     # labels=list("X"="age","M"="educ","Y"="interest","W"="policy","Z"="male")
     #labels=list()
+    #
+
+
     i=which(pmacro$no==no)
     i
     if(length(i)<1) {

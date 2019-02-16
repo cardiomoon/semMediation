@@ -1,98 +1,20 @@
-require(lavaan)
-require(semMediation)
-model="knowledge =~ general+symptoms+treatmt
-empathy =~ cognitiv+emotion+disposit+attitude
-intervention =~ classrm+instruct
-intervention ~ b*empathy + c*knowledge
-empathy ~ a*knowledge
-indirect effect:=a*b
-total effect:=c+(a*b)"
-fit=sem(model=model,data=ADHD)
-summary(fit)
-
-mediationPlot(fit,whatLabels="est")
-resTable=estimatesTable(fit)
-resTable
-estimateTable=resTable
-parameterEstimates(fit)
-
-statisticalDiagram(no=4)
-labels=list(X="knowledge",Mi="empathy",Y="intervention")
-statisticalDiagram(no=4,labels=labels,estimateTable = resTable,whatLabel="est")
-
-
-
-names(labels)[str_detect(labels,"empathy")]
-
-
-disaster=read.csv("./inst/pmacro/data/disaster.csv",stringsAsFactors = FALSE)
-disaster
-fit=lm(justify ~  frame+frame*skeptic,data=disaster)
-summary(fit)
-interact_plot(fit,pred=frame,modx=skeptic,plot.points=FALSE,interval=FALSE,int.type='confidence',int.width=0.95,linearity.check=FALSE)
-temp="interact_plot(fit,pred=skeptic,modx=frame,plot.points=FALSE,interval=FALSE,int.type='confidence',int.width=0.95,linearity.check=FALSE)"
-p=eval(parse(text=temp))
-p
-
-
-model1="justify ~ a1*frame+a2*skeptic+a3*frame:skeptic
-donate ~ b1*justify+c1*frame+c2*skeptic+c3*frame:skeptic
-skeptic ~ skeptic.mean*1
-skeptic ~~ skeptic.var*skeptic
-indirect :=(a1+a3*skeptic.mean)*(b1)
-direct :=c1+c3*skeptic.mean
-total := direct + indirect
-indirect.below :=(a1+a3*(skeptic.mean-sqrt(skeptic.var)))*(b1)
-indirect.above :=(a1+a3*(skeptic.mean+sqrt(skeptic.var)))*(b1)
-direct.below:=c1+c3*(skeptic.mean-sqrt(skeptic.var))
-direct.above:=c1+c3*(skeptic.mean+sqrt(skeptic.var))
-total.below := direct.below + indirect.below
-total.above := direct.above + indirect.above
-prop.mediated.below := indirect.below / total.below
-prop.mediated.above := indirect.above / total.above
-"
-model2="justify ~ a1*frame+a2*skeptic+a3*frame:skeptic
-donate ~ b1*justify+c1*frame+c2*skeptic+c3*frame:skeptic
-skeptic ~ skeptic.mean*1
-skeptic ~~ skeptic.var*skeptic
-indirect :=(a1+a3*2.8)*(b1)
-direct :=c1+c3*2.8
-total := direct + indirect
-indirect.below :=(a1+a3*1.592)*(b1)
-indirect.above :=(a1+a3*5.2)*(b1)
-direct.below:=c1+c3*1.592
-direct.above:=c1+c3*5.2
-total.below := direct.below + indirect.below
-total.above := direct.above + indirect.above
-prop.mediated.below := indirect.below / total.below
-prop.mediated.above := indirect.above / total.above
-"
-library(lavaan)
-fit=sem(model=model1,data=disaster)
-parameterEstimates(fit)
-mean(disaster$skeptic)
-
-fit2=sem(model=model2,data=disaster)
-parameterEstimates(fit2)
-
-require(ggplot2)
-fun1=function(x) (0.160+0.015*x)
-fun2=function(x) (0.519-0.186*x)
-fun3=function(x) (0.679-0.171*x)
-ggplot(data=disaster,aes(x=skeptic,y=donate))+
-    stat_function(fun=fun1)+
-    stat_function(fun=fun2,lty=3)+
-    stat_function(fun=fun3,color="red")
-
-mod="skeptic"
-values=NULL
+#' Summarize the moderated mediation
+#' @param fit An bject of class lavaan
+#' @param mod name of moderator
+#' @param values Optional. Numeric vector
+#' @importFrom lavaan parameterEstimates
+#' @export
+#' @return A data.frame and an object of class modmedSummary
 modmedSummary=function(fit,mod="skeptic",values=NULL){
+
     res=parameterEstimates(fit)
     res=res[res$label!="",]
     res
     if(is.null(values)){
-      values=res$est[res$label==paste0(mod,".mean")]+c(0,-1,1)*res$est[res$label==paste0(mod,".var")]
-      values
+      values1=res$est[res$label==paste0(mod,".mean")]+c(0,-1,1)*res$est[res$label==paste0(mod,".var")]
+      values1
+    } else{
+        values1=values
     }
     select=c("indirect","indirect.below","indirect.above")
     indirect=res$est[which(res$lhs %in% select)]
@@ -103,17 +25,28 @@ modmedSummary=function(fit,mod="skeptic",values=NULL){
     direct=res$est[which(res$lhs %in% select)]
     se=res$se[which(res$lhs %in% select)]
     directp=res$p[which(res$lhs %in% select)]
-    df=data.frame(values,indirect,lower,upper,indirectp,direct,se,directp)
+    df=data.frame(values=values1,indirect,lower,upper,indirectp,direct,se,directp)
     df=df[c(2,1,3),]
     df[]=round(df,3)
+    attr(df,"mod")=mod
+
+    if(is.null(values)) {
+        indirect=res$rhs[res$lhs=="indirect"]
+        indirect=str_replace(indirect,paste0(mod,".mean"),"W")
+        direct=res$rhs[res$lhs=="direct"]
+        direct=str_replace(direct,paste0(mod,".mean"),"W")
+    } else{
+        indirect=res$rhs[res$lhs=="indirect"]
+        indirect=str_replace(indirect,paste0(values[1]),"W")
+        direct=res$rhs[res$lhs=="direct"]
+        direct=str_replace(direct,paste0(values[1]),"W")
+    }
+
+    attr(df,"indirect")=indirect
+    attr(df,"direct")=direct
     class(df)=c("modmedSummary","data.frame")
     df
 }
-x=modmedSummary(fit,mod="skeptic")
-class(x)
-values=quantile(disaster$skeptic,probs=c(0.5,0.16,0.84),type=6)
-modmedSummary(fit2,mod="skeptic",values=values)
-x
 
 #' Print a string in center
 #' @param string A string
@@ -123,22 +56,34 @@ rightPrint=function(string,width){
     str_pad(string,width,side="left")
 }
 
-print.modmedSummary=function(x){
+
+#'S3 method print for an object of class modmedSummary
+#'@param x An object of class modmedSummary
+#'@param ... additional arguments to pass to print.modmedSummary
+#'@export
+print.modmedSummary=function(x,...){
     count=nrow(x)
     x[]=lapply(x,myformat)
     x[[5]]=pformat(x[[5]])
     x[[8]]=pformat(x[[8]])
-    total=71
+
+    mod=paste0(attr(x,"mod"),"(W)")
+    indirect=attr(x,"indirect")
+    direct=attr(x,"direct")
+    left=max(nchar(mod)+2,8)
+    total=63+left
 
     cat("\nInference for the Conditional Direct and Indirect Effects","\n")
     cat(paste(rep("=",total),collapse = ""),"\n")
-    cat(centerPrint("",8),centerPrint("Indirect Effect",35),centerPrint("Direct Effect",26),"\n")
-    cat(centerPrint("",8),paste(rep("-",35),collapse = ""),paste(rep("-",26),collapse = ""),"\n")
-    cat(centerPrint("W",8),centerPrint("estimate",8),centerPrint("95% CI",18),centerPrint("p",8))
-    cat(centerPrint("estimate",10),centerPrint("SE",8),centerPrint("p",8),"\n")
+    cat(centerPrint("",left),centerPrint("Indirect Effect",35),centerPrint("Direct Effect",26),"\n")
+    cat(centerPrint("",left),centerPrint(indirect,35),centerPrint(direct,26),"\n")
+    cat(centerPrint("",left),paste(rep("-",35),collapse = ""),paste(rep("-",26),collapse = ""),"\n")
+
+    cat(centerPrint(mod,left),centerPrint("estimate",8),centerPrint("95% CI",18),centerPrint("p",8))
+    cat(centerPrint("estimate",11),centerPrint("SE",8),centerPrint("p",8),"\n")
     cat(paste(rep("-",total),collapse = ""),"\n")
     for(i in 1:count){
-        cat(rightPrint(x[i,1],8))
+        cat(rightPrint(x[i,1],left-1),"")
         cat(rightPrint(x[i,2],8))
         cat(paste0(rightPrint(x[i,3],8)," to ",rightPrint(x[i,4],6)))
         cat(rightPrint(x[i,5],8))
@@ -148,4 +93,95 @@ print.modmedSummary=function(x){
     }
     cat(paste(rep("=",total),collapse = ""),"\n")
 }
-x
+
+
+#' Make a table summarizing the moderated mediation
+#' @param x An object of class modmedSummary
+#' @param vanilla A logical
+#' @importFrom flextable bg vline
+#' @export
+modmedSummaryTable=function(x,vanilla=TRUE){
+    count=nrow(x)
+    x[]=lapply(x,myformat)
+    x[[5]]=pformat(x[[5]])
+    x[[8]]=pformat(x[[8]])
+
+    x1=x
+
+    if(vanilla){
+    x1$s=""
+    x1$ci=paste0("(",x1$lower," to ",x1$upper,")")
+    x1=x1[c(1:2,10,5,9,6:8)]
+
+    ft=rrtable::df2flextable(x1,vanilla=vanilla,digits=3)
+    ft
+    hlabel=c(paste0(attr(x,"mod"),"(W)"),"estimate","95% CI","p","","estimate","SE","p")
+    hlabel
+    col_keys=colnames(x1)
+    hlabel<-setNames(hlabel,col_keys)
+    hlabel=as.list(hlabel)
+    hlabel
+    ft<-ft %>% set_header_labels(values=hlabel)
+    ft
+    ft<-ft %>% width(j=3,width=1.5) %>% width(j=5,width=0.1)
+    big_border=fp_border(color="black",width=2)
+    hlabel=list(values="",
+                indirect=paste0("Indirect Effect\n",attr(x,"indirect")),s="",
+                direct=paste0("Direct Effect\n",attr(x,"direct")))
+    ft<- ft %>%
+        hline_top(part="header",border=fp_border(color="black",width=0)) %>%
+        add_header_row(top=TRUE,values=hlabel,colwidths=c(1,3,1,3)) %>%
+        hline_top(part="header",border=big_border) %>%
+        hline(i=1,j=2:4,part="header",border=fp_border(color="black",width=1))%>%
+        hline(i=1,j=6:8,part="header",border=fp_border(color="black",width=1)) %>%
+        merge_h_range (i=1,j1=2,j2=4,part="header") %>%
+        merge_h_range (i=1,j1=6,j2=8,part="header") %>%
+        align(align="center",part="all") %>%
+        align(align="right",part="body") %>%
+        fontsize(size=12,part="header") %>%
+        bold(part="header") %>%
+        italic(i=2,j=c(4,7,8),italic=TRUE,part="header") %>%
+        width(j=1,width=1)
+    } else{
+        x1$ci=paste0("(",x1$lower," to ",x1$upper,")")
+        x1=x1[c(1:2,9,5,6:8)]
+        ft=rrtable::df2flextable(x1,vanilla=vanilla,digits=3)
+        ft
+        hlabel=c(paste0(attr(x,"mod"),"(W)"),"estimate","95% CI","p","estimate","SE","p")
+        hlabel
+        col_keys=colnames(x1)
+        hlabel<-setNames(hlabel,col_keys)
+        hlabel=as.list(hlabel)
+        hlabel
+        ft<-ft %>% set_header_labels(values=hlabel)
+        ft
+        ft<-ft %>% width(j=3,width=1.5) %>% width(j=5,width=0.1)
+        big_border=fp_border(color="black",width=2)
+        hlabel=list(values=paste0(attr(x,"mod"),"(W)"),
+                    indirect=paste0("Indirect Effect\n",attr(x,"indirect")),
+                    direct=paste0("Direct Effect\n",attr(x,"direct")))
+        ft<- ft %>%
+            hline_top(part="header",border=fp_border(color="black",width=0)) %>%
+            add_header_row(top=TRUE,values=hlabel,colwidths=c(1,3,3)) %>%
+            hline_top(part="header",border=big_border) %>%
+            hline(i=1,j=2:4,part="header",border=fp_border(color="black",width=1))%>%
+            hline(i=1,j=5:7,part="header",border=fp_border(color="black",width=1))
+        ft<-ft  %>%
+            merge_h_range (i=1,j1=2,j2=4,part="header") %>%
+            merge_h_range (i=1,j1=5,j2=7,part="header") %>%
+            align(align="center",part="all") %>%
+            align(align="right",part="body") %>%
+            fontsize(size=12,part="header") %>%
+            bold(part="header") %>%
+            italic(i=2,j=c(4,6,7),italic=TRUE,part="header")
+        ft<-ft %>% color(i=1,j=1:7,color="white",part="header") %>%
+            bg(i=1,j=1:7,bg="#5B7778",part="header") %>%
+            merge_at(i=1:2,j=1,part="header")
+        ft<-ft %>% vline(i=1:2,border=fp_border(color="white"),part="header") %>%
+            hline(i=1:2,border=fp_border(color="white"),part="header") %>%
+            width(j=1,width=1)
+    }
+
+    ft
+}
+

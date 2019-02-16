@@ -12,13 +12,6 @@ library(ggplot2)
 library(mediation)
 library(interactions)
 
-dataFiles=list.files(path="data","*.csv")
-dataNames=str_extract(dataFiles,"[^.]*")
-# for(i in seq_along(dataNames)){
-#     data=read.csv(paste0("data/",dataFiles[i]),stringsAsFactors = FALSE)
-#     assign(dataNames[i],data)
-# }
-
 actionBttn3=function(...){
    div(style="display:inline-block;",actionBttn(...))
 }
@@ -35,7 +28,7 @@ ui=fluidPage(
     fluidRow(
         column(3,
                fileInput("file","Upload File or"),
-               radioButtons("dataname","Select example",choices=dataNames),
+               radioButtons("dataname","Select example",choices=c("caskets","disaster","estress","glbwarm","pmi","protest","teams")),
                textInput("mydata","Data Name")
         ),
         column(9,
@@ -75,10 +68,13 @@ ui=fluidPage(
     fluidRow(
         h2("Make Equation"),
         column(3,actionButton("makeEq","make Equation",width="150px"),
+               br(),
+               br(),
+               actionButton("resetEq","reset Equation",width="150px"),
                hr(),
-               radioButtons("rangemode","range mode",choices=c("mean+/-sd"=1,"probs=c(0.16,0.5,0.84)"=2)),
-               hr(),
-               actionButton("resetEq","reset Equation",width="150px")
+               radioButtons("rangemode","range mode",choices=c("mean+/-sd"=1,"probs=c(0.16,0.5,0.84)"=2))
+
+
         ),
         column(4,
                textAreaInput("equation",NULL,rows=10,placeholder="You can edit equation.")
@@ -119,8 +115,6 @@ server=function(input,output,session){
 
         if(input$mydata=="uploaded") {
             data<-myimport(input$file$datapath)
-        } else if(input$mydata %in% c("caskets","disaster","estress","glbwarm","pmi","protest","teams")) {
-            data<-read.csv(paste0("data/",input$dataname,".csv"),stringsAsFactors = FALSE)
         } else {
             data<-eval(parse(text=input$mydata))
         }
@@ -373,6 +367,22 @@ server=function(input,output,session){
                 cat("reliablityTable(fit)\n\n")
                 print(reliabilityTable(fit))
                 }
+                if(as.numeric(input$modelno)>6){
+                    if(input$rangemode==1){
+                        x=modmedSummary(fit,mod=input$W)
+                        cat("modmedSummary(fit,mod='",input$W,"')\n")
+                    } else{
+                        data1<-data()
+                        values=quantile(data1[[input$W]],probs=c(0.5,0.16,0.84),type=6)
+                        temp=paste0("c(",paste0(values,collapse=","),")")
+                        cat(paste0("modmedSummary(fit,mod='",input$W,"',probs=",temp,")\n"))
+                        x=modmedSummary(fit,mod=input$W,values=values)
+
+
+                    }
+
+                    print(x)
+                }
                 }
 
         })
@@ -465,6 +475,39 @@ server=function(input,output,session){
 
                 modelFitTable2(fit,vanilla=input$vanilla) %>%
                     htmltools_value()
+            }
+        })
+
+        output$modmedTable=renderUI({
+            if(input$equation!=""){
+
+
+                if(input$rangemode==1){
+                    x=modmedSummary(fit,mod=input$W)
+                    result=modmedSummaryTable(x,vanilla=input$vanilla)
+                } else{
+                    data1<-data()
+                    values=quantile(data1[[input$W]],probs=c(0.5,0.16,0.84),type=6)
+                    x=modmedSummary(fit,mod=input$W,values=values)
+                    result=modmedSummaryTable(x,vanilla=input$vanilla)
+                }
+
+                result %>%
+                    htmltools_value()
+            }
+        })
+
+        output$condEffectPlot=renderPlot({
+            if(input$equation!=""){
+
+                data1<-data()
+                if(input$rangemode==1){
+                    p<-conditionalEffectPlot(fit,data=data1,mod=input$W)
+                } else{
+                    values=quantile(data1[[input$W]],probs=c(0.5,0.16,0.84),type=6)
+                    p<-conditionalEffectPlot(fit,values=values,data=data1,mod=input$W)
+                }
+                p
             }
         })
 
@@ -1004,6 +1047,10 @@ server=function(input,output,session){
             if(modelno %in% c(1)) plotOutput("JNPlot"),
             if(modelno %in% c(2:3)) verbatimTextOutput("JNText2"),
             if(modelno %in% c(2:3)) plotOutput("JNPlot2"),
+            if(as.numeric(modelno) > 6 ) h2("Inference for the Conditional Direct and Indirect Effects"),
+            if(as.numeric(modelno) > 6 ) uiOutput("modmedTable"),
+            if(as.numeric(modelno) > 6 ) h2("Conditional Direct and Indirect Effects"),
+            if(as.numeric(modelno) > 6 ) plotOutput("condEffectPlot",height="500px"),
             verbatimTextOutput("regEquation")
             # h2("Reliability Table"),
             # uiOutput("reliabilityTable"),
