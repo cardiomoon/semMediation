@@ -125,10 +125,12 @@ centerPrint=function(string,width){
 
 
 #' Make Model Coef Table
-#' @param x object of class modelSummary
+#' @param x An object of class modelSummary
+#' @param vanilla A logical
 #' @importFrom officer fp_border
 #' @importFrom flextable flextable merge_h_range align hline_top hline add_header
 #' @importFrom flextable bold fontsize width italic set_header_labels add_header_row
+#' @importFrom flextable theme_zebra vline_left
 #' @importFrom stats pf
 #' @importFrom dplyr select
 #' @importFrom tidyselect everything
@@ -142,10 +144,15 @@ centerPrint=function(string,width){
 #' x=modelsSummary(list(fit1))
 #' modelsSummaryTable(x)
 #' x=modelsSummary(list(fit1,fit2))
-#' modelsSummaryTable(x)
+#' modelsSummaryTable(x,vanilla=FALSE)
 #' x=modelsSummary(list(fit1,fit2,fit3))
 #' modelsSummaryTable(x)
-modelsSummaryTable=function(x){
+modelsSummaryTable=function(x,vanilla=TRUE){
+
+        # vanilla=TRUE
+     # require(tidyverse)
+     # require(flextable)
+     # require(officer)
     modelNames=attr(x,"modelNames")
     modelNames
 
@@ -153,44 +160,59 @@ modelsSummaryTable=function(x){
     count=ncol(x)/4
     count
     result[["name1"]]=rownames(result)
-    if(count>1){
-        for(i in 2:count) result[[paste0("s",(i-1))]]=""
+    if(vanilla){
+        if(count>1){
+            for(i in 2:count) result[[paste0("s",(i-1))]]=""
+        }
     }
     result<-result %>% select("name1",everything())
     rowcount=nrow(result)
 
+    if(vanilla) {
     col_keys=c("name1",names(result)[2:5])
     if(count>1){
-        for(i in 1:(count-1))
+        for(i in 1:(count-1)) {
         col_keys=c(col_keys,paste0("s",i),names(result)[(i*4+2):(i*4+5)])
+        }
     }
+    } else{
+        col_keys=names(result)
+    }
+
     ft<-flextable(result,col_keys=col_keys)
     ft
     hlabel=c("Antecedent","Coef","SE","t","p")
     if(count>1){
         for(i in 2:count){
-             hlabel=c(hlabel,"","Coef","SE","t","p")
+             if(vanilla) { hlabel=c(hlabel,"","Coef","SE","t","p") }
+             else { hlabel=c(hlabel,"Coef","SE","t","p") }
         }
     }
     hlabel<-setNames(hlabel,col_keys)
     hlabel=as.list(hlabel)
     hlabel
     ft<-ft %>% set_header_labels(values=hlabel)
+
+    colcount=4+ifelse(vanilla,1,0)
+    ft
     for(i in 1:count){
-        ft<-ft %>% merge_h_range(i=(rowcount-4):rowcount,j1=5*(i-1)+2,j2=5*(i-1)+5)
+        ft<- ft %>% merge_h_range(i=(rowcount-4):rowcount,
+                                 j1=colcount*(i-1)+2,j2=colcount*(i-1)+5)
     }
     ft<- ft %>% align(align="center",part="all") %>%
          hline_top(part="header",border=fp_border(color="white",width=0))
     ft
     for(i in 1:count){
-       ft <- ft %>% hline_top(j=((i-1)*5+2):((i-1)*5+5),part="header",border=fp_border(color="black",width=1))
+       ft <- ft %>% hline_top(j=((i-1)*colcount+2):(i*colcount),
+                              part="header",border=fp_border(color="black",width=1))
     }
     big_border=fp_border(color="black",width=2)
 
     hlabel=c("",modelNames[1],rep("",3))
     if(count>1){
     for(i in 2:count){
-        hlabel=c(hlabel,"",modelNames[i],rep("",3))
+        if(vanilla) {hlabel=c(hlabel,"",modelNames[i],rep("",3))}
+        else {hlabel=c(hlabel,modelNames[i],rep("",3))}
     }
     }
     hlabel<-setNames(hlabel,col_keys)
@@ -198,33 +220,72 @@ modelsSummaryTable=function(x){
     hlabel
     length(hlabel)
     length(col_keys)
-    ft <- add_header_row(ft,values=hlabel,top=TRUE,colwidths=rep(1,count*5))
+    count
+    colcount
+    ft <- add_header_row(ft,values=hlabel,top=TRUE,
+                         colwidths=rep(1,count*colcount+ifelse(vanilla,0,1)))
     ft <- ft %>%
-        hline_top(j=2:(count*5),part="header",border=fp_border(color="black",width=1))
+        hline_top(j=2:(count*colcount++ifelse(vanilla,0,1)),part="header",border=fp_border(color="black",width=1))
+    ft
     for(i in 1:count){
-        ft<-ft %>% hline(i=1,j=((i-1)*5+2):((i-1)*5+5),part="header",border=fp_border(color="black",width=1))
+        ft<-ft %>% hline(i=1,j=((i-1)*colcount+2):((i-1)*colcount+5),
+                         part="header",border=fp_border(color="black",width=1))
     }
     for(i in 1:count){
-        ft <- ft %>% merge_h_range (i=1,j1=(i-1)*5+2,j2=(i-1)*5+5,part="header")
+        ft <- ft %>% merge_h_range (i=1,j1=(i-1)*colcount+2,j2=(i-1)*colcount+5,
+                                    part="header")
     }
     ft
     hlabel=list(name1="",coef1="Consequent")
-    ft<-ft %>% add_header_row(top=TRUE,values=hlabel,colwidths=c(1,count*5-1)) %>%
+    ft<-ft %>%
+        add_header_row(top=TRUE,values=hlabel,
+                       colwidths=c(1,count*colcount+ifelse(vanilla,0,1)-1)) %>%
         hline_top(part="header",border=big_border) %>%
-        hline(i=1,j=2:(count*5),part="header",border=fp_border(color="black",width=1))%>%
-        merge_h_range (i=1,j1=2,j2=count*5,part="header") %>%
+        hline(i=1,j=2:(count*colcount+ifelse(vanilla,0,1)),part="header",
+              border=fp_border(color="black",width=1)) %>%
+        merge_h_range(i=1,j1=2,j2=count*colcount+ifelse(vanilla,0,1),part="header") %>%
         align(align="center",part="header") %>%
         align(align="right",part="body") %>%
         bold(part="header") %>%
         fontsize(part="all",size=12) %>%
         hline(i=rowcount-5,border=fp_border(color="gray"),part="body")
+    ft
+
     if(count>1){
+        if(vanilla)
         for(i in 1:(count-1)){
             ft<-ft %>% width(j=i*5+1,width=0.01)
         }
         for(i in 1:(count)){
-            ft<-ft %>% italic(i=3,j=c(((i-1)*5+3):((i-1)*5+5)),italic=TRUE,part="header")
+            ft<-ft %>% italic(i=3,j=c(((i-1)*colcount+3):((i-1)*colcount+5)),
+                              italic=TRUE,part="header")
         }
+    }
+    ft
+    if(!vanilla){
+     ft <-ft %>%
+            theme_zebra(even_body="#EFEFEF",odd_body="transparent",
+                        even_header ="#5B7778",odd_header="#5B7778") %>%
+            fontsize(size=12,part="all") %>%
+            align(align="center",part="header") %>%
+            align(j=1,align="center",part="body") %>%
+            align(j=2:(1+colcount*count),align="right",part="body") %>%
+            align(i=(nrow(x)-4):nrow(x),align="center",part="body") %>%
+            color(color="white",part="header") %>%
+            hline(j=2:(1+colcount*count),border=fp_border(color="black",width=1),
+                   part="header") %>%
+            vline(j=1:(1+colcount*count),border=fp_border(color="black",width=1),
+                  part="header") %>%
+            vline_left(border=fp_border(color="black",width=1),
+                       part="header") %>%
+            hline(j=1:(1+colcount*count),border=fp_border(color="#EDBD3E",width=1),
+                  part="body") %>%
+            vline(j=1:(1+colcount*count),border=fp_border(color="#EDBD3E",width=1),
+                  part="body") %>%
+            vline_left(border=fp_border(color="#EDBD3E",width=1),
+                       part="body")
+
+
     }
     ft
 

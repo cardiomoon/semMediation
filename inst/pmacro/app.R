@@ -349,8 +349,10 @@ server=function(input,output,session){
 
         output$text=renderPrint({
 
+            req(input$Analysis)
 
-                if(input$equation!=""){
+
+                if(isolate(input$equation)!=""){
                 cat("model='",input$equation,"'\n")
                 cat("fit=sem(model=model,data=",input$mydata,")\n")
                 cat("summary(fit)\n\n")
@@ -389,9 +391,9 @@ server=function(input,output,session){
 
         output$estimateTable=renderUI({
 
+            req(input$Analysis)
 
-
-            if(input$equation!=""){
+            if(isolate(input$equation)!=""){
 
                 seek=NULL
                 replace=NULL
@@ -416,7 +418,10 @@ server=function(input,output,session){
         })
 
         output$corTable=renderUI({
-                if(input$equation!=""){
+
+            req(input$Analysis)
+
+                if(isolate(input$equation)!=""){
                     seek=NULL
                     replace=NULL
                     if(input$modelno %in% c(3,11:13)){
@@ -436,7 +441,10 @@ server=function(input,output,session){
         })
 
         output$corPlot=renderPlot({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
                 seek=NULL
                 replace=NULL
                 if(input$modelno %in% c(3,11:13)){
@@ -456,14 +464,20 @@ server=function(input,output,session){
         })
 
         output$reliabilityTable=renderUI({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
                 reliabilityTable2(fit,vanilla=input$vanilla)  %>%
                     htmltools_value()
             }
         })
 
         output$discriminantValidityTable=renderUI({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
 
                 discriminantValidityTable2(fit,vanilla=input$vanilla) %>%
                     htmltools_value()
@@ -471,7 +485,10 @@ server=function(input,output,session){
         })
 
         output$modelFitTable=renderUI({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
 
                 modelFitTable2(fit,vanilla=input$vanilla) %>%
                     htmltools_value()
@@ -479,7 +496,10 @@ server=function(input,output,session){
         })
 
         output$modmedTable=renderUI({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
 
 
                 if(input$rangemode==1){
@@ -498,7 +518,10 @@ server=function(input,output,session){
         })
 
         output$condEffectPlot=renderPlot({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
 
                 data1<-data()
                 if(input$rangemode==1){
@@ -512,7 +535,10 @@ server=function(input,output,session){
         })
 
         output$mediationTable=renderUI({
-            if(input$equation!=""){
+
+            req(input$Analysis)
+
+            if(isolate(input$equation)!=""){
                 data1<-data()
                 eq=getRegEq()
 
@@ -538,7 +564,7 @@ server=function(input,output,session){
             }
 
             x=modelsSummary(fit,labels=labels)
-            modelsSummaryTable(x) %>%
+            modelsSummaryTable(x,vanilla=input$vanilla) %>%
                 htmltools_value()
             }
         })
@@ -552,8 +578,11 @@ server=function(input,output,session){
         # })
 
         output$concept=renderPlot({
+
+            req(input$Analysis)
+
             par(family="NanumGothic")
-            if(input$equation!=""){
+            if(isolate(input$equation)!=""){
 
 
             names<-mylist()
@@ -568,9 +597,12 @@ server=function(input,output,session){
             }
         })
         output$statDiagram=renderPlot({
+
+            req(input$Analysis)
+
             par(family="NanumGothic")
 
-            input$makeEq
+            if(isolate(input$equation)!=""){
 
             names<-mylist()
             labels=list()
@@ -611,9 +643,7 @@ server=function(input,output,session){
                                radx=as.numeric(input$radx),
                                covar=getCovariates(),
                                includeLatentVars = input$includeLatentVars)
-
-
-
+            }
         })
 
         # output$moderationPlot=renderPlot({
@@ -683,7 +713,6 @@ server=function(input,output,session){
 
         output$interactPlot3=renderPlot({
 
-            input$applyValue
 
             # data1<-data()
             eq<- getRegEq()
@@ -727,9 +756,7 @@ server=function(input,output,session){
 
         output$ss=renderPrint({
 
-            input$applyValue
-
-            # data1<-data()
+                    # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
 
             fit=eval(parse(text=temp))
@@ -749,11 +776,11 @@ server=function(input,output,session){
             # print(temp)
             ss=eval(parse(text=temp))
             ss
+
         })
 
         output$ss2=renderPrint({
 
-            input$applyValue
 
             # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
@@ -775,12 +802,12 @@ server=function(input,output,session){
             # cat("In ss2 :",temp,"\n")
             ss=eval(parse(text=temp))
             ss
+
         })
 
 
 
         output$ssPlot=renderPlot({
-            input$applyValue
 
             # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
@@ -806,11 +833,10 @@ server=function(input,output,session){
             # }
             ss=eval(parse(text=temp))
             plot(ss)+theme(text=element_text(family="NanumGothic"))
+
         })
 
         output$ssPlot2=renderPlot({
-
-            input$applyValue
 
             # data1<-data()
             temp=paste0("lm(",getRegEq(),",data=data1)")
@@ -835,10 +861,11 @@ server=function(input,output,session){
             ss=eval(parse(text=temp))
 
             plot(ss)+theme(text=element_text(family="NanumGothic"))
+
         })
 
         output$JNText=renderPrint({
-            # data1<-data()
+
             temp= paste0("lm(",getRegEq(),",data=data1)")
             cat("fit=lm(",getRegEq(),",data=",input$mydata,")\n")
             fit=eval(parse(text=temp))
@@ -978,7 +1005,7 @@ server=function(input,output,session){
 
 
         tagList(
-            checkboxInput("vanilla","vanilla table",value=FALSE),
+            checkboxInput("vanilla","vanilla table",value=TRUE),
             verbatimTextOutput("text"),
             h2("Conceptual Diagram"),
             plotOutput("concept",height="500px",width="700px"),
