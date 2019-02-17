@@ -4,7 +4,7 @@
 \name{disaster}
 \alias{disaster}
 \title{Disaster dataset}
-\format{A data.framw with 211 obs. of  5 variables
+\format{A data.frame with 211 obs. of  5 variables
 \describe{
    \item{id}{id}
    \item{frame}{Experimental condition. 0 = naturally caused disaster, 1 = climate change caused disaster}

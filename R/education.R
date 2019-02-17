@@ -79,6 +79,7 @@
 #' @source \url{http://www.afhayes.com/introduction-to-mediation-moderation-and-conditional-process-analysis.html}
 "protest"
 
+
 #' PMI: Presumed Media Influence dataset
 #'
 #' @format A data.frame with 123 obs. of 6 variables
@@ -128,7 +129,7 @@
 
 #' Disaster dataset
 #'
-#' @format A data.framw with 211 obs. of  5 variables
+#' @format A data.frame with 211 obs. of  5 variables
 #' \describe{
 #'    \item{id}{id}
 #'    \item{frame}{Experimental condition. 0 = naturally caused disaster, 1 = climate change caused disaster}

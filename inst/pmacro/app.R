@@ -29,13 +29,15 @@ ui=fluidPage(
         column(3,
                fileInput("file","Upload File or"),
                radioButtons("dataname","Select example",choices=c("caskets","disaster","estress","glbwarm","pmi","protest","teams")),
-               textInput("mydata","Data Name")
+               textInput("mydata","Data Name"),
+               checkboxInput("showhelp","show help for data")
         ),
         column(9,
                DTOutput('table')
 
         )
     ),
+    htmlOutput("showHelpData"),
     h2("Select Process Macro Model Number"),
     fluidRow(
         column(2,
@@ -89,6 +91,31 @@ server=function(input,output,session){
 
     RV=reactiveValues(number=0,triple=0)
 
+    help_console <- function(topic, format=c("text", "html", "latex", "Rd"),
+                             lines=NULL, before=NULL, after=NULL) {
+        format=match.arg(format)
+        if (!is.character(topic)) topic <- deparse(substitute(topic))
+        helpfile<-NULL
+        try(helpfile <- utils:::.getHelpFile(help(topic)))
+        if(is.null(helpfile)){
+            cat("No help file about ",input$mydata," is found")
+        } else {
+            hs <- capture.output(switch(format,
+                                        text=tools:::Rd2txt(helpfile),
+                                        html=tools:::Rd2HTML(helpfile),
+                                        latex=tools:::Rd2latex(helpfile),
+                                        Rd=tools:::prepare_Rd(helpfile)
+            )
+            )
+            if(!is.null(lines)) hs <- hs[lines]
+            hs <- c(before, hs, after)
+            cat(hs, sep="\n")
+            invisible(hs)
+
+
+        }
+    }
+
 
     output$modelPlot=renderPlot({
         par(family="NanumGothic")
@@ -141,6 +168,12 @@ server=function(input,output,session){
         RV$varsNo=length(mylist)
 
         mylist
+    })
+
+    output$showHelpData=renderPrint({
+
+        if(input$showhelp) help_console(input$mydata,"html")
+
     })
 
     output$table=renderDT(
@@ -816,21 +849,10 @@ server=function(input,output,session){
 
             pred=input$moderator1
             modx=input$moderator2
-            # mod2=input$moderator3pred=input$X
-            # modx=input$W
-            # if(modelno==1.1){
-            #     pred=input$W
-            #     modx=input$X
-            # }
-            # if(isolate(input$mod1values)=="") {
-                temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,",confint =", input$interval2,")")
-            # } else{
-            #     modx.values=as.numeric(unlist(strsplit(input$mod1values,",")))
-            #     modx1=paste0("c(",paste(modx.values,collapse=","),")")
-            #     temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
-            #                 paste0(",mod",ifelse(modelno==1.1,"2","x"),".values="),modx1,
-            #                 ",confint =", input$interval2,")")
-            # }
+
+            temp=paste0("sim_slopes(fit,pred=",pred,",modx=",modx,
+                        ",confint =", input$interval2,")")
+
             ss=eval(parse(text=temp))
             plot(ss)+theme(text=element_text(family="NanumGothic"))
 
@@ -843,21 +865,12 @@ server=function(input,output,session){
             pred=input$moderator1
             mod1=input$moderator2
             mod2=input$moderator3
-            # mod1=input$W
-            # mod2=input$Z
-            # mod1values=vector2string(isolate(input$mod1values))
-            # mod2values=vector2string(isolate(input$mod2values))
-            # if(input$switchMod){
-            #     mod1=input$Z
-            #     mod2=input$W
-            #
-            # }
+
             fit=eval(parse(text=temp))
             temp=paste0("sim_slopes(fit,pred=",pred,",modx=",mod1,",mod2=",mod2,
                         # ",modx.values=",mod1values,",mod2.values=",mod2values,
                         ",confint =", input$interval2,")")
 
-            #cat("In ss2 :",temp,"\n")
             ss=eval(parse(text=temp))
 
             plot(ss)+theme(text=element_text(family="NanumGothic"))
@@ -888,20 +901,12 @@ server=function(input,output,session){
             pred=input$moderator1
             modx=input$moderator2
 
-            # XM=paste(pred,modx,sep=":")
-            # label=paste0("italic(theta) [italic(X) %->% italic(Y)] == ",
-            #              sprintf("%.03f",fit$coef[pred]),"+",sprintf("%.03f",fit$coef[XM]),"*italic(W)")
 
             temp=paste0("johnson_neyman(fit,pred=",pred,",modx=",modx,",alpha=",input$alpha,")")
             # print(temp)
             p<-eval(parse(text=temp))
             p$plot+theme(text=element_text(family="NanumGothic"))
-            # pos=relpos(result$plot)
-            # result$plot
-            # +
-            #     annotate("text",x=result$bounds,y=-Inf,label=round(result$bounds,3),
-            #              vjust=-0.5,hjust=-0.1)+
-            #     annotate("text",x=pos[1],y=pos[2],label=label,parse=TRUE)
+
         })
 
         output$JNPlot2=renderPlot({
@@ -1022,7 +1027,7 @@ server=function(input,output,session){
             h2("Correlation Table"),
             uiOutput("corTable"),
             h2("Correlation Plot"),
-            plotOutput("corPlot"),
+            plotOutput("corPlot",height="500px"),
             h2("Model Fit Table"),
             uiOutput("modelFitTable"),
             if(as.numeric(modelno)>3) h2("Summary of Model Coefficient"),
