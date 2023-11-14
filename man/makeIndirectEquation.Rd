@@ -4,9 +4,18 @@
 \alias{makeIndirectEquation}
 \title{Make indirect equation}
 \usage{
-makeIndirectEquation(X, M, temp1, temp2, temp3, moderatorNames,
-  range = FALSE, data = NULL, rangemode = 1, probs = c(0.16, 0.5,
-  0.84))
+makeIndirectEquation(
+  X,
+  M,
+  temp1,
+  temp2,
+  temp3,
+  moderatorNames,
+  range = FALSE,
+  data = NULL,
+  rangemode = 1,
+  probs = c(0.16, 0.5, 0.84)
+)
 }
 \arguments{
 \item{X}{A character string}

@@ -4,8 +4,7 @@
 \alias{mergeDataPos2Ind}
 \title{Merge Data with position for the 2nd indirect effect}
 \usage{
-mergeDataPos2Ind(res2Ind, res, df2, whatLabels = "est", width = 5,
-  height = 3)
+mergeDataPos2Ind(res2Ind, res, df2, whatLabels = "est", width = 5, height = 3)
 }
 \arguments{
 \item{res2Ind}{A data.frame.A subset of result of parameterEstimates function of package lavaan}

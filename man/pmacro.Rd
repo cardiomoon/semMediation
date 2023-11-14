@@ -5,7 +5,8 @@
 \alias{pmacro}
 \title{Data Set for process macro
 A dataset for support for process macro}
-\format{A data.frame with 6 variables
+\format{
+A data.frame with 6 variables
 \describe{
 \item{no}{A number of process macro model}
 \item{X}{Name of the independent variable}
@@ -14,7 +15,19 @@ A dataset for support for process macro}
 \item{modName}{Name(s) of moderator names collapsed with colon}
 \item{modSite}{Site(s) of moderation collapsed with colon}
 \item{pos}{Position of moderator(s) in a diagram collapsed with comma}
-}}
+}
+
+A data.frame with 43 rows and 7 variables
+\describe{
+  \item{no}{process macro model number}
+  \item{X}{name of independent variable}
+  \item{M}{names of mediator variables}
+  \item{Y}{name of dependent variable}
+  \item{modName}{names of moderator variables}
+  \item{modSite}{sites of moderators}
+  \item{pos}{position of moderators}
+}
+}
 \usage{
 pmacro
 

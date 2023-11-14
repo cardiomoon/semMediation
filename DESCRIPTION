@@ -1,13 +1,12 @@
 Package: semMediation
 Type: Package
 Title: Visualize the Mediation Effect for Structural Equation Modelling
-Version: 0.1.6.3
+Version: 0.1.7
 Author: Keon-Woong Moon<cardiomoon@gmail.com>
 Depends: R (>= 2.10)
 Maintainer: Keon-Woong Moon<cardiomoon@gmail.com>
 Imports: lavaan,
          ggplot2,
-         semPlot,
          semTools,
          officer,
          tidyselect,
@@ -24,12 +23,13 @@ Imports: lavaan,
          diagram,
          dplyr,
          shiny,
-         jtools
+         interactions
 Description: Make a mediation plot to visualize the mediation effects for a structural equation modelling(SEM).
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
-RoxygenNote: 6.1.1
-Suggests: knitr,
-    rmarkdown
+RoxygenNote: 7.2.3
+Suggests: semPlot, 
+          knitr,
+          rmarkdown
 VignetteBuilder: knitr

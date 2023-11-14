@@ -9,7 +9,8 @@ discriminantValidityTable=function(fit){
         result<-NULL
     } else{
         result=rbind(result,sqrtave=sqrt(result[5,]))
-        df=as.data.frame(t(result[,-ncol(result)]))
+        #df=as.data.frame(t(result[,-ncol(result)]))
+        df=as.data.frame(t(result))
 
         colnames(df)[5]="AVE"
         colnames(df)[6]="sqrt(AVE)"

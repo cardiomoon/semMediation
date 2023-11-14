@@ -4,10 +4,19 @@
 \alias{statisticalDiagram}
 \title{Draw statistical diagram}
 \usage{
-statisticalDiagram(no = 1, radx = 0.1, rady = 0.04, xmargin = 0.01,
-  arrowlabel = TRUE, labels = list(), whatLabel = "name",
-  fit = NULL, estimateTable = NULL, covar = list(),
-  includeLatentVars = FALSE)
+statisticalDiagram(
+  no = 1,
+  radx = 0.1,
+  rady = 0.04,
+  xmargin = 0.01,
+  arrowlabel = TRUE,
+  labels = list(),
+  whatLabel = "name",
+  fit = NULL,
+  estimateTable = NULL,
+  covar = list(),
+  includeLatentVars = FALSE
+)
 }
 \arguments{
 \item{no}{process macro model number}

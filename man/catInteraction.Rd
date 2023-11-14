@@ -4,8 +4,15 @@
 \alias{catInteraction}
 \title{Make interaction equation with dummy categorical variable"}
 \usage{
-catInteraction(Y = "liking", X = NULL, W = "sexism", data = NULL,
-  count = NULL, prefix = "b", covar = list())
+catInteraction(
+  Y = "liking",
+  X = NULL,
+  W = "sexism",
+  data = NULL,
+  count = NULL,
+  prefix = "b",
+  covar = list()
+)
 }
 \arguments{
 \item{Y}{Name of dependent variable}

@@ -4,9 +4,19 @@
 \alias{condEffect}
 \title{Draw interact plot with moderation effect}
 \usage{
-condEffect(fit, pred, modx, modx.values = NULL, probs = NULL,
-  digits = 1, show.Effect = TRUE, switchVars = FALSE, max.ylev = 6,
-  arrowlength = 0.05, ...)
+condEffect(
+  fit,
+  pred,
+  modx,
+  modx.values = NULL,
+  probs = NULL,
+  digits = 1,
+  show.Effect = TRUE,
+  switchVars = FALSE,
+  max.ylev = 6,
+  arrowlength = 0.05,
+  ...
+)
 }
 \arguments{
 \item{fit}{A regression model}
@@ -29,7 +39,7 @@ condEffect(fit, pred, modx, modx.values = NULL, probs = NULL,
 
 \item{arrowlength}{arrow length}
 
-\item{...}{Further argument to be passed to jtools::interact_plot}
+\item{...}{Further argument to be passed to interactions::interact_plot}
 }
 \description{
 Draw interact plot with moderation effect

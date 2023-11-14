@@ -4,9 +4,19 @@
 \alias{addlabel}
 \title{Add a label to the semMediation plot}
 \usage{
-addlabel(x1 = 0, y1 = 0, x2 = 10, y2 = 10, height = 3,
-  width = 5, start = "ellipse", end = "rect", label = label,
-  useLabel, ...)
+addlabel(
+  x1 = 0,
+  y1 = 0,
+  x2 = 10,
+  y2 = 10,
+  height = 3,
+  width = 5,
+  start = "ellipse",
+  end = "rect",
+  label = label,
+  useLabel,
+  ...
+)
 }
 \arguments{
 \item{x1}{The x coordinate of start point}

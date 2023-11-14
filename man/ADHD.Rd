@@ -4,7 +4,8 @@
 \name{ADHD}
 \alias{ADHD}
 \title{Data Set for Teacher's Intervention for ADHD}
-\format{A data.frame with 334 rows and 12 variables:
+\format{
+A data.frame with 334 rows and 12 variables:
 \describe{
   \item{id}{study identification number}
   \item{gender}{male=1, female=2}
@@ -21,7 +22,8 @@
   \item{attitude}{estimates of attitude empathy. Maximum 35 points.}
   \item{classrm}{estimates of classroom intervention. Maximum 36 points.}
   \item{instruct}{estimates of instructional intervention. Maximum 36 points.}
-}}
+}
+}
 \source{
 {Effects of teacher's knowledge and empathy on educational intervention for ADHD: Focused on the mediating effet of empathy. J Korean Acad Psychiatr Ment Health Nurs 2013:22;45-55.}
 }

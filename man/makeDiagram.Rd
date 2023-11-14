@@ -4,12 +4,21 @@
 \alias{makeDiagram}
 \title{Make diagram euation}
 \usage{
-makeDiagram(fit, labels = NULL, graphOptions = list(rankdir = "LR",
-  ranksep = "0.75", nodesep = "0.25", overlap = "true", fontsize = "10"),
-  nodeOptions = list(), edgeOptions = list(color = "black"),
-  whatLabels = "std", mediationOnly = FALSE, regression = TRUE,
-  indirect = FALSE, secondIndirect = FALSE, total = FALSE,
-  residuals = FALSE)
+makeDiagram(
+  fit,
+  labels = NULL,
+  graphOptions = list(rankdir = "LR", ranksep = "0.75", nodesep = "0.25", overlap =
+    "true", fontsize = "10"),
+  nodeOptions = list(),
+  edgeOptions = list(color = "black"),
+  whatLabels = "std",
+  mediationOnly = FALSE,
+  regression = TRUE,
+  indirect = FALSE,
+  secondIndirect = FALSE,
+  total = FALSE,
+  residuals = FALSE
+)
 }
 \arguments{
 \item{fit}{A data.frame. Result of parameterEstimates function of package lavaan}

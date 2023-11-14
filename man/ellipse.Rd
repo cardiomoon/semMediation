@@ -4,8 +4,7 @@
 \alias{ellipse}
 \title{Make a data.frame fof ellipse}
 \usage{
-ellipse(hlaxa = 1, hlaxb = 1, theta = 0, xc = 0, yc = 0,
-  npoints = 100)
+ellipse(hlaxa = 1, hlaxb = 1, theta = 0, xc = 0, yc = 0, npoints = 100)
 }
 \arguments{
 \item{hlaxa}{An integer}

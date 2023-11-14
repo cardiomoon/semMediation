@@ -4,9 +4,20 @@
 \alias{addline}
 \title{Add a line to the semMediation plot}
 \usage{
-addline(x1 = 0, y1 = 0, x2 = 10, y2 = 10, height = 3,
-  width = 5, start = "ellipse", end = "rect", linetype = "solid",
-  size = 0.2, colour = "black", ...)
+addline(
+  x1 = 0,
+  y1 = 0,
+  x2 = 10,
+  y2 = 10,
+  height = 3,
+  width = 5,
+  start = "ellipse",
+  end = "rect",
+  linetype = "solid",
+  size = 0.2,
+  colour = "black",
+  ...
+)
 }
 \arguments{
 \item{x1}{The x coordinate of start point}

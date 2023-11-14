@@ -4,9 +4,20 @@
 \alias{tripleEquation}
 \title{Make equation with triple interaction}
 \usage{
-tripleEquation(X = NULL, M = NULL, Y = NULL, vars = NULL,
-  suffix = 0, moderator = list(), covar = NULL, range = TRUE,
-  mode = 0, data = NULL, rangemode = 1, probs = c(0.16, 0.5, 0.84))
+tripleEquation(
+  X = NULL,
+  M = NULL,
+  Y = NULL,
+  vars = NULL,
+  suffix = 0,
+  moderator = list(),
+  covar = NULL,
+  range = TRUE,
+  mode = 0,
+  data = NULL,
+  rangemode = 1,
+  probs = c(0.16, 0.5, 0.84)
+)
 }
 \arguments{
 \item{X}{Name of independent variable}

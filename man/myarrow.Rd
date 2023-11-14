@@ -4,8 +4,16 @@
 \alias{myarrow}
 \title{Draw arrow}
 \usage{
-myarrow(from, to, lwd = 1, adjust = 1, label = "", label.pos = 0.5,
-  arr.pos = NULL, ...)
+myarrow(
+  from,
+  to,
+  lwd = 1,
+  adjust = 1,
+  label = "",
+  label.pos = 0.5,
+  arr.pos = NULL,
+  ...
+)
 }
 \arguments{
 \item{from}{coordinates (x,y) of the point *from* which to draw arrow.}

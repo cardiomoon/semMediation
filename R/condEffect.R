@@ -9,9 +9,9 @@
 #'@param switchVars A logical
 #'@param max.ylev An integer indicating the maximum number of levels of modifier variable
 #'@param arrowlength arrow length
-#'@param ... Further argument to be passed to jtools::interact_plot
+#'@param ... Further argument to be passed to interactions::interact_plot
 #'@importFrom ggplot2 annotate
-#'@importFrom jtools interact_plot
+#'@importFrom interactions interact_plot
 #'@importFrom stringr str_replace
 #'@importFrom stats quantile sd
 #'@export
